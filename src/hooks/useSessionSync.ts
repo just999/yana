@@ -9,9 +9,8 @@ export const useSessionSync = () => {
   const setSession = useSetAtom(sessionAtom);
 
   useEffect(() => {
-    if (status === 'loading') return; // Still loading
+    if (status === 'loading') return;
 
-    // Update Jotai atom with current session
     setSession(session);
   }, [session, status, setSession]);
 

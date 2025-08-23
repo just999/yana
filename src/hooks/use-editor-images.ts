@@ -40,76 +40,6 @@ export const useEditorImages = (
 
   const fileToImageIdMap = useRef(new Map<File, string>());
 
-  // const insertImage = useCallback(
-  //   (file: File, imageId: string) => {
-  //     if (!editorRef?.current) return;
-
-  //     const reader = new FileReader();
-
-  //     reader.onload = (e) => {
-  //       const dataUrl = e.target?.result as string;
-
-  //       const htmlContent = editorRef?.current?.innerHTML;
-
-  //       const localUrl = URL.createObjectURL(file);
-
-  //       const img = document.createElement('img');
-  //       img.src = dataUrl;
-  //       img.alt = file.name;
-  //       img.setAttribute('data-image-id', imageId);
-  //       img.style.maxWidth = '30%';
-  //       img.style.display = 'block';
-  //       img.style.margin = '10px 0';
-
-  //       const container = document.createElement('div');
-  //       container.className = 'editor-paragraph';
-  //       container.classList.add('editor-paragraph');
-  //       container.appendChild(img);
-
-  //       const selection = window.getSelection();
-  //       const range = selection?.rangeCount
-  //         ? selection.getRangeAt(0)
-  //         : document.createRange();
-
-  //       let currentP =
-  //         range.startContainer.nodeType === Node.TEXT_NODE
-  //           ? range.startContainer.parentElement?.closest('p')
-  //           : (range.startContainer as Element)?.closest('p');
-
-  //       if (!currentP) {
-  //         currentP = document.createElement('p');
-  //         const editor = editorRef.current;
-  //         if (editor) {
-  //           editor.appendChild(currentP);
-  //         }
-  //       }
-
-  //       range.collapse(false);
-  //       range.insertNode(container);
-
-  //       range.setStartAfter(container);
-  //       range.collapse(true);
-
-  //       editorRef?.current?.focus();
-  //       selection?.removeAllRanges();
-  //       selection?.addRange(range);
-
-  //       setPendingImages((prev) => [
-  //         ...prev,
-  //         { id: imageId, file: file, localUrl: dataUrl },
-  //       ]);
-
-  //       setImages((prev) => [...prev, { src: dataUrl, id: imageId }]);
-
-  //       if (updateContent) updateContent();
-
-  //       return () => URL.revokeObjectURL(localUrl);
-  //     };
-  //     reader.readAsDataURL(file);
-  //   },
-  //   [editorRef, setImages, setPendingImages, updateContent]
-  // );
-
   const insertImage = useCallback(
     (file: File, imageId: string, isInline: boolean = false) => {
       if (!editorRef?.current) return;
@@ -126,14 +56,12 @@ export const useEditorImages = (
         img.setAttribute('data-image-id', imageId);
 
         if (isInline) {
-          // Inline styling for small images
-          img.style.maxHeight = '1.2em'; // Match line height
+          img.style.maxHeight = '1.2em';
           img.style.maxWidth = '2em';
           img.style.verticalAlign = 'middle';
           img.style.display = 'inline';
           img.style.margin = '0 2px';
         } else {
-          // Block styling for larger images
           img.style.maxWidth = '30%';
           img.style.display = 'block';
           img.style.margin = '10px 0';
@@ -145,15 +73,12 @@ export const useEditorImages = (
           : document.createRange();
 
         if (isInline) {
-          // Insert inline directly at cursor position
           range.deleteContents();
           range.insertNode(img);
 
-          // Position cursor after the image
           range.setStartAfter(img);
           range.collapse(true);
         } else {
-          // Block insertion (your existing logic)
           const container = document.createElement('div');
           container.className = 'editor-paragraph';
           container.classList.add('editor-paragraph');
@@ -229,7 +154,6 @@ export const useEditorImages = (
 
       if (fileInputRef.current) fileInputRef.current.value = '';
 
-      // Your existing file upload logic, but pass isInline to insertImage
       const fileInput = document.createElement('input');
       fileInput.type = 'file';
       fileInput.accept = 'image/*';

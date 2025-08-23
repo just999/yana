@@ -122,7 +122,7 @@ const UserButton = () => {
               variant='ghost'
             >
               <Link
-                href={curUser?.role === 'ADMIN' ? '/admin' : '/user'}
+                href={curUser?.role === 'ADMIN' ? 'admin' : 'user'}
                 className={cn(
                   'flex h-8 w-full justify-start text-xs font-semibold text-stone-500'
                 )}
