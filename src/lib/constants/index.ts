@@ -15,7 +15,7 @@ export const SITE_CONFIG = {
 export const loginDefaultValues = {
   email: '',
   password: '',
-  remember: '',
+  remember: false,
   code: '',
 };
 export const registerDefaultValues = {
@@ -23,14 +23,14 @@ export const registerDefaultValues = {
   email: '',
   password: '',
   confirmPassword: '',
-  anonymous: '',
+  anonymous: false,
   avatar: '',
   phone: '',
   school: '',
   city: '',
   address: '',
   major: '',
-  terms: '',
+  terms: false,
 };
 
 export const blogDefaultValue = {
