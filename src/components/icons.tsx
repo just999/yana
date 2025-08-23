@@ -1,0 +1,32 @@
+import {
+  Check,
+  ChevronDown,
+  ChevronRight,
+  ChevronUp,
+  Circle,
+  Eye,
+  EyeOff,
+  Loader2,
+  Lock,
+  LucideIcon,
+  Mail,
+  Save,
+  Shield,
+  X,
+} from 'lucide-react';
+
+export const Icons = {
+  check: Check,
+  chevronDown: ChevronDown,
+  chevronRight: ChevronRight,
+  chevronUp: ChevronUp,
+  circle: Circle,
+  eye: Eye,
+  eyeOff: EyeOff,
+  loader: Loader2,
+  lock: Lock,
+  mail: Mail,
+  save: Save,
+  shield: Shield,
+  x: X,
+};

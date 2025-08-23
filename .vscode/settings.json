@@ -1,0 +1,247 @@
+{
+  "editor.fontFamily": "Operator Mono Lig,  Consolas, 'Courier New', monospace, JetBrainsMono NF, Cascadia Code, CaskaydiaCove Nerd Font Propo, MonoLisa, VictorMono Nerd Font Mono, Fira Code, Menlo, Monaco",
+  // "editor.fontLigatures": "'calt', 'ss01', 'ss02', 'ss03', 'ss04', 'ss05', 'ss06', 'zero', 'onum'",
+  // Enables font ligatures
+  "editor.fontLigatures": "'ss01','ss05','dlig'",
+  "explorer.decorations.badges": false,
+  "editor.fontWeight": "100",
+  "editor.fontSize": 12,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.hover.enabled": true,
+  "editor.formatOnSave": true,
+  "javascript.preferences.importModuleSpecifier": "non-relative",
+  "editor.guides.bracketPairs": "active",
+  "editor.bracketPairColorization.enabled": false,
+  "color-highlight.enable": true,
+  "eslint.enable": true,
+  "color-highlight.languages": [
+    "*"
+  ],
+  "editor.smoothScrolling": true,
+  "editor.minimap.enabled": false,
+  "editor.tabSize": 2,
+  "workbench.iconTheme": "mosmmy-icons-vscode",
+  "prettier.tabWidth": 2,
+  "prettier.useTabs": false,
+  "prettier.semi": true,
+  "prettier.singleQuote": true,
+  "prettier.jsxSingleQuote": true,
+  "prettier.trailingComma": "es5",
+  "prettier.arrowParens": "always",
+  "editor.autoClosingBrackets": "always",
+  "auto-close-tag.activationOnLanguage": [
+    "xml",
+    "php",
+    "blade",
+    "ejs",
+    "jinja",
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "plaintext",
+    "markdown",
+    "vue",
+    "liquid",
+    "erb",
+    "lang-cfml",
+    "cfml",
+    "HTML (EEx)",
+    "HTML (Eex)",
+    "plist"
+  ],
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
+  },
+  "[javascriptreact]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "vscode.css-language-features"
+  },
+  "[svg]": {
+    "editor.defaultFormatter": "jock.svg"
+  },
+  "cSpell.ignorePaths": [
+    "package-lock.json",
+    "node_modules",
+    "vscode-extension",
+    ".git/objects",
+    ".vscode",
+    ".vscode-insiders",
+    "build",
+    "package.json",
+    "public",
+    "db.json",
+    ".gitignore",
+    "**/settings.json",
+    "**/Users/justin/AppData/Roaming/Code/User/settings.json"
+  ],
+  "liveServer.settings.fullReload": true,
+  "javascript.autoClosingTags": true,
+  "html.autoClosingTags": true,
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features",
+  },
+  "cSpell.words": [
+    "dengan",
+    "sonner"
+  ],
+  "todo-tree.tree.showBadges": false,
+  "better-comments.tags": [
+    {
+      "tag": "@",
+      "color": "orange",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "lightblue",
+      "bold": false,
+      "italic": false,
+      "fontWeight": 100,
+      "fontSize": 24
+    },
+    {
+      "tag": "!",
+      "color": "#FDFEFF",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "#00A36C",
+      "bold": false,
+      "italic": false,
+      "fontWeight": 100,
+      "fontSize": 24
+    },
+    {
+      "tag": "?",
+      "color": "#ff0000",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "#bda800",
+      "bold": true,
+      "fontSize": 18,
+      "fontWeight": 600,
+      "italic": false
+    },
+    {
+      "tag": "//",
+      "color": "#FDFEFF",
+      "strikethrough": true,
+      "underline": false,
+      "backgroundColor": "#FFA500",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "todo",
+      "color": "rgb(8, 4, 31)",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "#F5DEB3",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "*",
+      "color": "#000",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "#eee",
+      "bold": true,
+      "italic": false
+    }
+  ],
+  "typescript.tsdk": "node_modules\\typescript\\lib",
+  "workbench.colorCustomizations": {
+    "terminal.ansiBlack": "#000000",
+    "terminal.ansiBlue": "#b2d6fb",
+    "terminal.ansiBrightBlack": "#686868",
+    "terminal.ansiBrightBlue": "#b2d6fb",
+    "terminal.ansiBrightCyan": "#478dc8",
+    "terminal.ansiBrightGreen": "#3cc5aa",
+    "terminal.ansiBrightMagenta": "#ffd1dc",
+    "terminal.ansiBrightRed": "#feb9b9",
+    "terminal.ansiBrightWhite": "#ffffff",
+    "terminal.ansiBrightYellow": "#fffbcc",
+    "terminal.ansiCyan": "#9CCFD8",
+    "terminal.ansiGreen": "#1dbb9b",
+    "terminal.ansiMagenta": "#a665a6",
+    "terminal.ansiRed": "#fea0a3",
+    "terminal.ansiWhite": "#ededed",
+    "terminal.ansiYellow": "#fffbcc",
+    "terminal.foreground": "#ffffff",
+    "terminal.selectionBackground": "#c1deff",
+    "editor.selectionBackground": "#e0e0e0",
+    "editor.selectionHighlightBackground": "#c8c8c880",
+    "editor.findMatchBackground": "#6400e1b3",
+    "editor.findMatchHighlightBackground": "#00c80033",
+    "activityBar.foreground": "#B1C7FF",
+    "activityBar.background": "#000D30",
+    "activityBar.inactiveForeground": "#0C5481",
+    "activityBarBadge.foreground": "#270051",
+    "activityBarBadge.background": "#C996FF",
+    "statusBar.foreground": "#F1EFFF",
+    "statusBar.background": "#554CB6",
+    "statusBarItem.hoverBackground": "#52327A",
+    "statusBarItem.remoteForeground": "#FCEFFF",
+    "statusBarItem.remoteBackground": "#8C33A3",
+    "activityBar.activeBackground": "#6c782e11",
+    "commandCenter.border": "#e7e7e799",
+    "sash.hoverBorder": "#6c782e11",
+    "statusBar.debuggingForeground": "#07004B",
+    "statusBar.debuggingBackground": "#8C82ED"
+  },
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "editor.tokenColorCustomizations": {
+    "[Deep Dark Space], [Deep Dark Space - Black Moon]": {
+      "textMateRules": [
+        {
+          "scope": [
+            "source",
+            "text.html",
+            "entity.other.attribute-name.class.css",
+            "entity.other.attribute-name.id.css"
+          ],
+          "settings": {
+            "fontStyle": "italic"
+          }
+        }
+      ]
+    }
+  },
+  "terminal.integrated.fontFamily": "JetBrainsMono NF, Operator Mono, Monaco, VictorMono Nerd Font Mono, Consolas, Cascadia Code, Operator Mono Lig, JetBrainsMonoMedium NF, Consolas NF",
+  "peacock.color": "#4b532011",
+  "folder-path-color.folders": [
+    {
+      "path": "data",
+      "symbol": "Q",
+      "tooltip": "Data"
+    },
+    {
+      "path": "app",
+      "symbol": "001",
+      "tooltip": "App",
+      "color": "#FFBF00"
+    }
+  ],
+  "github.copilot.enable": {
+    "*": false,
+    "plaintext": false,
+    "markdown": false,
+    "scminput": false,
+    "typescriptreact": false
+  }
+}

@@ -1,0 +1,956 @@
+// 'use client';
+
+// import { Button } from '@/components/ui/button';
+// import { formUrlQuery } from '@/lib/utils';
+// import { ChevronLeft, ChevronRight } from 'lucide-react';
+// import { useRouter, useSearchParams } from 'next/navigation';
+
+// interface PaginationProps {
+//   page: number;
+//   totalPages: number;
+//   urlParamName?: string;
+//   onPageChange?: (page: number) => void;
+// }
+
+// export function Pagination({
+//   page,
+//   totalPages,
+//   urlParamName,
+//   onPageChange,
+// }: PaginationProps) {
+//   const searchParams = useSearchParams();
+
+//   const router = useRouter();
+//   const maxVisiblePages = 5;
+
+//   const getPageNumbers = (): number[] => {
+//     if (totalPages <= 0) return [];
+
+//     const pages: number[] = [];
+//     let startPage = Math.max(1, page - Math.floor(maxVisiblePages / 2));
+//     let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+//     if (endPage - startPage + 1 < maxVisiblePages) {
+//       startPage = Math.max(1, endPage - maxVisiblePages + 1);
+//     }
+
+//     for (let i = startPage; i <= endPage; i++) {
+//       pages.push(i);
+//     }
+
+//     return pages;
+//   };
+
+//   const pageNumbers = getPageNumbers();
+//   const firstPage = pageNumbers[0];
+//   const lastPage = pageNumbers[pageNumbers.length - 1];
+
+//   const handleClick = (btnType: string) => {
+//     const pageValue = btnType === 'next' ? Number(page) + 1 : Number(page) - 1;
+//     const newUrl = formUrlQuery({
+//       params: searchParams.toString(),
+//       key: urlParamName || 'page',
+//       value: String(pageValue),
+//     });
+
+//     router.push(newUrl);
+//   };
+
+//   return (
+//     <div className='flex items-center gap-1'>
+//       <Button
+//         variant='outline'
+//         size='sm'
+//         onClick={() => handleClick('prev')}
+//         disabled={Number(page) <= 1}
+//       >
+//         <ChevronLeft className='h-4 w-4' /> Prev
+//       </Button>
+
+//       {firstPage && firstPage > 1 && (
+//         <>
+//           <Button
+//             variant={page === 1 ? 'default' : 'outline'}
+//             size='sm'
+//             onClick={() => handleClick('prev')}
+//           >
+//             1
+//           </Button>
+//           {firstPage > 2 && (
+//             <span className='text-muted-foreground px-2'>...</span>
+//           )}
+//         </>
+//       )}
+
+//       {pageNumbers.map((page) => (
+//         <Button
+//           key={page}
+//           variant={page === page ? 'default' : 'outline'}
+//           size='sm'
+//           // onClick={() => onPageChange && onPageChange(page)}
+//         >
+//           {page}
+//         </Button>
+//       ))}
+
+//       {lastPage && lastPage < totalPages && (
+//         <>
+//           {lastPage < totalPages - 1 && (
+//             <span className='text-muted-foreground px-2'>...</span>
+//           )}
+//           <Button
+//             variant={page === totalPages ? 'default' : 'outline'}
+//             size='sm'
+//             onClick={() => onPageChange && onPageChange(totalPages)}
+//           >
+//             {totalPages}
+//           </Button>
+//         </>
+//       )}
+
+//       <Button
+//         variant='outline'
+//         size='sm'
+//         onClick={() => handleClick('next')}
+//         disabled={Number(page) >= totalPages}
+//       >
+//         <ChevronRight className='h-4 w-4' /> Next
+//       </Button>
+//     </div>
+//   );
+// }
+
+// 'use client';
+
+// import { useCallback, useMemo } from 'react';
+
+// import { Button } from '@/components/ui/button';
+// import { formUrlQuery } from '@/lib/utils';
+// import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
+// import { useRouter, useSearchParams } from 'next/navigation';
+
+// interface PaginationProps {
+//   page: number;
+//   totalPages: number;
+//   urlParamName?: string;
+//   onPageChange?: (page: number) => void;
+//   showPageInfo?: boolean;
+//   className?: string;
+// }
+
+// export function EnhancedPagination({
+//   page,
+//   totalPages,
+//   urlParamName = 'page',
+//   onPageChange,
+//   showPageInfo = true,
+//   className = '',
+// }: PaginationProps) {
+//   const searchParams = useSearchParams();
+//   const router = useRouter();
+
+//   const maxVisiblePages = 5;
+
+//   // Memoize page calculations for better performance
+//   const pageData = useMemo(() => {
+//     if (totalPages <= 0)
+//       return { pageNumbers: [], firstPage: null, lastPage: null };
+
+//     const pages: number[] = [];
+//     let startPage = Math.max(1, page - Math.floor(maxVisiblePages / 2));
+//     let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+//     // Adjust start page if we have room
+//     if (endPage - startPage + 1 < maxVisiblePages) {
+//       startPage = Math.max(1, endPage - maxVisiblePages + 1);
+//     }
+
+//     for (let i = startPage; i <= endPage; i++) {
+//       pages.push(i);
+//     }
+
+//     return {
+//       pageNumbers: pages,
+//       firstPage: pages[0],
+//       lastPage: pages[pages.length - 1],
+//     };
+//   }, [page, totalPages, maxVisiblePages]);
+
+//   // Generic function to handle page changes
+//   const navigateToPage = useCallback(
+//     (targetPage: number) => {
+//       if (targetPage < 1 || targetPage > totalPages || targetPage === page) {
+//         return;
+//       }
+
+//       // Call onPageChange callback if provided
+//       onPageChange?.(targetPage);
+
+//       // Update URL
+//       const newUrl = formUrlQuery({
+//         params: searchParams.toString(),
+//         key: urlParamName,
+//         value: String(targetPage),
+//       });
+
+//       router.push(newUrl);
+//     },
+//     [page, totalPages, onPageChange, searchParams, urlParamName, router]
+//   );
+
+//   // Handle navigation buttons
+//   const handleNavigation = useCallback(
+//     (direction: 'prev' | 'next' | 'first' | 'last') => {
+//       let targetPage: number;
+
+//       switch (direction) {
+//         case 'prev':
+//           targetPage = page - 1;
+//           break;
+//         case 'next':
+//           targetPage = page + 1;
+//           break;
+//         case 'first':
+//           targetPage = 1;
+//           break;
+//         case 'last':
+//           targetPage = totalPages;
+//           break;
+//         default:
+//           return;
+//       }
+
+//       navigateToPage(targetPage);
+//     },
+//     [page, totalPages, navigateToPage]
+//   );
+
+//   // Don't render if there are no pages or only one page
+//   if (totalPages <= 1) {
+//     return showPageInfo ? (
+//       <div className={`text-muted-foreground text-sm ${className}`}>
+//         {totalPages === 1 ? 'Page 1 of 1' : 'No pages'}
+//       </div>
+//     ) : null;
+//   }
+
+//   const { pageNumbers, firstPage, lastPage } = pageData;
+
+//   return (
+//     <div className={`flex items-center justify-between gap-2 ${className}`}>
+//       {/* Page Info */}
+//       {showPageInfo && (
+//         <div className='text-muted-foreground text-sm'>
+//           Page {page} of {totalPages}
+//         </div>
+//       )}
+
+//       {/* Pagination Controls */}
+//       <div className='flex items-center gap-1'>
+//         {/* Previous Button */}
+//         <Button
+//           variant='outline'
+//           size='sm'
+//           onClick={() => handleNavigation('prev')}
+//           disabled={page <= 1}
+//           aria-label='Go to previous page'
+//         >
+//           <ChevronLeft className='h-4 w-4' />
+//           <span className='ml-1 hidden sm:inline'>Prev</span>
+//         </Button>
+
+//         {/* First page + ellipsis if needed */}
+//         {firstPage && firstPage > 1 && (
+//           <>
+//             <Button
+//               variant={page === 1 ? 'default' : 'outline'}
+//               size='sm'
+//               onClick={() => navigateToPage(1)}
+//               aria-label='Go to page 1'
+//             >
+//               1
+//             </Button>
+//             {firstPage > 2 && (
+//               <Button
+//                 variant='ghost'
+//                 size='sm'
+//                 disabled
+//                 aria-label='More pages'
+//               >
+//                 <MoreHorizontal className='h-4 w-4' />
+//               </Button>
+//             )}
+//           </>
+//         )}
+
+//         {/* Page numbers */}
+//         {pageNumbers.map((pageNum) => (
+//           <Button
+//             key={pageNum}
+//             variant={pageNum === page ? 'default' : 'outline'}
+//             size='sm'
+//             onClick={() => navigateToPage(pageNum)}
+//             aria-label={`Go to page ${pageNum}`}
+//             aria-current={pageNum === page ? 'page' : undefined}
+//           >
+//             {pageNum}
+//           </Button>
+//         ))}
+
+//         {/* Last page + ellipsis if needed */}
+//         {lastPage && lastPage < totalPages && (
+//           <>
+//             {lastPage < totalPages - 1 && (
+//               <Button
+//                 variant='ghost'
+//                 size='sm'
+//                 disabled
+//                 aria-label='More pages'
+//               >
+//                 <MoreHorizontal className='h-4 w-4' />
+//               </Button>
+//             )}
+//             <Button
+//               variant={page === totalPages ? 'default' : 'outline'}
+//               size='sm'
+//               onClick={() => navigateToPage(totalPages)}
+//               aria-label={`Go to page ${totalPages}`}
+//             >
+//               {totalPages}
+//             </Button>
+//           </>
+//         )}
+
+//         {/* Next Button */}
+//         <Button
+//           variant='outline'
+//           size='sm'
+//           onClick={() => handleNavigation('next')}
+//           disabled={page >= totalPages}
+//           aria-label='Go to next page'
+//         >
+//           <span className='mr-1 hidden sm:inline'>Next</span>
+//           <ChevronRight className='h-4 w-4' />
+//         </Button>
+//       </div>
+//     </div>
+//   );
+// }
+
+// // Simpler version for basic use cases
+// export function SimplePagination({
+//   page,
+//   totalPages,
+//   urlParamName = 'page',
+//   onPageChange,
+// }: Omit<PaginationProps, 'showPageInfo' | 'className'>) {
+//   const searchParams = useSearchParams();
+//   const router = useRouter();
+
+//   const navigateToPage = useCallback(
+//     (targetPage: number) => {
+//       if (targetPage < 1 || targetPage > totalPages || targetPage === page) {
+//         return;
+//       }
+
+//       onPageChange?.(targetPage);
+
+//       const newUrl = formUrlQuery({
+//         params: searchParams.toString(),
+//         key: urlParamName,
+//         value: String(targetPage),
+//       });
+
+//       router.push(newUrl);
+//     },
+//     [page, totalPages, onPageChange, searchParams, urlParamName, router]
+//   );
+
+//   if (totalPages <= 1) return null;
+
+//   return (
+//     <div className='flex items-center gap-2'>
+//       <Button
+//         variant='outline'
+//         size='sm'
+//         onClick={() => navigateToPage(page - 1)}
+//         disabled={page <= 1}
+//       >
+//         <ChevronLeft className='h-4 w-4' /> Prev
+//       </Button>
+
+//       <span className='text-muted-foreground px-2 text-sm'>
+//         {page} / {totalPages}
+//       </span>
+
+//       <Button
+//         variant='outline'
+//         size='sm'
+//         onClick={() => navigateToPage(page + 1)}
+//         disabled={page >= totalPages}
+//       >
+//         Next <ChevronRight className='h-4 w-4' />
+//       </Button>
+//     </div>
+//   );
+// }
+
+// // Export both components
+// export { EnhancedPagination as Pagination };
+
+'use client';
+
+import { useCallback, useEffect, useMemo, useRef } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { cn, formUrlQuery } from '@/lib/utils';
+import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+
+interface PaginationProps {
+  page: number;
+  totalPages: number;
+  urlParamName?: string;
+  onPageChange?: (page: number) => void;
+  showPageInfo?: boolean;
+  className?: string;
+  preserveScroll?: boolean; // New prop to control scroll behavior
+}
+
+export function EnhancedPagination({
+  page,
+  totalPages,
+  urlParamName = 'page',
+  onPageChange,
+  showPageInfo = true,
+  className = '',
+  preserveScroll = true, // Default to preserving scroll
+}: PaginationProps) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const paginationRef = useRef<HTMLDivElement>(null);
+
+  const maxVisiblePages = 5;
+
+  // Store scroll position before navigation
+  const scrollPositionRef = useRef<number>(0);
+
+  // Memoize page calculations for better performance
+  const pageData = useMemo(() => {
+    if (totalPages <= 0)
+      return { pageNumbers: [], firstPage: null, lastPage: null };
+
+    const pages: number[] = [];
+    let startPage = Math.max(1, page - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    // Adjust start page if we have room
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+
+    return {
+      pageNumbers: pages,
+      firstPage: pages[0],
+      lastPage: pages[pages.length - 1],
+    };
+  }, [page, totalPages, maxVisiblePages]);
+
+  // Restore scroll position after page change
+  useEffect(() => {
+    if (preserveScroll && scrollPositionRef.current > 0) {
+      // Use requestAnimationFrame to ensure DOM is updated
+      requestAnimationFrame(() => {
+        window.scrollTo({
+          top: scrollPositionRef.current,
+          behavior: 'instant', // Instant scroll to avoid animation
+        });
+      });
+    }
+  }, [page, preserveScroll]);
+
+  // Generic function to handle page changes
+  const navigateToPage = useCallback(
+    (targetPage: number) => {
+      if (targetPage < 1 || targetPage > totalPages || targetPage === page) {
+        return;
+      }
+
+      // Store current scroll position before navigation
+      if (preserveScroll) {
+        scrollPositionRef.current =
+          window.pageYOffset || document.documentElement.scrollTop;
+      }
+
+      // Call onPageChange callback if provided
+      onPageChange?.(targetPage);
+
+      // Update URL with scroll preservation
+      const newUrl = formUrlQuery({
+        params: searchParams.toString(),
+        key: urlParamName,
+        value: String(targetPage),
+      });
+
+      if (preserveScroll) {
+        // Use router.push with scroll: false to prevent automatic scroll to top
+        router.push(newUrl, { scroll: false });
+      } else {
+        router.push(newUrl);
+      }
+    },
+    [
+      page,
+      totalPages,
+      onPageChange,
+      searchParams,
+      urlParamName,
+      router,
+      preserveScroll,
+    ]
+  );
+
+  // Handle navigation buttons
+  const handleNavigation = useCallback(
+    (direction: 'prev' | 'next' | 'first' | 'last') => {
+      let targetPage: number;
+
+      switch (direction) {
+        case 'prev':
+          targetPage = page - 1;
+          break;
+        case 'next':
+          targetPage = page + 1;
+          break;
+        case 'first':
+          targetPage = 1;
+          break;
+        case 'last':
+          targetPage = totalPages;
+          break;
+        default:
+          return;
+      }
+
+      navigateToPage(targetPage);
+    },
+    [page, totalPages, navigateToPage]
+  );
+
+  // Don't render if there are no pages or only one page
+  if (totalPages <= 1) {
+    return showPageInfo ? (
+      <div className={`text-muted-foreground text-sm ${className}`}>
+        {totalPages === 1 ? 'Page 1 of 1' : 'No pages'}
+      </div>
+    ) : null;
+  }
+
+  const { pageNumbers, firstPage, lastPage } = pageData;
+
+  return (
+    <div
+      ref={paginationRef}
+      className={`flex items-center justify-between gap-2 ${className}`}
+    >
+      {/* Page Info */}
+      {showPageInfo && (
+        <div className='text-muted-foreground text-sm'>
+          Page {page} of {totalPages}
+        </div>
+      )}
+
+      {/* Pagination Controls */}
+      <div className='flex items-center gap-1'>
+        {/* Previous Button */}
+        <Button
+          variant='outline'
+          size='sm'
+          onClick={() => handleNavigation('prev')}
+          disabled={page <= 1}
+          aria-label='Go to previous page'
+        >
+          <ChevronLeft className='h-4 w-4' />
+          <span className='ml-1 hidden sm:inline'>Prev</span>
+        </Button>
+
+        {/* First page + ellipsis if needed */}
+        {firstPage && firstPage > 1 && (
+          <>
+            <Button
+              variant={page === 1 ? 'default' : 'outline'}
+              size='sm'
+              onClick={() => navigateToPage(1)}
+              aria-label='Go to page 1'
+            >
+              1
+            </Button>
+            {firstPage > 2 && (
+              <Button
+                variant='ghost'
+                size='sm'
+                disabled
+                aria-label='More pages'
+              >
+                <MoreHorizontal className='h-4 w-4' />
+              </Button>
+            )}
+          </>
+        )}
+
+        {/* Page numbers */}
+        {pageNumbers.map((pageNum) => (
+          <Button
+            key={pageNum}
+            variant={pageNum === page ? 'default' : 'outline'}
+            size='sm'
+            onClick={() => navigateToPage(pageNum)}
+            aria-label={`Go to page ${pageNum}`}
+            aria-current={pageNum === page ? 'page' : undefined}
+          >
+            {pageNum}
+          </Button>
+        ))}
+
+        {/* Last page + ellipsis if needed */}
+        {lastPage && lastPage < totalPages && (
+          <>
+            {lastPage < totalPages - 1 && (
+              <Button
+                variant='ghost'
+                size='sm'
+                disabled
+                aria-label='More pages'
+              >
+                <MoreHorizontal className='h-4 w-4' />
+              </Button>
+            )}
+            <Button
+              variant={page === totalPages ? 'default' : 'outline'}
+              size='sm'
+              onClick={() => navigateToPage(totalPages)}
+              aria-label={`Go to page ${totalPages}`}
+            >
+              {totalPages}
+            </Button>
+          </>
+        )}
+
+        {/* Next Button */}
+        <Button
+          variant='outline'
+          size='sm'
+          onClick={() => handleNavigation('next')}
+          disabled={page >= totalPages}
+          aria-label='Go to next page'
+        >
+          <span className='mr-1 hidden sm:inline'>Next</span>
+          <ChevronRight className='h-4 w-4' />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// Alternative approach: Scroll to pagination component after page change
+export function PaginationWithScrollToPagination({
+  page,
+  totalPages,
+  urlParamName = 'page',
+  onPageChange,
+  showPageInfo = true,
+  className = '',
+}: PaginationProps) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const paginationRef = useRef<HTMLDivElement>(null);
+
+  const maxVisiblePages = 5;
+
+  const pageData = useMemo(() => {
+    if (totalPages <= 0)
+      return { pageNumbers: [], firstPage: null, lastPage: null };
+
+    const pages: number[] = [];
+    let startPage = Math.max(1, page - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+
+    return {
+      pageNumbers: pages,
+      firstPage: pages[0],
+      lastPage: pages[pages.length - 1],
+    };
+  }, [page, totalPages, maxVisiblePages]);
+
+  // Scroll to pagination component after page change
+  useEffect(() => {
+    if (paginationRef.current) {
+      // Small delay to ensure content is loaded
+      const timer = setTimeout(() => {
+        paginationRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }
+  }, [page]);
+
+  const navigateToPage = useCallback(
+    (targetPage: number) => {
+      if (targetPage < 1 || targetPage > totalPages || targetPage === page) {
+        return;
+      }
+
+      onPageChange?.(targetPage);
+
+      const newUrl = formUrlQuery({
+        params: searchParams.toString(),
+        key: urlParamName,
+        value: String(targetPage),
+      });
+
+      router.push(newUrl);
+    },
+    [page, totalPages, onPageChange, searchParams, urlParamName, router]
+  );
+
+  const handleNavigation = useCallback(
+    (direction: 'prev' | 'next' | 'first' | 'last') => {
+      let targetPage: number;
+
+      switch (direction) {
+        case 'prev':
+          targetPage = page - 1;
+          break;
+        case 'next':
+          targetPage = page + 1;
+          break;
+        case 'first':
+          targetPage = 1;
+          break;
+        case 'last':
+          targetPage = totalPages;
+          break;
+        default:
+          return;
+      }
+
+      navigateToPage(targetPage);
+    },
+    [page, totalPages, navigateToPage]
+  );
+
+  if (totalPages <= 1) {
+    return showPageInfo ? (
+      <div className={`text-muted-foreground text-sm ${className}`}>
+        {totalPages === 1 ? 'Page 1 of 1' : 'No pages'}
+      </div>
+    ) : null;
+  }
+
+  const { pageNumbers, firstPage, lastPage } = pageData;
+
+  return (
+    <div
+      ref={paginationRef}
+      className={`flex items-center justify-between gap-2 ${className}`}
+    >
+      {/* Same pagination UI as above */}
+      {showPageInfo && (
+        <div className='text-muted-foreground text-sm'>
+          Page {page} of {totalPages}
+        </div>
+      )}
+
+      <div className='flex items-center gap-1'>
+        <Button
+          variant='outline'
+          size='sm'
+          onClick={() => handleNavigation('prev')}
+          disabled={page <= 1}
+          aria-label='Go to previous page'
+        >
+          <ChevronLeft className='h-4 w-4' />
+          <span className='ml-1 hidden sm:inline'>Prev</span>
+        </Button>
+
+        {firstPage && firstPage > 1 && (
+          <>
+            <Button
+              variant={page === 1 ? 'default' : 'outline'}
+              size='sm'
+              onClick={() => navigateToPage(1)}
+              aria-label='Go to page 1'
+            >
+              1
+            </Button>
+            {firstPage > 2 && (
+              <Button
+                variant='ghost'
+                size='sm'
+                disabled
+                aria-label='More pages'
+              >
+                <MoreHorizontal className='h-4 w-4' />
+              </Button>
+            )}
+          </>
+        )}
+
+        {pageNumbers.map((pageNum) => (
+          <Button
+            key={pageNum}
+            variant={pageNum === page ? 'default' : 'outline'}
+            size='sm'
+            onClick={() => navigateToPage(pageNum)}
+            aria-label={`Go to page ${pageNum}`}
+            aria-current={pageNum === page ? 'page' : undefined}
+          >
+            {pageNum}
+          </Button>
+        ))}
+
+        {lastPage && lastPage < totalPages && (
+          <>
+            {lastPage < totalPages - 1 && (
+              <Button
+                variant='ghost'
+                size='sm'
+                disabled
+                aria-label='More pages'
+              >
+                <MoreHorizontal className='h-4 w-4' />
+              </Button>
+            )}
+            <Button
+              variant={page === totalPages ? 'default' : 'outline'}
+              size='sm'
+              onClick={() => navigateToPage(totalPages)}
+              aria-label={`Go to page ${totalPages}`}
+            >
+              {totalPages}
+            </Button>
+          </>
+        )}
+
+        <Button
+          variant='outline'
+          size='sm'
+          onClick={() => handleNavigation('next')}
+          disabled={page >= totalPages}
+          aria-label='Go to next page'
+        >
+          <span className='mr-1 hidden sm:inline'>Next</span>
+          <ChevronRight className='h-4 w-4' />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// Simple version with scroll preservation
+export function SimplePagination({
+  page,
+  totalPages,
+  urlParamName = 'page',
+  onPageChange,
+  preserveScroll = true,
+}: Omit<PaginationProps, 'showPageInfo' | 'className'> & {
+  preserveScroll?: boolean;
+}) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const scrollPositionRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (preserveScroll && scrollPositionRef.current > 0) {
+      requestAnimationFrame(() => {
+        window.scrollTo({
+          top: scrollPositionRef.current,
+          behavior: 'instant',
+        });
+      });
+    }
+  }, [page, preserveScroll]);
+
+  const navigateToPage = useCallback(
+    (targetPage: number) => {
+      if (targetPage < 1 || targetPage > totalPages || targetPage === page) {
+        return;
+      }
+
+      if (preserveScroll) {
+        scrollPositionRef.current =
+          window.pageYOffset || document.documentElement.scrollTop;
+      }
+
+      onPageChange?.(targetPage);
+
+      const newUrl = formUrlQuery({
+        params: searchParams.toString(),
+        key: urlParamName,
+        value: String(targetPage),
+      });
+
+      router.push(newUrl, preserveScroll ? { scroll: false } : undefined);
+    },
+    [
+      page,
+      totalPages,
+      onPageChange,
+      searchParams,
+      urlParamName,
+      router,
+      preserveScroll,
+    ]
+  );
+
+  if (totalPages <= 1) return null;
+
+  return (
+    <div className='flex items-center gap-2'>
+      <Button
+        variant='outline'
+        size='sm'
+        onClick={() => navigateToPage(page - 1)}
+        disabled={page <= 1}
+        className={cn(page <= 1 && 'cursor-not-allowed')}
+      >
+        <ChevronLeft className='h-4 w-4' /> Prev
+      </Button>
+
+      <span className='text-muted-foreground px-2 text-sm'>
+        {page} / {totalPages}
+      </span>
+
+      <Button
+        variant='outline'
+        size='sm'
+        onClick={() => navigateToPage(page + 1)}
+        disabled={page >= totalPages}
+        className={cn(
+          page >= totalPages ? 'cursor-not-allowed' : 'cursor-pointer'
+        )}
+      >
+        Next <ChevronRight className='h-4 w-4' />
+      </Button>
+    </div>
+  );
+}
+
+// Export the main component
+export { EnhancedPagination as Pagination };
