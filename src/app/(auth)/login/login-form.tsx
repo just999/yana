@@ -188,7 +188,7 @@ const LoginForm = ({ user }: LoginFormProps) => {
                   <Checkbox
                     id='remember'
                     name='remember'
-                    defaultChecked={loginDefaultValues.remember}
+                    defaultChecked={Boolean(loginDefaultValues.remember)}
                   />
                   <label
                     htmlFor='remember'
