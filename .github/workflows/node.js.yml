@@ -35,6 +35,8 @@ jobs:
           echo "UPLOADTHING_TOKEN=${{ secrets.UPLOADTHING_TOKEN }}" >> .env.production
           echo "ITS_GITHUB_ID=${{ secrets.ITS_GITHUB_ID }}" >> .env.production
           echo "ITS_GITHUB_SECRET=${{ secrets.ITS_GITHUB_SECRET }}" >> .env.production
+          echo "AUTH_TRUST_HOST=${{ secrets.AUTH_TRUST_HOST }}" >> .env.production
+          echo "NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}" >> .env.production
 
         working-directory: ${{ github.workspace }}
 

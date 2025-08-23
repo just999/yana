@@ -9,6 +9,7 @@ import GitHub from 'next-auth/providers/github';
 import Google from 'next-auth/providers/google';
 
 export const config = {
+  trustHost: true,
   secret:
     process.env.NEXTAUTH_SECRET ||
     (process.env.NODE_ENV === 'development' ? 'dev-secret-key' : undefined),
