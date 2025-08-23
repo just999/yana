@@ -96,24 +96,24 @@ const Search = () => {
             //     className='text-muted/30 svg absolute right-2 stroke-amber-50 stroke-1'
             //   />
             // }
-            className='bg-accent border-0 border-b md:w-[100px] lg:w-[200px]'
+            className='bg-accent rounded-b-none border-0 border-b-2 border-gray-400 md:w-[100px] lg:w-[200px] dark:border-gray-500'
           />
         </div>
         <Button
-          variant={'outline'}
+          variant={'ghost'}
           type='submit'
-          className='text-xs shadow-md'
+          className='text-xs shadow-xl'
           onClick={handleSearchClick}
         >
           <SearchIcon />
         </Button>
         <Button
-          variant={'outline'}
+          variant={'ghost'}
           type='submit'
-          className='text-xs shadow-md'
+          className='text-xs shadow-xl'
           onClick={handleQueryReset}
         >
-          <RotateCcw />
+          <RotateCcw className=' ' />
         </Button>
       </div>
     </form>

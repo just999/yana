@@ -13,25 +13,24 @@ export const SITE_CONFIG = {
 };
 
 export const loginDefaultValues = {
-  email: 'user_sembilan@gmail.com',
-  password: '111111',
-  remember: false,
+  email: '',
+  password: '',
+  remember: '',
   code: '',
 };
 export const registerDefaultValues = {
-  name: 'user sembilan',
-  email: 'user_sembilan@gmail.com',
-  password: '111111',
-  confirmPassword: '111111',
-  anonymous: false,
+  name: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+  anonymous: '',
   avatar: '',
-  phone: '0821-6888-9060',
-  school: 'Universitas Sumatera Utara ',
-  city: 'Medan',
-  address:
-    'Jalan Dr. T. Mansur No.9, Padang Bulan, Kec. Medan Baru, Kota Medan, Sumatera Utara 20222',
-  major: 'S1 - Kesehatan ',
-  terms: false,
+  phone: '',
+  school: '',
+  city: '',
+  address: '',
+  major: '',
+  terms: '',
 };
 
 export const blogDefaultValue = {

@@ -517,7 +517,7 @@ const SearchForm = ({ blogs }: SearchForm) => {
             <li className='relative'>
               <InputCustom
                 name='slug'
-                className='bg-accent/50 border-0 border-b pr-8 pb-0'
+                className='bg-accent rounded-b-none border-0 border-b-2 border-gray-400 dark:border-gray-500'
                 placeholder='Search slug...'
                 value={slugInput}
                 onChange={handleSlugInputChange}
