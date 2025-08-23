@@ -37,7 +37,15 @@ jobs:
           echo "ITS_GITHUB_SECRET=${{ secrets.ITS_GITHUB_SECRET }}" >> .env.production
           echo "AUTH_TRUST_HOST=${{ secrets.AUTH_TRUST_HOST }}" >> .env.production
           echo "NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}" >> .env.production
-
         working-directory: ${{ github.workspace }}
 
-      - run: npm run build --if-present
+      - name: Print contents of .env.production file
+        run: cat .env.production
+
+      - name: Build
+        run: npm run build --if-present
+
+      - name: Change Directory
+        run: cd /home/cc/actions-runner/_work/yana/yana
+
+      - run: pm2 restart 0
