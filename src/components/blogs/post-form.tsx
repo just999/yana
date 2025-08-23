@@ -8,7 +8,6 @@ import {
   Checkbox,
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -143,12 +142,6 @@ export default function PostForm({
     [methods, setFormData]
   );
 
-  // const placeholder = 'fuck';
-  // const { updateContent } = useRichTextEditor(
-  //   formData.content,
-  //   handleContentChange,
-  //   placeholder
-  // );
   const { startUpload, routeConfig } = useUploadThing('imageUploader');
 
   useEffect(() => {

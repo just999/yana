@@ -26,20 +26,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 type BlogCardProps = {
-  // post: {
-  //   id: number;
-  //   title: string;
-  //   slug: string;
-  //   excerpt: string;
-  //   author: {
-  //     name: string;
-  //     avatar: string;
-  //   };
-  //   date: string;
-  //   readTime: string;
-  //   image: string;
-  //   categories: string[];
-  // };
   post: PostProps;
   type: 'guest' | 'user';
 };
@@ -51,54 +37,6 @@ const BlogCard = ({ post, type }: BlogCardProps) => {
   const readTime = calculateReadTime(post.content);
   const postLikeCount = post.reactions.length;
   return (
-    // <Card className='group overflow-hidden'>
-    //   <div className='relative h-48 overflow-hidden'>
-    //     <Image
-    //       src={post.images[0]}
-    //       alt={post.title}
-    //       fill
-    //       className='object-cover transition-transform duration-300 group-hover:scale-105'
-    //     />
-    //   </div>
-    //   <CardHeader className='p-4'>
-    //     <div className='mb-2 flex flex-wrap gap-2'>
-    //       <Badge variant='secondary' className='font-normal'>
-    //         {post.category}
-    //       </Badge>
-    //     </div>
-    //     <CardTitle className='hover:text-primary line-clamp-2 transition-colors'>
-    //       <Link
-    //         href={`/blog/${post.slug}`}
-    //         className='underline-offset-2 hover:underline hover:decoration-amber-500'
-    //       >
-    //         {post.title}
-    //       </Link>
-    //     </CardTitle>
-    //     <CardDescription className='mt-2 line-clamp-2'>
-    //       {post.content.substring(0, 150)}
-    //     </CardDescription>
-    //   </CardHeader>
-    //   <CardFooter className='flex items-center justify-between p-4 pt-0'>
-    //     <div className='flex items-center space-x-2'>
-    //       <Avatar className='h-8 w-8'>
-    //         <AvatarImage
-    //           src={post.author.avatar || localAvatar}
-    //           // src={`/avatars/${post.author.avatar.toLowerCase()}.jpg`}
-    //         />
-    //         <AvatarFallback>{post.author.avatar}</AvatarFallback>
-    //       </Avatar>
-    //       <div className='text-sm'>
-    //         <p className='leading-none font-medium'>{post.author.name}</p>
-    //         <p className='text-muted-foreground text-xs'>
-    //           {formatDate.date(post.createdAt.toString())}
-    //         </p>
-    //       </div>
-    //     </div>
-    //     <span className='text-muted-foreground text-xs'>
-    //       {calculateReadTime(post.content)}
-    //     </span>
-    //   </CardFooter>
-    // </Card>
     <Card key={post.slug} className='group min-w-72 overflow-hidden'>
       <div className='relative h-40 overflow-hidden'>
         {Array.isArray(post.images) && post.images.length > 0 ? (

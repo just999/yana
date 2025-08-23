@@ -49,16 +49,16 @@ export const SidebarItems = [
     url: '/dashboard/blogs',
     icon: NewspaperIcon,
   },
-  {
-    title: 'Reports',
-    url: '/dashboard/reports',
-    icon: Flag,
-  },
-  {
-    title: 'History',
-    url: '/dashboard/history',
-    icon: History,
-  },
+  // {
+  //   title: 'Reports',
+  //   url: '/dashboard/reports',
+  //   icon: Flag,
+  // },
+  // {
+  //   title: 'History',
+  //   url: '/dashboard/history',
+  //   icon: History,
+  // },
   {
     title: 'Profile',
     url: '/dashboard/profile',
@@ -93,7 +93,7 @@ export const categories = [
     name: 'Cyber Harassment',
     description:
       'Online harassment, including explicit messages, revenge porn, or stalking through digital platforms',
-    img: '/img/cyber_harassment.jpg',
+    img: '/img/cyber_harassment.jpeg',
   },
   {
     name: 'Power-Based Harassment',

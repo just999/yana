@@ -57,10 +57,4 @@ export const isInlineElement = (element: Element): boolean => {
     'wbr',
   ];
   return inlineElements.includes(element.tagName.toLowerCase());
-
-  // return (
-  //   inlineElements.includes(element.tagName) ||
-  //   window.getComputedStyle(element).display === 'inline' ||
-  //   window.getComputedStyle(element).display === 'inline-block'
-  // );
 };

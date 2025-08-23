@@ -53,6 +53,7 @@ const BlogDetail = async ({
   const comments = (await getCommentByPostId(blog.id as string)).data || [];
 
   const imgCat = categories.filter((cat) => cat.name === blog.category)[0].img;
+  console.log('🚀 ~ BlogDetail ~ imgCat:', imgCat);
 
   const likeIds = (await getCurrentUserLoveIds()).data || [];
   const allLoveIds = (await getAllLoveIds()).data || [];
@@ -61,18 +62,9 @@ const BlogDetail = async ({
     (comment) => comment.parentId !== null
   );
   const authorId = blog.authorId;
-  // const isBlogOwner = comments.filter(
-  //   (user) => user.userId === session?.user.id
-  // );
 
   const sumContent = summarizeBlogContent(blog.content, 200);
   const keyToCheck = 'authorId';
-
-  // if (blog.hasOwnProperty(keyToCheck) && blog[keyToCheck] === session.user.id) {
-  //   console.log('Key-value pair exists and matches.');
-  // } else {
-  //   console.log('Key-value pair does not exist or does not match.');
-  // }
 
   return (
     <div className='max-w-7xl lg:col-span-3'>

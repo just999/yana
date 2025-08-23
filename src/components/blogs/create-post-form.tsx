@@ -63,10 +63,6 @@ export default function CreatePostForm({
   blogId,
   blog: blogData,
 }: CreatePostFormProps) {
-  // const editorRef = useRef<RichTextEditorRef>(null);
-  // const [isSubmitting, setIsSubmitting] = useState(false);
-  // const [imageFiles, setImageFiles] = useState<File[]>([]);
-  // const [images, setImages] = useState<ImageData[] | []>([]);
   const editorRef = useRef<HTMLDivElement>(null);
 
   const [pendingImages, setPendingImages] = useAtom(pendingImgAtoms);
@@ -99,15 +95,13 @@ export default function CreatePostForm({
     [methods, setFormData]
   );
 
-  // ?UPDATE CONTENT
   const updateContent = useCallback(() => {
     if (editorRef?.current) {
       const newContent = editorRef?.current.innerHTML;
 
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = newContent;
-      // tempDiv.className = 'editor-paragraph';
-      // tempDiv.classList.add('editor-paragraph');
+
       const images = tempDiv.querySelectorAll('img');
       setImageCount(images.length);
 
@@ -181,25 +175,6 @@ export default function CreatePostForm({
         setImageFiles([]);
         setImageCount(0);
       }
-
-      // Simulate API call
-
-      // Here you would typically send the data to your API
-      // const response = await fetch('/api/posts', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(data),
-      // });
-
-      // alert('Post created successfully!');
-      // setImageFiles([]);
-      // methods.reset(blogDefaultValue);
-      // setImages([]);
-      // methods.setValue('title', '');
-      // editorRef.current?.setContent('');
-      // editorRef.current?.resetImages();
-      // setImageFiles([]);
-      // router.refresh();
     } catch (error) {
       console.error('Error creating post:', error);
       alert('Error creating post. Please try again.');
@@ -265,9 +240,8 @@ export default function CreatePostForm({
                             setFormData((prev) => ({
                               ...prev,
                               title: e.target.value,
-                            })); // Your local state
+                            }));
                           }}
-                          // value={formData.title}
                         />
                       </FormControl>
 
@@ -301,29 +275,14 @@ export default function CreatePostForm({
                                 setFormData((prev) => ({
                                   ...prev,
                                   slug: e.target.value,
-                                })); // Your local state
+                                }));
                               }}
-                              // defaultValue={formData.slug || ''}
                             />
                             <Button
                               type='button'
                               size={'sm'}
                               variant={'ghost'}
                               className='-right-13 z-10 h-10 w-fit rounded-l-none border bg-stone-500/30 hover:bg-stone-500/80'
-                              // onClick={() => {
-                              //   const newSlug = slugify(
-                              //     methods.getValues('title'),
-                              //     {
-                              //       lower: true,
-                              //     }
-                              //   );
-                              //   methods.setValue('slug', newSlug);
-                              //   setFormData((prev) => ({
-                              //     ...prev,
-                              //     slug: newSlug,
-                              //   }));
-                              // }}
-
                               onClick={() => {
                                 const newSlug = slugify(
                                   methods.getValues('title'),
@@ -332,7 +291,7 @@ export default function CreatePostForm({
                                   }
                                 );
                                 methods.setValue('slug', newSlug);
-                                // Trigger validation to clear errors
+
                                 methods.trigger('slug');
                               }}
                             >
@@ -391,11 +350,11 @@ export default function CreatePostForm({
               control={methods.control}
               value={formData.content}
               rules={{ required: 'Content is required' }}
-              // onImageFilesChange={setImageFiles}
+              
               onChange={(value) =>
                 setFormData((prev) => ({ ...prev, content: value }))
               }
-              // onReset={handleReset}
+              
               placeholder='Start writing your post content here...'
             /> */}
             <FormField
@@ -413,21 +372,13 @@ export default function CreatePostForm({
                       editorRef={editorRef}
                       name='content'
                       value={field.value || ''}
-                      // watch={methods.watch}
                       startUpload={startUpload}
                       routeConfig={routeConfig}
-                      // onChange={(content: string) => {
-                      //   field.onChange(content);
-                      //   // Handle images separately if needed
-                      //   setImages(images);
-                      // }}
                       onChange={(value) => {
                         field.onChange(value);
-                        // setFormData((prev) => ({ ...prev, content: value }));
                       }}
                       placeholder='Start writing your post content here...'
                       type={type}
-                      // ref={editorRef}
                       error={methods.formState.errors.content?.message}
                     />
                   </FormControl>
@@ -451,13 +402,6 @@ export default function CreatePostForm({
             </Button>
             <Button
               type='button'
-              // onClick={handleReset}
-              // onClick={() => {
-              //   setFormData(blogDefaultValue);
-              //   setImages([]);
-              //   setImageCount(0);
-              //   setErrors({});
-              // }}
               variant={'ghost'}
               onClick={(e) => handleReset(e)}
               disabled={methods.formState.isSubmitting}

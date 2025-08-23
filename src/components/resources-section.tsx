@@ -10,7 +10,7 @@ import {
 import { BookOpen, Compass, Phone, Shield } from 'lucide-react';
 import Link from 'next/link';
 
-const resources = [
+export const resources = [
   {
     title: 'Campus Resources',
     description: 'Guides to finding support services at your university',

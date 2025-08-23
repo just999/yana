@@ -25,8 +25,6 @@ export default async function Home({ searchParams }: HomeProps) {
   } = await searchParams;
   const session = await auth();
 
-  // const profileComplete = session?.user.profileComplete;
-
   const blogs = (
     await getAllBlogs({ query: q, slug, category, sort, page: Number(page) })
   ).data;

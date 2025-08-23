@@ -1,56 +1,3 @@
-// import { Button, InputCustom } from '@/components/ui';
-// import { ChevronDown, Filter, SearchIcon } from 'lucide-react';
-
-// type SearchProps = unknown;
-
-// const SearchInput = () => {
-//   // const categories = await getAllCategories();
-
-//   return (
-//     <form action='/search' method='GET'>
-//       <div className='flex w-full max-w-sm items-center space-x-2'>
-//         <Button
-//           variant={'ghost'}
-//           size={'sm'}
-//           type='button'
-//           className='box-content px-2 dark:hover:bg-stone-900'
-//         >
-//           <Filter
-//             size={14}
-//             className='dark:hover:bg-accent/90 dark:hover:border-2'
-//           />
-//           <ChevronDown />
-//         </Button>
-//         <div className='relative'>
-//           <InputCustom
-//             variant='happy'
-//             name='q'
-//             type='text'
-//             placeholder='Search...'
-//             suffix={
-//               <SearchIcon
-//                 size={18}
-//                 className='text-muted svg absolute right-2 stroke-amber-50 stroke-1'
-//               />
-//             }
-//             className='h-8 md:w-[100px] lg:w-[200px]'
-//           />
-//         </div>
-//         <Button
-//           size='sm'
-//           variant={'ghost'}
-//           type='submit'
-//           className='text-xs shadow-md'
-//         >
-//           Search
-//         </Button>
-//       </div>
-//     </form>
-//   );
-// };
-
-// export default SearchInput;
-
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -58,7 +5,6 @@ import { useEffect, useRef, useState } from 'react';
 import { Badge, Button, InputCustom } from '@/components/ui';
 import { ChevronDown, Filter, SearchIcon, X } from 'lucide-react';
 
-// Mock categories - replace with your actual categories
 const categories = [
   { name: 'Technology', value: 'technology' },
   { name: 'Business', value: 'business' },
@@ -109,7 +55,6 @@ const SearchInput = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Handle clicks outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -171,7 +116,6 @@ const SearchInput = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Build search params
     const params = new URLSearchParams();
     if (searchQuery) params.set('q', searchQuery);
     if (filters.categories.length > 0)
@@ -179,11 +123,9 @@ const SearchInput = ({
     if (filters.sort !== 'relevance') params.set('sort', filters.sort);
     if (filters.dateRange !== 'all') params.set('date', filters.dateRange);
 
-    // Navigate to search page with filters
     window.location.href = `/search?${params.toString()}`;
   };
 
-  // Prevent dropdown from closing when clicking inside
   const handleDropdownClick = (e: React.MouseEvent) => {
     e.stopPropagation();
   };
@@ -250,7 +192,7 @@ const SearchInput = ({
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder='Enter your search terms...'
                   className='h-10 w-full pr-10'
-                  onFocus={(e) => e.stopPropagation()} // Prevent focus from bubbling
+                  onFocus={(e) => e.stopPropagation()}
                 />
                 <SearchIcon
                   size={18}

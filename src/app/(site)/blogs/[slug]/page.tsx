@@ -1,4 +1,8 @@
-import { getAllBlogs, getBlogBySlug } from '@/actions/blog-actions';
+import {
+  getAllBlogs,
+  getBlogBySlug,
+  getFeaturedBlogs,
+} from '@/actions/blog-actions';
 import {
   getCommentByPostId,
   getCommentReactions,
@@ -32,6 +36,8 @@ const BlogDetailPage = async ({
   const resolvedParams = await searchParams;
 
   const newSlug = await params;
+
+  const featuredBlogs = (await getFeaturedBlogs()).data;
 
   const {
     q = '',
@@ -87,7 +93,11 @@ const BlogDetailPage = async ({
                       initialCommentReactions={initialCommentReactions}
                       postInitialReactions={postInitialReactions}
                     />
-                    <BlogSidebar blog={blog} allBlogs={blogs} />
+                    <BlogSidebar
+                      blog={blog}
+                      allBlogs={blogs}
+                      featuredBlogs={featuredBlogs || []}
+                    />
                   </PostReactionsProvider>
                 </CommentReactionsProvider>
               </div>

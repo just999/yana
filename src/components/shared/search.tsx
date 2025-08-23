@@ -43,34 +43,14 @@ const Search = () => {
     [searchParams]
   );
 
-  // useEffect(() => {
-  //   if (debouncedQuery !== q) {
-  //     const newUrl = createUrl({ q: debouncedQuery });
-
-  //     router.replace(newUrl);
-  //   }
-  // }, [debouncedQuery, q, createUrl, router]);
-
   const handleQueryInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
   };
-
-  // const handleQueryKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-  //   if (e.key === 'Enter') {
-  //     e.preventDefault();
-  //     const newUrl = createUrl({ q: query });
-  //     router.push(newUrl);
-  //   }
-  // };
 
   const handleSearchClick = () => {
     const newUrl = createUrl({ q: query });
     router.push(newUrl);
   };
-
-  // const handleCategoryClick = (categoryValue: string) => {
-  //   return createUrl({ category: categoryValue });
-  // };
 
   const handleQueryReset = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -89,13 +69,6 @@ const Search = () => {
             placeholder='Search...'
             value={query}
             onChange={handleQueryInputChange}
-            // onKeyDown={handleQueryKeyDown}
-            // suffix={
-            //   <SearchIcon
-            //     size={18}
-            //     className='text-muted/30 svg absolute right-2 stroke-amber-50 stroke-1'
-            //   />
-            // }
             className='bg-accent rounded-b-none border-0 border-b-2 border-gray-400 md:w-[100px] lg:w-[200px] dark:border-gray-500'
           />
         </div>

@@ -71,25 +71,16 @@ const CommentEditForm = ({
     if (shouldFocus && editCommentRef.current) {
       const input = editCommentRef.current;
 
-      // Focus the input first
       input.focus();
 
-      // Use setTimeout to ensure the focus is applied before setting cursor position
       setTimeout(() => {
         const textLength = input.value.length;
 
-        // Set cursor to end of text
         input.setSelectionRange(textLength, textLength);
 
-        // Alternative method if setSelectionRange doesn't work
-        // input.selectionStart = textLength;
-        // input.selectionEnd = textLength;
-
-        // Scroll to end if text is long
         input.scrollLeft = input.scrollWidth;
       }, 10);
 
-      // Clear the focus trigger
       setFocusEditInput(null);
     }
   }, [focusEditInput, editingCommentId, comment.id, setFocusEditInput]);
@@ -101,10 +92,8 @@ const CommentEditForm = ({
   }, [editingCommentId, comment.id, comment.comment, form]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Let the form handle the value change
     form.setValue('comment', e.target.value, { shouldDirty: true });
 
-    // Auto-resize if it's a textarea-like input
     if (e.target.style) {
       e.target.style.height = 'auto';
       e.target.style.height = Math.max(32, e.target.scrollHeight) + 'px';
@@ -114,15 +103,13 @@ const CommentEditForm = ({
   const handleCancelEdit = () => {
     setEditingCommentId(null);
     setFocusEditInput(null);
-    // Reset form to original comment
+
     form.setValue('comment', comment.comment);
   };
 
   const handleSaveEdit = async (commentId: string, newContent: string) => {
     try {
       console.log('Saving comment:', commentId, newContent);
-
-      // Here you would typically make an API call to update the comment
 
       const formData = new FormData();
       formData.append('comment', newContent);
@@ -146,25 +133,10 @@ const CommentEditForm = ({
   };
 
   const onSubmit = async (data: CommentSchema) => {
-    // For editing, use the save edit function instead
     if (editingCommentId === comment.id) {
       await handleSaveEdit(comment.id, data.comment);
       return;
     }
-
-    // // For new comments
-    // const formData = new FormData();
-    // formData.append('comment', data.comment);
-
-    // const res = await createComment({ postId, topCommentId }, formData);
-
-    // if (res.error) {
-    //   toast.error(res.message);
-    // } else {
-    //   toast.success(res.message);
-    //   router.refresh();
-    //   form.reset();
-    // }
   };
 
   const renderEditCommentForm =

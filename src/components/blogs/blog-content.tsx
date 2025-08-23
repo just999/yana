@@ -46,15 +46,6 @@ const BlogContent = ({ content }: BlogContentProps) => {
         dangerouslySetInnerHTML={{
           __html: contentValue,
         }}
-        // ref={(el) => {
-        //   if (el) {
-        //     console.log('Rendered DOM:', el.innerHTML);
-        //     console.log('Images found:', el.querySelectorAll('img'));
-        //     console.log('Raw contentValue:', contentValue);
-        //     console.log('Contains img tags:', contentValue.includes('<img'));
-        //     console.log('All img matches:', contentValue.match(/<img[^>]*>/g));
-        //   }
-        // }}
       />
       <span className='mx-auto flex w-full justify-center text-center'>
         <Ellipsis size={24} className='text-black' />

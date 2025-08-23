@@ -12,19 +12,19 @@ import AlertDialogButton from '../alert-dialog-button';
 
 interface ImagePreviewProps {
   content: string;
-  // onContentChange: (newContent: string) => void;
+
   slug: string;
   removeImageById: (imgFile: ImageData, slug: string, content: string) => void;
 }
 
 export const ImagePreview: React.FC<ImagePreviewProps> = ({
   content,
-  // onContentChange,
+
   slug,
   removeImageById,
 }) => {
   const [images, setImages] = useAtom(imageAtoms);
-  // Extract images from HTML content
+
   const extractedImages = useMemo(() => {
     if (!content) return [];
 
@@ -36,22 +36,12 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
       src: img.src,
       name: img.getAttribute('alt') ?? 'image.jpg',
       id: sanitizeFileName(img.getAttribute('alt') ?? 'image.jpg'),
-      // name: img.getAttribute('alt') ?? 'image.jpg',
-      // alt: img.alt || `Image ${index + 1}`,
-      // index,
-      // element: img.outerHTML,
     }));
   }, [content]);
-  // const extractedImages = useMemo(() => {
-  //   return extractImageUrls(content);
-  // }, [content]);
+
   if (extractedImages.length === 0) {
     return null;
   }
-
-  // useEffect(() => {
-  //   if (extractedImages) setImages(extractedImages);
-  // }, [extractedImages]);
 
   return (
     <div className='bg-accent/30 mt-4 rounded-lg border p-2 text-center backdrop-blur-lg'>

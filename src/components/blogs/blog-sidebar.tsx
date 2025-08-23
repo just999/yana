@@ -5,9 +5,9 @@ import { useState } from 'react';
 import { localAvatar } from '@/lib/constants';
 import { categories } from '@/lib/helpers';
 import { PostProps } from '@/lib/types';
+import DOMPurify from 'dompurify';
 import { ChevronUp, Mail, Tag, TrendingUp } from 'lucide-react';
 
-import { featuredPosts } from '../featured-posts';
 import {
   Avatar,
   AvatarFallback,
@@ -25,9 +25,10 @@ import { popularPosts } from './blog-test';
 type BlogSidebarProps = {
   blog: PostProps;
   allBlogs: PostProps[];
+  featuredBlogs?: PostProps[];
 };
 
-const BlogSidebar = ({ blog, allBlogs }: BlogSidebarProps) => {
+const BlogSidebar = ({ blog, allBlogs, featuredBlogs }: BlogSidebarProps) => {
   const [liked, setLiked] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
   const [newComment, setNewComment] = useState('');
@@ -37,13 +38,13 @@ const BlogSidebar = ({ blog, allBlogs }: BlogSidebarProps) => {
   const handleBookmark = () => setBookmarked(!bookmarked);
   const handleCommentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle comment submission
+
     setNewComment('');
   };
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle newsletter subscription
+
     setEmail('');
   };
 
@@ -125,31 +126,65 @@ const BlogSidebar = ({ blog, allBlogs }: BlogSidebarProps) => {
           </CardHeader>
           <CardContent>
             <div className='space-y-6'>
-              {featuredPosts.map((post, index) => (
-                <div key={index} className='group cursor-pointer'>
-                  <div className='featured-blog space-x-3'>
-                    <img
-                      src={post.image}
-                      alt={post.title}
-                      className='rounded-lg object-cover transition-opacity group-hover:opacity-90'
-                    />
-                    <div className='flex-1'>
-                      <div className='flex flex-col items-start justify-between text-xs text-gray-500'>
-                        <Badge variant='secondary' className='text-[10px]'>
-                          {blog.category}
-                        </Badge>
-                        {/* <span className='text-[8px]'>({post.readTime})</span> */}
+              {featuredBlogs?.map((post, index) => {
+                const contentValue = DOMPurify.sanitize(post.content, {
+                  ALLOWED_TAGS: [
+                    'img',
+                    'div',
+                    'span',
+                    'p',
+                    'a',
+                    'br',
+                    'strong',
+                    'em',
+                    'ul',
+                    'li',
+                    'ol',
+                    'h1',
+                    'h2',
+                    'h3',
+                    'h4',
+                    'h5',
+                    'h6',
+                  ],
+                  ALLOWED_ATTR: [
+                    'src',
+                    'alt',
+                    'data-image-id',
+                    'style',
+                    'class',
+                    'width',
+                    'height',
+                  ],
+                  ALLOWED_URI_REGEXP: /^data:image\/|^blob:|^https?:\/\//,
+                });
+                // console.log('🚀 ~ contentValue:', contentValue);
+                return (
+                  <div key={index} className='group cursor-pointer'>
+                    <div className='featured-blog space-x-3'>
+                      <img
+                        src={post.images[0]}
+                        alt={post.title}
+                        className='rounded-lg object-cover transition-opacity group-hover:opacity-90'
+                      />
+                      <div className='flex-1'>
+                        <div className='flex flex-col items-start justify-between text-xs text-gray-500'>
+                          <Badge variant='secondary' className='text-[10px]'>
+                            {blog.category}
+                          </Badge>
+                          {/* <span className='text-[8px]'>({post.readTime})</span> */}
+                        </div>
+                        <h4 className='mb-2 text-sm leading-tight font-semibold transition-colors group-hover:text-blue-600'>
+                          {post.title}
+                        </h4>
+                        <p className='mb-2 line-clamp-2 w-full text-xs text-gray-600'>
+                          {/* {contentValue.substring(0, 30)} */}
+                        </p>
                       </div>
-                      <h4 className='mb-2 text-sm leading-tight font-semibold transition-colors group-hover:text-blue-600'>
-                        {post.title}
-                      </h4>
-                      <p className='mb-2 line-clamp-2 w-full text-xs text-gray-600'>
-                        {post.excerpt.substring(0, 30)}
-                      </p>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>
