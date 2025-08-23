@@ -114,15 +114,13 @@ const UserButton = () => {
           <Separator />
 
           <DropdownMenuItem className='my-1 p-0'>
-            <Button
-              asChild
+            <div
               className={cn(
                 'group flex h-8 w-full items-center justify-start p-0 px-2 text-xs font-semibold text-stone-500'
               )}
-              variant='ghost'
             >
-              <Link
-                href={curUser?.role === 'ADMIN' ? 'admin' : 'user'}
+              <span
+                // href={curUser?.role === 'ADMIN' ? 'admin' : 'user'}
                 className={cn(
                   'flex h-8 w-full justify-start text-xs font-semibold text-stone-500'
                 )}
@@ -135,8 +133,8 @@ const UserButton = () => {
                   {curUser?.name?.substring(0, 10)}... (
                   {curUser?.role === 'ADMIN' ? 'Admin' : 'User'})
                 </span>
-              </Link>
-            </Button>
+              </span>
+            </div>
           </DropdownMenuItem>
 
           <Separator />
