@@ -30,7 +30,7 @@ const ThemeContext = createContext<ThemeContextType>({
 
 export function ThemeProvider({
   children,
-  defaultTheme = 'system',
+  defaultTheme = 'dark',
 }: ThemeContextProps) {
   const [theme, setTheme] = useAtom(themeAtom);
   const [resolvedTheme] = useAtom(resolvedThemeAtom);
