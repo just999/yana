@@ -27,7 +27,7 @@ const ThemeToggle = () => {
           <Sun
             size={24}
             className='dark:text-muted-foreground cursor-pointer'
-          />{' '}
+          />
           Light
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme('dark')}>
