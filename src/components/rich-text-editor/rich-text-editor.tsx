@@ -137,7 +137,7 @@ export const RichTextEditor = forwardRef<
     } = useEditorImages(
       editorRef as React.RefObject<HTMLDivElement>,
       maxImages,
-      routeConfig,
+      // routeConfig,
       updateContent
     );
 

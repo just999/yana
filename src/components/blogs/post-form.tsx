@@ -251,6 +251,7 @@ export default function PostForm({
       };
       const updateBlogData = {
         ...data,
+        id: blog?.id as string,
         content: updatedContent,
         images: allImgUrls.map((img) => img.src),
       };
