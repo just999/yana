@@ -739,14 +739,15 @@ export const deleteBlogBySlug = async (slug: string) => {
       });
 
       await tx.post.delete({
-        where: { slug },
+        where: { slug: existingBlog.slug },
       });
 
-      await tx.comment.deleteMany({
-        where: {
-          postId: existingBlog.id,
-        },
-      });
+      existingBlog.comments.length > 0 &&
+        (await tx.comment.deleteMany({
+          where: {
+            postId: existingBlog.id,
+          },
+        }));
     });
     revalidatePath('/dashboard/blogs');
     return {

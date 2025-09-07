@@ -135,7 +135,7 @@ const Header = ({ className, user }: HeaderProps) => {
                       className={cn(
                         'w-full rounded-md px-3 py-2 text-sm text-nowrap transition-colors duration-200',
                         isActive(item.href)
-                          ? 'bg-neutral-200/20 font-normal text-stone-700 underline decoration-amber-500/60 decoration-4 shadow-md dark:bg-gray-800/50'
+                          ? 'bg-neutral-200/20 font-normal text-stone-700 underline decoration-amber-500/60 decoration-2 shadow-md dark:bg-gray-800/50 dark:text-amber-200'
                           : 'hover:bg-muted hover:text-orange-500'
                       )}
                     >
