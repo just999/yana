@@ -49,10 +49,8 @@ const CommentShow = async ({
   startOpen,
   initialCommentReactions,
 }: CommentShowProps) => {
-  console.log('🚀 ~ CommentShow ~ commentId:', commentId);
   const comments = (await getCommentByPostId(postId)).data;
   const comment = comments?.find((c) => c.id === commentId);
-  console.log('🚀 ~ CommentShow ~ comment:', comment?.id);
 
   const session = (await auth()) as Session;
   const post = (await getBlogsByUserId(session.user.id)).data;
@@ -71,7 +69,6 @@ const CommentShow = async ({
   // const report = (reportResult || []).filter(
   //   (r): r is typeof r & { report: string } => r.report !== null
   // );
-  console.log('🚀 ~ CommentShow ~ report:', reportResult);
 
   const renderedChildren =
     canShowReplies && hasChildren

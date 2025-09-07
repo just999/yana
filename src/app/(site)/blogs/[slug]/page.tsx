@@ -79,7 +79,7 @@ const BlogDetailPage = async ({
       <div className='flex w-full flex-col space-x-4 xl:flex-row xl:justify-center'>
         {blog && (
           <div className='w-full grow space-y-3'>
-            <main className='mx-auto max-w-7xl border px-4 py-12 pb-4 sm:px-6 lg:px-8 dark:border-gray-500'>
+            <main className='mx-auto max-w-7xl rounded-lg border px-4 py-12 pb-4 sm:px-6 lg:px-8 dark:border-gray-500/70'>
               <div className='grid grid-cols-1 gap-12 pb-36 lg:grid-cols-4'>
                 <CommentReactionsProvider
                   updateReactionAction={updateCommentReaction}

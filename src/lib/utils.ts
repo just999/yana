@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from 'clsx';
 import { differenceInYears } from 'date-fns';
 import { Ballet } from 'next/font/google';
+import type { JSONContent } from '@tiptap/core';
 // !Helper function (could be in a separate utils file)
 // export async function extractImageUrls(html: string): Promise<string[]> {
 //   if (!html) return [];
@@ -200,6 +201,49 @@ export function replaceImageSourcesAndIds(
   return result;
 }
 
+// export function replaceImageSourcesAndIdsDOMBased(
+//   content: string,
+//   images: { src: string; id: string; alt: string }[]
+// ) {
+//   if (!content) return '';
+
+//   const parser = new DOMParser();
+//   const doc = parser.parseFromString(content, 'text/html');
+//   const imgTags = doc.querySelectorAll('img');
+//   imgTags.forEach((img, index) => {
+//     if (index < images.length && images[index]) {
+//       const currentSrc = img.getAttribute('src');
+//       const newImage = images[index];
+//       if (newImage.src && newImage.id) {
+//         // Create a completely new img element
+//         const newImg = doc.createElement('img');
+
+//         // Copy all existing attributes first
+//         Array.from(img.attributes).forEach((attr) => {
+//           newImg.setAttribute(attr.name, attr.value);
+//         });
+
+//         // Override with new values
+//         newImg.setAttribute('src', newImage.src);
+//         newImg.setAttribute('data-image-id', newImage.id);
+
+//         if (newImage.alt) {
+//           newImg.setAttribute('alt', newImage.alt);
+//         }
+
+//         // Replace the old element with the new one
+//         img.parentNode?.replaceChild(newImg, img);
+//         console.log(
+//           `  - New src: ${newImg.getAttribute('src')?.substring(0, 50)}...`
+//         );
+//         console.log(`  - New ID: ${newImg.getAttribute('data-image-id')}`);
+//       }
+//     }
+//   });
+
+//   return doc.body.innerHTML;
+// }
+
 export function replaceImageSourcesAndIdsDOMBased(
   content: string,
   images: { src: string; id: string; alt: string }[]
@@ -209,38 +253,156 @@ export function replaceImageSourcesAndIdsDOMBased(
   const parser = new DOMParser();
   const doc = parser.parseFromString(content, 'text/html');
   const imgTags = doc.querySelectorAll('img');
-  imgTags.forEach((img, index) => {
-    if (index < images.length && images[index]) {
-      const currentSrc = img.getAttribute('src');
-      const newImage = images[index];
-      if (newImage.src && newImage.id) {
-        // Create a completely new img element
-        const newImg = doc.createElement('img');
 
-        // Copy all existing attributes first
-        Array.from(img.attributes).forEach((attr) => {
-          newImg.setAttribute(attr.name, attr.value);
-        });
+  // Create a map for faster lookups
+  const imageMap = new Map();
+  images.forEach((img) => {
+    // Use the image ID as key for precise matching
+    imageMap.set(img.id, img);
+  });
 
-        // Override with new values
-        newImg.setAttribute('src', newImage.src);
-        newImg.setAttribute('data-image-id', newImage.id);
+  imgTags.forEach((img) => {
+    const currentSrc = img.getAttribute('src');
+    const currentDataId = img.getAttribute('data-image-id');
 
-        if (newImage.alt) {
-          newImg.setAttribute('alt', newImage.alt);
-        }
+    // Try to find matching image by data-image-id first, then by src
+    let matchingImage = null;
 
-        // Replace the old element with the new one
-        img.parentNode?.replaceChild(newImg, img);
-        console.log(
-          `  - New src: ${newImg.getAttribute('src')?.substring(0, 50)}...`
-        );
-        console.log(`  - New ID: ${newImg.getAttribute('data-image-id')}`);
+    if (currentDataId && imageMap.has(currentDataId)) {
+      matchingImage = imageMap.get(currentDataId);
+    } else if (currentSrc) {
+      // Extract ID from current src to find matching image
+      const srcId = currentSrc.split('/').pop() || '';
+      if (imageMap.has(srcId)) {
+        matchingImage = imageMap.get(srcId);
       }
+    }
+
+    if (matchingImage) {
+      // Only update the attributes we need, don't copy all existing ones
+      img.setAttribute('src', matchingImage.src);
+      img.setAttribute('data-image-id', matchingImage.id);
+
+      if (matchingImage.alt) {
+        img.setAttribute('alt', matchingImage.alt);
+      }
+
+      console.log(`Updated image: ${matchingImage.src.substring(0, 50)}...`);
     }
   });
 
   return doc.body.innerHTML;
+}
+
+export function replaceImageSourcesInJSON(
+  jsonContent: string,
+  images: { src: string; id: string; alt: string }[]
+) {
+  if (!jsonContent) return '';
+
+  try {
+    const content: JSONContent = JSON.parse(jsonContent);
+
+    // Create a map for faster lookups
+    const imageMap = new Map();
+    images.forEach((img) => {
+      imageMap.set(img.alt, img);
+    });
+
+    // Recursive function to traverse JSON and update image nodes
+    function updateImageNodes(node: any): any {
+      if (!node || typeof node !== 'object') return node;
+
+      // If this is an image node
+      if (node.type === 'imageResize' && node.attrs) {
+        const currentSrc = node.attrs.src;
+        const currentAlt = node.attrs.alt;
+        const currentDataId = node.attrs['alt'];
+
+        // Try to find matching image by data-image-id first, then by src
+        let matchingImage = null;
+
+        if (currentDataId && imageMap.has(currentDataId)) {
+          matchingImage = imageMap.get(currentDataId);
+        } else if (currentSrc) {
+          // Extract ID from current src to find matching image
+          const srcId = currentSrc.split('/').pop() || '';
+          if (imageMap.has(srcId)) {
+            matchingImage = imageMap.get(srcId);
+          }
+        }
+
+        if (matchingImage) {
+          console.log(
+            `Updating image to: ${matchingImage.src.substring(0, 50)}...`
+          );
+
+          return {
+            ...node,
+            attrs: {
+              ...node.attrs,
+              src: matchingImage.src,
+              'data-image-id': matchingImage.id,
+              alt: matchingImage.alt || node.attrs.alt,
+            },
+          };
+        }
+      }
+
+      // If node has content array, recursively process it
+      if (Array.isArray(node.content)) {
+        return {
+          ...node,
+          content: node.content.map(updateImageNodes),
+        };
+      }
+
+      // If node has content property that's an object, process it
+      if (node.content && typeof node.content === 'object') {
+        return {
+          ...node,
+          content: updateImageNodes(node.content),
+        };
+      }
+
+      return node;
+    }
+
+    const updatedContent = updateImageNodes(content);
+    return JSON.stringify(updatedContent);
+  } catch (error) {
+    console.error('Error processing JSON content:', error);
+    return jsonContent;
+  }
+}
+
+// Alternative: Convert JSON to HTML, replace images, then convert back
+export function replaceImageSourcesJSONToHTML(
+  jsonContent: string,
+  images: { src: string; id: string; alt: string }[],
+  extensions: any[] // Your TipTap extensions
+) {
+  if (!jsonContent) return '';
+
+  try {
+    // Import generateHTML dynamically or pass it as parameter
+    const { generateHTML } = require('@tiptap/core');
+
+    const parsedContent: JSONContent = JSON.parse(jsonContent);
+
+    // Convert JSON to HTML
+    const htmlContent = generateHTML(parsedContent, extensions);
+
+    // Use your existing DOM-based replacement
+    const updatedHTML = replaceImageSourcesAndIdsDOMBased(htmlContent, images);
+
+    // If you need JSON back, you'd need to parse HTML back to JSON
+    // This is more complex and not recommended
+    return updatedHTML;
+  } catch (error) {
+    console.error('Error processing content:', error);
+    return jsonContent;
+  }
 }
 
 export function replaceImageSourcesAndIdsHybrid(
@@ -253,10 +415,14 @@ export function replaceImageSourcesAndIdsHybrid(
   // Verify if all replacements worked by checking for remaining data URLs
   const remainingDataUrls = (result.match(/src="data:image/g) || []).length;
   const originalDataUrls = (content.match(/src="data:image/g) || []).length;
+  const dataUrls = (content.match(/src="blob:http/g) || []).length;
   // If some replacements failed, fallback to string-based approach
-  if (remainingDataUrls > 0) {
+  if (dataUrls > 0) {
     result = replaceImageSourcesAndIds(content, images);
   }
+  // if (remainingDataUrls > 0) {
+  //   result = replaceImageSourcesAndIds(content, images);
+  // }
 
   return result;
 }
@@ -305,7 +471,7 @@ export function extractImageUrlsServer(
 
 export function extractImageUrls(
   content: string
-): { src: string; id: string }[] {
+): { src: string; id: string; alt: string }[] {
   if (!content) return [];
 
   // Using DOMParser (works in Node.js with jsdom or in the browser)
@@ -314,12 +480,19 @@ export function extractImageUrls(
   const images = doc.querySelectorAll('img');
   // const images = doc.querySelectorAll('img[src^="https://"]');
   // return Array.from(images).map((img) => (img as HTMLImageElement).src);
-  return Array.from(images).map((img) => {
-    const src = (img as HTMLImageElement).src;
-    const name = img.getAttribute('alt') ?? 'image.jpg';
-    const id = sanitizeFileName(name);
-    return { src, id };
-  });
+  return Array.from(images)
+    .filter((img) => {
+      // Filter out images with empty or missing src
+      return img && img.src && img.src.trim() !== '' && img.alt;
+    })
+    .map((img) => {
+      const src = (img as HTMLImageElement).src;
+      const name = img.getAttribute('alt') ?? 'image.jpg';
+      const id = src.split('/').pop() || 'image.jpg';
+      const alt = img.alt;
+
+      return { src, id, alt };
+    });
 }
 
 export function extractUploadedImages(
@@ -339,13 +512,27 @@ export function extractUploadedImages(
     element = container;
   }
 
-  return Array.from(element.querySelectorAll('img')).map((img) => {
-    const imageUrl = img.getAttribute('src') ?? '';
-    const imageId = img.getAttribute('data-image-id');
-    const alt = img.getAttribute('alt') || 'image.jpg';
+  return Array.from(element.querySelectorAll('img'))
+    .map((img) => {
+      const imageUrl = img.getAttribute('src') ?? '';
+      const imageId =
+        (img.getAttribute('data-image-id') || imageUrl.split('/').pop()) ??
+        img.getAttribute('alt');
+      const alt = img.getAttribute('alt') || '';
 
-    return { imageUrl, imageId, fileName: alt };
-  });
+      if (!imageUrl && !imageId && !alt) return null;
+
+      return { imageUrl, imageId, fileName: alt };
+    })
+    .filter(
+      (
+        item
+      ): item is {
+        imageUrl: string;
+        imageId: string | null;
+        fileName: string;
+      } => item !== null
+    );
 }
 
 export async function extractUploadedImagesFromString(

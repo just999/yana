@@ -13,8 +13,8 @@ export const SITE_CONFIG = {
 };
 
 export const loginDefaultValues = {
-  email: '',
-  password: '',
+  email: 'random@gmail.com',
+  password: '111111',
   remember: false,
   code: '',
 };
@@ -79,6 +79,7 @@ export const registerInitialValues: UserDataSchema = {
 };
 
 export const maxAvatarImages = 1;
+export const maxBlogImages = 3;
 
 const ha = {
   name: 'badak',
@@ -97,3 +98,6 @@ const ha = {
 };
 
 export const PAGE_SIZE = 5;
+
+export const PAGE_WIDTH = 816;
+export const MIN_SPACE = 100;

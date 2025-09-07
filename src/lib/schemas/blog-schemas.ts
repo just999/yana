@@ -26,4 +26,8 @@ export const idBlogSchema = z.object({
   id: z.string().min(2, { message: 'must have blog id' }),
 });
 
+export const updateBlogSchema = blogSchema.merge(idBlogSchema);
+
+export type UpdateBlogSchema = z.infer<typeof updateBlogSchema>;
+
 export type BlogUpdateSchema = BlogSchema & { slug: string };

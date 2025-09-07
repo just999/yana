@@ -39,9 +39,9 @@ export const RichTextEditor = forwardRef<
       name,
       type,
       className = '',
-      routeConfig = '',
+      routeConfig,
       maxImages = 8,
-      updateContent,
+      // updateContent,
       editorRef,
       fileToImageIdMap,
     },
@@ -61,6 +61,39 @@ export const RichTextEditor = forwardRef<
         setIsInitialized(true);
       }
     }, [type, isInitialized, setFormData, setImages, setIsInitialized]);
+
+    const handleContentChange = useCallback(
+      (value: string) => {
+        // const { onChange } = methods.register('content', { required: true });
+
+        // methods.setValue('content', content);
+
+        // onChange({ target: { value } });
+
+        setFormData((prev) => ({
+          ...prev,
+          content: value,
+        }));
+      },
+      [setFormData]
+    );
+
+    const updateContent = useCallback(() => {
+      if (editorRef?.current) {
+        const newContent = editorRef.current.innerHTML;
+
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = newContent;
+        tempDiv.className = 'editor-paragraph';
+        tempDiv.classList.add('editor-paragraph');
+        const images = tempDiv.querySelectorAll('img');
+        setImageCount(images.length);
+
+        if (handleContentChange) {
+          handleContentChange(newContent);
+        }
+      }
+    }, [setImageCount, handleContentChange]);
 
     const { showColorPicker, setShowColorPicker } = useRichTextEditor(
       value,
@@ -104,7 +137,7 @@ export const RichTextEditor = forwardRef<
     } = useEditorImages(
       editorRef as React.RefObject<HTMLDivElement>,
       maxImages,
-      typeof routeConfig === 'string' ? routeConfig : routeConfig.toString(),
+      routeConfig,
       updateContent
     );
 
@@ -139,7 +172,7 @@ export const RichTextEditor = forwardRef<
         setContent: (content: string) => {
           if (editorRef?.current) {
             editorRef.current.innerHTML = content;
-            updateContent();
+            if (updateContent) updateContent();
           }
         },
         getDOMElement: () => editorRef?.current || null,

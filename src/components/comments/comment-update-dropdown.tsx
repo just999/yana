@@ -54,8 +54,6 @@ const CommentUpdateDropdown = ({
   comment,
   report,
 }: CommentUpdateDropdownProps) => {
-  console.log('🚀 ~ CommentUpdateDropdown ~ report:', report);
-  console.log('🚀 ~ CommentUpdateDropdown ~ comment:', comment?.id);
   const [isPinned, setIsPinned] = React.useState(false);
   const [editingCommentId, setEditingCommentId] = useAtom(editingCommentIdAtom);
   const [editCommentData, setEditCommentData] = useAtom(editCommentDataAtom);
@@ -63,7 +61,6 @@ const CommentUpdateDropdown = ({
   const [hasSubmitted, setHasSubmitted] = useState(false);
   const [isReportDialogOpen, setIsReportDialogOpen] = useState<boolean>(false);
   const [reportReason, setReportReason] = useState<string | null>(null);
-  console.log('🚀 ~ CommentUpdateDropdown ~ reportReason:', reportReason);
   const [toggleCommentInput, setToggleCommentInput] =
     useAtom(toggleCommentAtom);
   const [, setFocusEditInput] = useAtom(focusEditInputAtom);

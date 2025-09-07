@@ -5,7 +5,7 @@ import { useAtom } from 'jotai';
 
 export const useEditorSelection = (
   editorRef: RefObject<HTMLDivElement | null> | undefined,
-  onBlur: () => void
+  onBlur?: () => void
 ) => {
   const [isTextSelected, setIsTextSelected] = useState(false);
   // const [activeStyles, setActiveStyles] = useState(new Set<string>());

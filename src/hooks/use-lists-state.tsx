@@ -16,8 +16,8 @@ import { useAtom } from 'jotai';
 
 export const useListsState = (
   editorRef: RefObject<HTMLDivElement | null> | undefined,
-  updateContent: () => void,
-  detectActiveStyles: () => void
+  detectActiveStyles: () => void,
+  updateContent?: () => void
 ) => {
   const [isEditorEmpty, setIsEditorEmpty] = useAtom(isEditorEmptyAtom);
   const [formData, setFormData] = useAtom(blogAtom);
@@ -245,7 +245,7 @@ export const useListsState = (
 
     setIsEditorEmpty(editor.textContent?.trim().length === 0);
     setFormData((prev: any) => ({ ...prev, content: editor.innerHTML }));
-    updateContent();
+    if (updateContent) updateContent();
     detectActiveStyles();
   }, [
     editorRef,

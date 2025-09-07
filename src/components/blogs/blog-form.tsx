@@ -1,0 +1,734 @@
+'use client';
+
+import {
+  forwardRef,
+  useActionState,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+
+import { createNewBlog, newBlog, updateBlog } from '@/actions/blog-actions';
+import {
+  Button,
+  Checkbox,
+  InputCustom,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui';
+import {
+  useEditorExtensions,
+  useEditorPerformance,
+  useOptimizedEditor,
+  useOptimizedUpdateContent,
+} from '@/hooks/use-editor-extensions';
+import { useEditorImages } from '@/hooks/use-editor-images';
+import { categories } from '@/lib/helpers';
+import {
+  blogAtom,
+  fileAtoms,
+  imageAtoms,
+  imageCountAtoms,
+  imageUrlAtoms,
+} from '@/lib/jotai/blog-atoms';
+import {
+  editorContentAtom,
+  editorStateAtom,
+  setEditorAtom,
+} from '@/lib/jotai/editor-atoms';
+import type {
+  BlogFormValues,
+  ExtendedRichTextEditorProps,
+  FormType,
+  PostProps,
+  RichTextEditorRef,
+} from '@/lib/types';
+import {
+  cn,
+  extractImageUrls,
+  extractImageUrlsFromContent,
+  replaceImageSourcesAndIdsDOMBased,
+  replaceImageSourcesAndIdsHybrid,
+  replaceImageSourcesInJSON,
+  replaceImageSourcesJSONToHTML,
+} from '@/lib/utils';
+import { EditorContent } from '@tiptap/react';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { BookPlusIcon, Loader, RotateCcw } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useFormStatus } from 'react-dom';
+// import { useFormStatus } from 'react-dom';
+import slugify from 'slugify';
+import { toast } from 'sonner';
+
+import { ImagePreview } from '../rich-text-editor/image-preview';
+import { useImagePaste } from '../tiptap/extensions/image-paste';
+import { Ruler } from '../tiptap/ruler';
+import { Toolbar } from '../tiptap/toolbar';
+
+type BlogFormProps = {
+  type: FormType;
+  blogValue?: BlogFormValues[];
+  blogId?: string;
+  slug?: string;
+  blog?: PostProps;
+};
+
+type ImageInfo = {
+  src: string;
+  id: string;
+  alt: string;
+};
+
+const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
+  (
+    {
+      value = '',
+      slug,
+      onChange,
+      onBlur,
+      placeholder = 'Type your text here and select words to format them...',
+      error,
+      name,
+      type,
+      className = '',
+      // routeConfig,
+      // startUpload,
+      maxImages = 8,
+      fileToImageIdMap,
+      blog,
+    },
+    ref
+  ) => {
+    const editorRef = useRef<HTMLDivElement>(null);
+    const [postData, setPostData] = useAtom(blogAtom);
+    const [content, setContent] = useAtom(editorContentAtom);
+    const [imageCount, setImageCount] = useAtom(imageCountAtoms);
+
+    const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
+
+    const [lastAutoSlug, setLastAutoSlug] = useState('');
+    const blogRef = useRef<HTMLFormElement>(null);
+
+    const [imageFiles, setImageFiles] = useAtom(fileAtoms);
+    const [imgUrl, setImgUrl] = useAtom(imageUrlAtoms);
+    const [images, setImages] = useAtom(imageAtoms);
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+    const setEditor = useSetAtom(setEditorAtom);
+
+    const extensions = useEditorExtensions();
+    const router = useRouter();
+    const editor = useOptimizedEditor({
+      value,
+      setContent,
+      setHasUnsavedChanges,
+      setEditor,
+    });
+
+    useEffect(() => {
+      if (blog && type === 'update') {
+        setPostData(blog);
+      }
+    }, [setPostData]);
+    console.log('🚀 ~ postData:', postData);
+
+    // Add this to debug
+    useEffect(() => {
+      console.log('🔄 Value changed:', value);
+    }, [value]);
+
+    // Also check if extensions are stable
+    useEffect(() => {
+      console.log('🔧 Extensions changed:', extensions);
+    }, [extensions]);
+
+    const [data, action, isPending] = useActionState(
+      async (prevState: unknown, formData: FormData) => {
+        console.log('🔍 FormData entries:');
+        for (const [key, value] of formData.entries()) {
+          console.log(`${key}:`, value);
+        }
+        console.log('🚀 ~ formData:', formData);
+
+        const jsonContent = editor?.getJSON();
+        const jsonString = JSON.stringify(jsonContent);
+
+        let allImgUrls: ImageInfo[] = [];
+        let newlyUploadedImages: ImageInfo[] = [];
+
+        const urls = extractImageUrls(postData.content);
+
+        const existingImgUrls = urls
+          .filter((img) => img.src.startsWith('https'))
+          .map((dat) => ({
+            src: dat.src,
+            id: dat.src.split('/').pop() || dat.id,
+            alt: dat.id,
+          }));
+        if (pendingImages.length > 0) {
+          const filesToUpload = pendingImages.map((img) => img.file);
+          const uploaded = await startUpload(filesToUpload);
+          uploaded?.forEach((file) => {
+            updateImageUrl(file.key, file.ufsUrl);
+          });
+          const newBlogImg = uploaded?.map((img) => img.ufsUrl) || [];
+          setImgUrl(newBlogImg);
+
+          newlyUploadedImages =
+            uploaded?.map((file) => ({
+              src: file.ufsUrl,
+              id: file.key,
+              alt: file.name,
+            })) ?? [];
+
+          allImgUrls = [...existingImgUrls, ...newlyUploadedImages];
+
+          setPostData((prev) => ({
+            ...prev,
+            images: allImgUrls.map((img) => img.src),
+          }));
+        }
+
+        const curImg = postData.images || [];
+
+        const contentImageUrls = extractImageUrlsFromContent(postData.content);
+
+        const stillUsedExistingImages = curImg.filter((imgUrl) =>
+          contentImageUrls.includes(imgUrl)
+        );
+
+        const allImages = [
+          ...stillUsedExistingImages,
+          ...allImgUrls.map((img) => img.src),
+        ];
+        const uniqueImages = [...new Set(allImages)];
+
+        const updatedContent = replaceImageSourcesInJSON(
+          jsonString,
+          allImgUrls
+        );
+        // const updatedContent = replaceImageSourcesAndIdsHybrid(
+        //   postData.content,
+        //   allImgUrls
+        // );
+        // const updatedContent = replaceImageSourcesAndIdsDOMBased(
+        //   postData.content,
+        //   allImgUrls
+        // );
+        if (updatedContent) {
+          setPostData((prev) => ({
+            ...prev,
+            content: updatedContent,
+          }));
+        }
+
+        try {
+          // Extract data from FormData and convert to expected format
+          const blogData = {
+            id: blog?.id as string,
+            slug: formData.get('slug') as string,
+            title: formData.get('title') as string,
+            content: jsonString as string,
+            category: formData.get('category') as string,
+            anonymous: formData.has('anonymous')
+              ? formData.get('anonymous') === 'true'
+              : undefined,
+            featured: formData.has('featured')
+              ? formData.get('featured') === 'true'
+              : undefined,
+            // Add comments if needed
+            // comments: formData.has('comments') ? JSON.parse(formData.get('comments') as string) : undefined
+          };
+
+          console.log(
+            '🔍 Original content sample:',
+            postData.content.substring(0, 200)
+          );
+          console.log('🔍 Images to replace:', allImgUrls);
+          console.log(
+            '🔍 Updated content sample:',
+            updatedContent.substring(0, 200)
+          );
+          console.log('📦 FormData content:', formData.get('content'));
+
+          const newBlogData = {
+            ...blogData,
+            content: updatedContent,
+            images: allImgUrls.map((img) => img.src),
+          };
+
+          const updateBlogData = {
+            ...blogData,
+            content: updatedContent,
+            images: allImgUrls.map((img) => img.src),
+          };
+
+          const res =
+            type === 'create'
+              ? await newBlog(prevState, newBlogData)
+              : await updateBlog({ ...updateBlogData, slug: postData.slug });
+
+          if (!res.error) {
+            toast.success(res.message);
+            setImageFiles([]);
+            setImgUrl([]);
+            setPendingImages([]);
+
+            if (images) {
+              setImages([]);
+            }
+            router.push('/blogs');
+          } else {
+            toast.error(res.message);
+          }
+
+          return res;
+        } catch (err) {
+          console.error('Error creating blog:', err);
+          return {
+            error: true,
+            message:
+              err instanceof Error ? err.message : 'Error creating new blog',
+          };
+        }
+      },
+      {
+        error: false,
+        message: '',
+      }
+    );
+
+    useEffect(() => {
+      if (postData.title && !isSlugManuallyEdited) {
+        const autoSlug = slugify(postData.title);
+        setLastAutoSlug(autoSlug);
+        setPostData((prev) => ({
+          ...prev,
+          slug: autoSlug,
+        }));
+      }
+    }, [postData.title, isSlugManuallyEdited, setPostData]);
+
+    useEffect(() => {
+      if (blog?.slug && type === 'update') {
+        setPostData((prev) => ({
+          ...prev,
+          slug: blog.slug,
+        }));
+
+        setIsSlugManuallyEdited(true);
+        setLastAutoSlug(blog.slug);
+      }
+    }, [blog?.slug, type, setPostData]);
+
+    const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newSlug = e.target.value;
+
+      const autoSlug = slugify(postData.title || '');
+      if (newSlug !== autoSlug && newSlug !== lastAutoSlug) {
+        setIsSlugManuallyEdited(true);
+      }
+
+      if (newSlug === '') {
+        setIsSlugManuallyEdited(false);
+      }
+
+      setPostData((prev) => ({
+        ...prev,
+        slug: newSlug,
+      }));
+    };
+
+    const resetSlugToAuto = () => {
+      setIsSlugManuallyEdited(false);
+      const autoSlug = slugify(postData.title || '');
+      setPostData((prev) => ({
+        ...prev,
+        slug: autoSlug,
+      }));
+    };
+
+    useEffect(() => {
+      if (editor && blog?.content && type === 'update') {
+        // Load the saved JSON content
+        const parsedContent =
+          typeof blog?.content === 'string'
+            ? JSON.parse(blog?.content)
+            : blog?.content;
+
+        editor.commands.setContent(parsedContent);
+      }
+    }, [editor, blog?.content]);
+
+    useEditorPerformance(editor);
+    const handleContentChange = useCallback(
+      (value: string) => {
+        setPostData((prev) => ({
+          ...prev,
+          content: value,
+        }));
+      },
+      [setPostData]
+    );
+
+    const updateContent = useOptimizedUpdateContent(
+      editorRef,
+      setImageCount,
+      handleContentChange
+    );
+
+    const {
+      insertImage,
+      previews,
+      fileInputRef,
+      handleImageUpload,
+      handleImageButtonClick,
+      handleFileInputChange,
+      getRootProps,
+      getInputProps,
+      startUpload,
+      removeImageById,
+      updateImageUrl,
+      pendingImages,
+      setPendingImages,
+    } = useEditorImages(
+      editorRef as React.RefObject<HTMLDivElement>,
+      maxImages,
+      // routeConfig,
+      updateContent
+    );
+
+    useImagePaste(editor, editorRef);
+
+    // const SubmitButton = () => {
+    //   const { pending } = useFormStatus();
+
+    //   return (
+    //     <Button
+    //       disabled={pending}
+    //       size={'sm'}
+    //       className='rounded-md px-6 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-600/70'
+    //       variant='outline'
+    //       type='submit'
+    //     >
+    //       {pending ? (
+    //         <>
+    //           <Loader className='mr-2 h-4 w-4 animate-spin' />
+    //           Submitting...
+    //         </>
+    //       ) : (
+    //         <span className='flex items-center gap-1 text-xs'>
+    //           <BookPlusIcon className='svg size-4 text-gray-200' />{' '}
+    //           <span>Add Blog</span>
+    //         </span>
+    //       )}
+    //     </Button>
+    //   );
+    // };
+
+    const SubmitButton = () => {
+      const { pending } = useFormStatus();
+
+      return (
+        <Button
+          disabled={pending}
+          className='w-full'
+          variant='outline'
+          type='submit'
+        >
+          {pending ? (
+            <>
+              <Loader className='mr-2 h-4 w-4 animate-spin' />
+              Submitting...
+            </>
+          ) : type === 'create' ? (
+            'Create Blog'
+          ) : (
+            'Update Blog'
+          )}
+        </Button>
+      );
+    };
+
+    return (
+      <div className='container mx-auto w-full min-w-2xl p-6'>
+        <div className='mb-8'>
+          <h1 className='text-3xl font-bold dark:text-gray-200'>
+            <u>{type === 'create' ? 'Create New Post' : 'Edit Blog'}</u>
+          </h1>
+          <p className='mt-2 text-blue-300 italic'>
+            {type === 'create'
+              ? 'Write and format your post using the rich text editor below.'
+              : 'Edit your Post'}
+          </p>
+        </div>
+
+        <form action={action} className='space-y-2' ref={blogRef}>
+          {/* Title Field */}
+          <input type='hidden' name='content' value={postData.content} />
+
+          <div className='flex flex-col justify-between gap-8 sm:flex-row'>
+            <div className='flex-1'>
+              <div className='flex w-fit flex-grow items-baseline'>
+                <Label className='text-nowrap' htmlFor='title'>
+                  Title *
+                </Label>
+                <div className='flex flex-col'>
+                  <InputCustom
+                    name='title'
+                    id='title'
+                    aria-describedby='title-error'
+                    placeholder='Title'
+                    value={type === 'update' ? postData.title : ''}
+                    required
+                    className='w-full flex-1'
+                    onChange={(e) => {
+                      setPostData((prev) => ({
+                        ...prev,
+                        title: e.target.value,
+                      }));
+                    }}
+                  />
+                  {data.errors?.title && (
+                    <p className='text-sm text-red-500'>
+                      {data.errors.title?.[0]}
+                    </p>
+                  )}
+                  {/* <pre>{JSON.stringify(field, null, 2)}</pre> */}
+                </div>
+              </div>
+            </div>
+
+            <div className='flex-1'>
+              <div className='flex w-fit flex-grow items-baseline'>
+                <Label className='text-nowrap' htmlFor='slug'>
+                  Slug **
+                </Label>
+
+                <div className=''>
+                  <div>
+                    <div className='relative flex w-full items-center'>
+                      <InputCustom
+                        type='text'
+                        name='slug'
+                        id='slug'
+                        aria-describedby='slug-error'
+                        placeholder='Slug'
+                        value={type === 'update' ? postData.slug : ''}
+                        required
+                        className='w-full flex-1'
+                        onChange={handleSlugChange}
+                      />
+                      {data.errors?.slug && (
+                        <p className='text-sm text-red-500'>
+                          {data.errors.slug?.[0]}
+                        </p>
+                      )}
+                    </div>
+                    {isSlugManuallyEdited && (
+                      <button
+                        type='button'
+                        onClick={resetSlugToAuto}
+                        className='absolute right-2 text-xs text-blue-500 hover:text-blue-700'
+                        title='Reset to auto-generated slug'
+                      >
+                        Auto
+                      </button>
+                    )}
+                    <p className='w-full text-center text-[10px] text-blue-300/40'>
+                      ** Slug harus unik
+                    </p>
+                    {/* <pre>{JSON.stringify(field, null, 2)}</pre> */}
+                  </div>
+
+                  {/* {!field.value && (
+                        
+                      )} */}
+                </div>
+              </div>
+            </div>
+
+            {/* Category Field */}
+            <div className='flex-1'>
+              <div className='flex w-fit flex-grow items-baseline'>
+                <Label className='text-nowrap' htmlFor='category'>
+                  Category
+                </Label>
+                <Select
+                  name={'category'}
+                  onValueChange={(value) =>
+                    setPostData((prev) => ({
+                      ...prev,
+                      category: value,
+                    }))
+                  }
+                  defaultValue={postData.category}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder='Select category' />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    {categories.map((cat) => (
+                      <SelectItem
+                        key={`${cat.name}-${cat.description}`}
+                        value={cat.name}
+                      >
+                        {cat.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* <pre>{JSON.stringify(field.value, null, 2)}</pre> */}
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <Label className='text-gray-700'>Content *</Label>
+
+            <div className='size-full overflow-x-auto rounded-2xl bg-[#F9FBFD]/90 px-4 py-2 dark:bg-stone-800/50 print:overflow-visible print:bg-white print:p-0'>
+              <section>
+                <ImagePreview
+                  content={postData.content}
+                  slug={slug || postData.slug}
+                  removeImageById={removeImageById}
+                />
+
+                {pendingImages.length > 0 && (
+                  <div className='flex w-full justify-center pt-1'>
+                    <Button
+                      type='button'
+                      variant='ghost'
+                      size='sm'
+                      onClick={handleImageButtonClick}
+                      className='w-fit rounded-md bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600'
+                    >
+                      Add Images ({pendingImages.length} photos){' '}
+                      {pendingImages[0].id}
+                    </Button>
+                  </div>
+                )}
+              </section>
+              <Toolbar
+                editorRef={editorRef}
+                fileInputRef={fileInputRef}
+                maxImages={maxImages}
+                updateContent={updateContent}
+                handleFileInputChange={handleFileInputChange}
+                insertImage={insertImage}
+                getInputProps={getInputProps}
+                getRootProps={getRootProps}
+              />
+              <Ruler />
+              <div className='mx-auto flex justify-center py-0.5 text-gray-700 print:py-0'>
+                <EditorContent
+                  editor={editor}
+                  ref={editorRef}
+                  className='editor-wrapper w-full max-w-[816px]'
+                />
+              </div>
+            </div>
+
+            {/* <pre className='w-3xl break-words whitespace-pre-wrap'>
+                      {JSON.stringify(
+                        { images, prevImg, contentHtml, field },
+                        null,
+                        2
+                      )}
+                    </pre> */}
+          </div>
+          <div className='flex items-center gap-2 pt-4'>
+            <Checkbox
+              checked={postData.anonymous}
+              onCheckedChange={(checked) => {
+                const currentChecked = checked;
+                if (currentChecked)
+                  setPostData((prev) => ({
+                    ...prev,
+                    anonymous: !currentChecked,
+                  }));
+              }}
+              className='dark:bg-accent'
+            />
+
+            <div className=''>
+              <Label className='text-base' htmlFor='anonymous'>
+                Anonymous
+              </Label>
+            </div>
+          </div>
+          {/* Form Actions */}
+          <div className='flex gap-4 pt-2'>
+            {/* <Button
+              type='submit'
+              size={'sm'}
+              className='rounded-md bg-blue-600 px-6 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50'
+            >
+              {isPending ? (
+                <span className='flex items-center gap-2'>
+                  <Loader size={26} className='animate-spin' />{' '}
+                  {type === 'create' ? 'Creating...' : 'Updating...'}
+                </span>
+              ) : (
+                <span>{type === 'create' ? 'Create Post' : 'Update Post'}</span>
+              )}
+            </Button> */}
+
+            <SubmitButton />
+
+            <Button
+              type='button'
+              variant={'ghost'}
+              size={'sm'}
+              className={cn(
+                'rounded-md px-6 py-2 text-gray-700 focus:ring-2 focus:ring-gray-500 focus:outline-none dark:bg-gray-300 dark:hover:bg-gray-300/80 dark:hover:text-gray-500'
+              )}
+            >
+              <span className='flex items-center gap-1 text-xs'>
+                <RotateCcw className='svg size-4 dark:text-gray-600' /> Reset
+              </span>
+            </Button>
+          </div>
+        </form>
+
+        {/* Content Preview */}
+        {postData && (
+          <div className='mt-8 rounded-lg bg-gray-50 p-6'>
+            <h6 className='mb-4 text-sm font-semibold text-gray-900'>
+              Content Preview
+              <pre className='text-wrap'>
+                {JSON.stringify(editor?.getJSON(), null, 2)}
+              </pre>
+            </h6>
+
+            {/* <BlogContent content={formData.content} /> */}
+          </div>
+        )}
+
+        {/* HTML Output (for debugging) */}
+        {/* {process.env.NODE_ENV === 'development' && contentValue && (
+        <div className='mt-8'>
+          <details className='text-sm'>
+            <summary className='cursor-pointer font-medium text-gray-600 hover:text-gray-800'>
+              View HTML Output (Dev Only)
+            </summary>
+            <pre className='mt-2 overflow-x-auto rounded border bg-gray-100 p-3 text-lg text-wrap dark:text-stone-800'>
+              {formData.content}
+            </pre>
+          </details>
+        </div>
+      )} */}
+      </div>
+    );
+  }
+);
+
+export default BlogForm;

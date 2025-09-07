@@ -9,6 +9,8 @@ import { Button } from '@/components/ui';
 import { jokeObjAtom } from '@/lib/jotai/atoms';
 import { useAtom } from 'jotai';
 import { Loader } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 import Area from './area';
 import InputForm from './input-form';
@@ -38,6 +40,15 @@ type PgPageProps = unknown;
 
 function AsyncComp() {
   const [joke, setJoke] = useAtom(jokeObjAtom);
+  const { data: session } = useSession();
+
+  const role = session?.user.role;
+
+  const router = useRouter();
+
+  if (role !== 'ADMIN') {
+    router.push('/');
+  }
 
   return (
     <div className='pt-16'>

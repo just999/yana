@@ -5,7 +5,12 @@ import { utapi } from '@/app/server/uploadthing';
 import { auth } from '@/auth';
 import { PAGE_SIZE } from '@/lib/constants';
 import { db } from '@/lib/db';
-import { BlogSchema, blogSchema } from '@/lib/schemas/blog-schemas';
+import {
+  BlogSchema,
+  blogSchema,
+  updateBlogSchema,
+  type UpdateBlogSchema,
+} from '@/lib/schemas/blog-schemas';
 import { formatError } from '@/lib/utils';
 import { Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
@@ -116,8 +121,81 @@ export async function createNewBlog(data: BlogSchema) {
   // redirect(`/blog/${post.slug}`);
 }
 
+// !CREATE NEW BLOG
+export async function newBlog(prevState: unknown, formData: BlogSchema) {
+  // TODO: validate the data
+
+  try {
+    const session = await auth();
+
+    if (!session) {
+      return {
+        error: true,
+        message: 'unauthorized',
+      };
+    }
+
+    const validated = blogSchema.safeParse(formData);
+
+    if (!validated.success) {
+      return {
+        success: false,
+        errors: validated.error.flatten().fieldErrors,
+        message: 'validation error',
+        inputs: formData,
+      };
+    }
+
+    const existingBlogSlug = await db.post.findUnique({
+      where: {
+        slug: formData.slug,
+      },
+    });
+
+    if (existingBlogSlug !== null) {
+      return {
+        error: true,
+        message: 'this slug is taken, please select different slug',
+      };
+    }
+
+    const post = await db.post.create({
+      data: {
+        title: formData.title,
+        slug: formData.slug,
+        content: formData.content,
+        category: formData.category,
+        authorId: session.user.id,
+        images: formData.images,
+      },
+    });
+
+    if (!post) {
+      return { error: true, message: 'Failed to create the blog.' };
+    }
+
+    revalidatePath('/dashboard/blogs');
+
+    return {
+      error: false,
+      message: 'blog successfully created',
+      data: post,
+    };
+  } catch (err: unknown) {
+    // if (error.code === 'P2002') {
+    //   return { error: 'That slug already exists.' };
+    // }
+
+    return { error: true, message: formatError(err) };
+  }
+
+  // revalidatePath('/');
+  // redirect(`/blog/${post.slug}`);
+}
+
 // !UPDATE BLOG
-export async function updateBlog(data: BlogSchema & { slug: string }) {
+export async function updateBlog(data: UpdateBlogSchema & { slug: string }) {
+  console.log('🚀 ~ updateBlog ~ data:', data);
   // TODO: validate the data
   try {
     const session = await auth();
@@ -128,14 +206,26 @@ export async function updateBlog(data: BlogSchema & { slug: string }) {
         message: 'unauthorized',
       };
     }
-    const validated = blogSchema.parse(data);
+    const validated = updateBlogSchema.safeParse(data);
+    console.log('🚀 ~ updateBlog ~ validated:', validated);
+
+    if (!validated.success) {
+      return {
+        success: false,
+        errors: validated.error.flatten().fieldErrors,
+        message: 'validation error',
+        inputs: data,
+      };
+    }
+    if (!data.id) throw new Error('Missing post ID');
 
     const existingBlog = await db.post.findUnique({
       where: {
-        slug: data.slug,
+        id: data.id,
       },
       select: { images: true },
     });
+    console.log('🚀 ~ updateBlog ~ existingBlog:', existingBlog);
 
     if (!existingBlog) {
       return {
@@ -149,20 +239,22 @@ export async function updateBlog(data: BlogSchema & { slug: string }) {
 
     // Get existing images (assuming they're stored as array of strings)
     const existingImages = existingBlog.images;
+    console.log('🚀 ~ updateBlog ~ existingImages:', existingImages);
     // Merge existing and new images, removing duplicates
     // const mergedImages = [...new Set([...existingImages, ...newImages])];
 
     // Get new images from the validated data
-    const newImages = validated.images || [];
+    const newImages = validated.data.images || [];
     const imagesToSave = newImages;
-    const { slug, comments, ...updateData } = validated;
+    const { slug, comments, id, ...updateData } = validated.data;
 
     const uniqueImg = [...new Set([...existingImages, ...newImages])];
     const post = await db.post.update({
-      where: { slug: data.slug },
+      where: { id },
       data: {
         ...updateData,
-        images: uniqueImg,
+        slug,
+        images: imagesToSave,
         updatedAt: new Date(),
       },
     });
@@ -180,6 +272,7 @@ export async function updateBlog(data: BlogSchema & { slug: string }) {
       data: post,
     };
   } catch (err: unknown) {
+    console.error(err);
     return { error: true, message: formatError(err) };
   }
 }

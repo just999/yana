@@ -31,7 +31,7 @@ const DashboardLayout = async ({ children }: DashboardPageProps) => {
       <DashboardSidebar className='max-w-56' />
       <div className='w-full pt-[70px]'>
         <SidebarInset className='rounded-xl'>
-          <header className='sticky top-16 z-50 flex h-(--header-height) shrink-0 items-center gap-2 rounded-t-xl border-b bg-gray-900/70 backdrop-blur-sm transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)'>
+          <header className='sticky top-16 z-50 flex h-(--header-height) shrink-0 items-center gap-2 rounded-t-xl border-b backdrop-blur-sm transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height) dark:bg-gray-900/70'>
             <div className='flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6'>
               <SidebarTrigger className='-ml-1' />
               <Separator

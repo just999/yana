@@ -19,6 +19,7 @@ import {
   userDescriptionActionSchema,
   userDescriptionSchema,
   userInfoSchema,
+  type SignInSchema,
 } from '@/lib/schemas/auth-schemas';
 import { generateToken, getTokenByToken } from '@/lib/tokens/tokens';
 import { FormErrors, RegistrationRoutes } from '@/lib/types';
@@ -117,13 +118,26 @@ export async function signInWithCredentials(
     };
   }
 
-  const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
-  const remember = formData.get('remember') === 'on';
+  const rawData: SignInSchema = {
+    email: formData.get('email') as string,
+    password: formData.get('password') as string,
+    remember: formData.get('remember') === 'false',
+  };
   const callbackUrl = (formData.get('callbackUrl') as string) || '/';
 
+  const validated = signInSchema.safeParse(rawData);
+
+  if (!validated.success) {
+    return {
+      error: true,
+      errors: validated.error.flatten().fieldErrors,
+      message: 'validated error',
+      inputs: rawData,
+    };
+  }
+
   try {
-    const existingUser = await getUserByEmail(email);
+    const existingUser = await getUserByEmail(validated.data.email);
 
     if (!existingUser || !existingUser.data?.email) {
       return {
@@ -155,7 +169,7 @@ export async function signInWithCredentials(
     }
 
     const isValidPassword = await compare(
-      password,
+      validated.data.password,
       existingUser.data.hashedPassword
     );
 
@@ -235,8 +249,8 @@ export async function signInWithCredentials(
     //   };
     // }
 
-    if (remember) {
-      (await cookies()).set('remember-user', email, {
+    if (validated.data.remember) {
+      (await cookies()).set('remember-user', validated.data.email, {
         maxAge: 30 * 24 * 60 * 60,
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',

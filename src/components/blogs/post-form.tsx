@@ -32,6 +32,7 @@ import {
   pendingImgAtoms,
   previewImgAtoms,
 } from '@/lib/jotai/blog-atoms';
+import { editorContentAtom } from '@/lib/jotai/editor-atoms';
 import { BlogSchema, blogSchema } from '@/lib/schemas/blog-schemas';
 import { BlogFormValues, FormType } from '@/lib/types';
 import { useUploadThing } from '@/lib/uploadthing';
@@ -47,7 +48,10 @@ import { Loader } from 'lucide-react';
 import slugify from 'slugify';
 import { toast } from 'sonner';
 
+import { ImagePreview } from '../rich-text-editor/image-preview';
 import { RichTextEditor } from '../rich-text-editor/rich-text-editor';
+import Editor from '../tiptap/editor';
+import { Toolbar } from '../tiptap/toolbar';
 import BlogContent from './blog-content';
 
 type CreatePostFormProps = {
@@ -79,14 +83,14 @@ export default function PostForm({
   const [imageCount, setImageCount] = useAtom(imageCountAtoms);
   const [imageFiles, setImageFiles] = useAtom(fileAtoms);
   const [prevImg, setPrevImg] = useAtom(previewImgAtoms);
-
+  const [content, setContent] = useAtom(editorContentAtom);
   useClearDataOnRoute();
 
   const resolvedDefaults = {
     title: type === 'update' ? formData?.title : '',
     slug: type === 'update' ? formData?.slug : '',
     category: type === 'update' ? formData?.category : '',
-    content: type === 'update' ? formData?.content : '',
+    content: type === 'update' ? formData?.content : content,
     anonymous: type === 'update' ? formData?.anonymous : false,
     images: type === 'update' ? formData?.images : [],
   };
@@ -115,14 +119,16 @@ export default function PostForm({
       setValue('content', formData.content);
 
       const multi = getValues(['category', 'images']);
+    } else {
+      setValue('content', content);
     }
-  }, [formData, setValue, setPrevImg, type, getValues]);
+  }, [formData, setValue, setPrevImg, type, getValues, content]);
 
   const hasErrors = Object.keys(formErrors).length > 0;
   const canSubmit = isValid && !isSubmitting;
   const showSubmitButton = !hasErrors;
 
-  const contentHtml = type === 'create' ? '' : formData.content;
+  const contentHtml = type === 'create' ? content : formData.content;
 
   const fileToImageIdMap = new Map<File, string>();
 
@@ -130,7 +136,7 @@ export default function PostForm({
     (value: string) => {
       const { onChange } = methods.register('content', { required: true });
 
-      methods.setValue('content', value);
+      methods.setValue('content', content);
 
       onChange({ target: { value } });
 
@@ -145,7 +151,7 @@ export default function PostForm({
   const { startUpload, routeConfig } = useUploadThing('imageUploader');
 
   useEffect(() => {
-    if (images) {
+    if (formData.images.length > 0) {
       methods.setValue(
         'images',
         images.map((img) => (typeof img === 'string' ? img : ''))
@@ -158,6 +164,8 @@ export default function PostForm({
         }));
         setImages(newImg);
       }
+
+      setValue('images', formData.images);
     }
   }, [images, methods.setValue, blog, methods, setImages]);
 
@@ -165,7 +173,25 @@ export default function PostForm({
     const title = getValues('title');
     const slug = slugify(title);
     setValue('slug', slug);
-  }, [formData.title, getValues, setValue]);
+    const imageUrl = extractImageUrlsFromContent(content);
+    if (content || slug || imageUrl.length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        content: content,
+        slug: slug,
+        images: imageUrl,
+      }));
+
+      setImages(
+        imageUrl.map((url) => ({
+          src: url,
+          id: url.split('/').pop() || '',
+        }))
+      );
+    }
+  }, [formData.title, getValues, setValue, content]);
+
+  useEffect(() => {}, []);
   const imagesData = formData.images;
 
   const onSubmit = async (data: BlogSchema) => {
@@ -215,7 +241,7 @@ export default function PostForm({
       const uniqueImages = [...new Set(allImages)];
 
       const updatedContent = replaceImageSourcesAndIdsDOMBased(
-        formData.content,
+        content,
         allImgUrls
       );
       const blogData = {
@@ -319,10 +345,9 @@ export default function PostForm({
 
   const maxImages = 8;
 
-  const { updateImageUrl } = useEditorImages(
+  const { updateImageUrl, removeImageById } = useEditorImages(
     editorRef,
     maxImages,
-    'imageUploader',
     updateContent
   );
 
@@ -477,12 +502,12 @@ export default function PostForm({
               control={methods.control}
               name='content'
               rules={{ required: 'Content is required' }}
-              render={({ field }) => {
+              render={({ field, fieldState }) => {
                 return (
                   <FormItem>
                     <FormLabel>Content *</FormLabel>
                     <FormControl>
-                      <RichTextEditor
+                      {/* <RichTextEditor
                         {...field}
                         fileToImageIdMap={fileToImageIdMap}
                         updateContent={updateContent}
@@ -497,22 +522,47 @@ export default function PostForm({
                         placeholder=''
                         type={type}
                         error={methods.formState.errors.content?.message}
-                      />
+                      /> */}
+                      <div>
+                        {/* <ImagePreview
+                          content={formData.content}
+                          slug={formData.slug}
+                          removeImageById={removeImageById}
+                        />
+                        <Toolbar /> */}
+                        <Editor
+                          {...field}
+                          value={field.value || ''}
+                          fileToImageIdMap={fileToImageIdMap}
+                          updateContent={updateContent}
+                          editorRef={editorRef}
+                          startUpload={startUpload}
+                          routeConfig={routeConfig}
+                          onChange={(value) => {
+                            field.onChange(value);
+                            handleContentChange(value);
+                          }}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          type={type}
+                          error={fieldState.error?.message}
+                        />
+                      </div>
                     </FormControl>
-                    {/* <pre className='w-3xl break-words whitespace-pre-wrap'>
+                    <pre className='w-3xl break-words whitespace-pre-wrap'>
                       {JSON.stringify(
-                        { images, prevImg, contentHtml },
+                        { images, prevImg, contentHtml, field },
                         null,
                         2
                       )}
-                    </pre> */}
+                    </pre>
                     <FormMessage />
                   </FormItem>
                 );
               }}
             />
           </div>
-          <div>
+          <div className='pt-4'>
             <FormField
               control={methods.control}
               name='anonymous'
@@ -522,6 +572,7 @@ export default function PostForm({
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={(checked) => field.onChange(checked)}
+                      className='dark:bg-accent'
                     />
                   </FormControl>
                   <div className=''>

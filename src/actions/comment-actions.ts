@@ -849,15 +849,10 @@ export async function debugCommentReactions(commentIds: string[]) {
 }
 
 export async function commentReport(prevState: unknown, formData: FormData) {
-  console.log('🚀 ~ commentReport ~ formData:', formData);
-
   const data = Object.fromEntries(formData.entries());
-  console.log('🚀 ~ commentReport ~ data:', data);
   const validated = commentReportSchema.safeParse(data);
-  console.log('🚀 ~ commentReport ~ validated:', validated);
   if (!validated.success) {
     const fieldError = validated.error.flatten().fieldErrors;
-    console.log('🚀 ~ commentReport ~ fieldError:', fieldError);
     return {
       error: true,
       message: 'invalid data comment report',
@@ -930,10 +925,6 @@ export async function getCommentReportByCommentId(commentId: string) {
         },
       },
     });
-    console.log(
-      '🚀 ~ getCommentReportByCommentId ~ existingReport:',
-      existingReport
-    );
 
     return {
       error: false,
@@ -958,7 +949,6 @@ export async function removeCommentReport(commentId: string) {
         userId: userId,
       },
     });
-    console.log('🚀 ~ removeCommentReport ~ existingReport:', existingReport);
 
     if (!existingReport) {
       return {

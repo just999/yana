@@ -1,5 +1,6 @@
 import { getBlogsByAuthUser } from '@/actions/blog-actions';
 import { auth } from '@/auth';
+import BlogForm from '@/components/blogs/blog-form';
 import PostForm from '@/components/blogs/post-form';
 import { blogDefaultValue } from '@/lib/constants';
 import HydrateBlog from '@/lib/jotai/hydrate-blog';
@@ -26,7 +27,8 @@ const NewBlogPage = async () => {
           slug={''}
           session={session}
         >
-          <PostForm type='create' />
+          {/* <PostForm type='create' /> */}
+          <BlogForm type='create' />
         </HydrateBlog>
       </div>
     </section>

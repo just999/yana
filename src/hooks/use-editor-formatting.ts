@@ -4,8 +4,8 @@ import { debounce } from '@/components/rich-text-editor/editor-helper';
 
 export const useEditorFormatting = (
   editorRef: RefObject<HTMLElement | null> | undefined,
-  updateContent: () => void,
-  detectActiveStyles: () => void
+  detectActiveStyles: () => void,
+  updateContent?: () => void
 ) => {
   const [currentTextColor, setCurrentTextColor] = useState<string>('#000000');
 
@@ -135,7 +135,7 @@ export const useEditorFormatting = (
           insertInlineStyleAtCursor(tag);
         }
 
-        updateContent();
+        if (updateContent) updateContent();
         setTimeout(detectActiveStyles, 50);
         return;
       }
@@ -288,7 +288,7 @@ export const useEditorFormatting = (
         }
       }
 
-      updateContent();
+      if (updateContent) updateContent();
       setTimeout(detectActiveStyles, 50);
     },
     [editorRef, updateContent, detectActiveStyles, insertInlineStyleAtCursor]
@@ -354,7 +354,7 @@ export const useEditorFormatting = (
         selection.addRange(newRange);
       }
 
-      updateContent();
+      if (updateContent) updateContent();
       setTimeout(detectActiveStyles, 50);
     },
     [editorRef, updateContent, detectActiveStyles]
@@ -415,7 +415,7 @@ export const useEditorFormatting = (
             );
             targetElement.classList.add(className);
           }
-          updateContent();
+          if (updateContent) updateContent();
           setTimeout(detectActiveStyles, 50);
           return;
         }
@@ -519,7 +519,7 @@ export const useEditorFormatting = (
         console.error('Error toggling block style:', error);
       }
 
-      updateContent();
+      if (updateContent) updateContent();
       setTimeout(detectActiveStyles, 50);
     },
     [editorRef, updateContent, detectActiveStyles]
@@ -620,7 +620,7 @@ export const useEditorFormatting = (
         console.error('Error toggling list style:', error);
       }
 
-      updateContent();
+      if (updateContent) updateContent();
       setTimeout(detectActiveStyles, 50);
     },
     [editorRef, updateContent, detectActiveStyles]
@@ -669,7 +669,7 @@ export const useEditorFormatting = (
         targetElement.classList.add(alignmentClass);
       }
 
-      updateContent();
+      if (updateContent) updateContent();
       setTimeout(detectActiveStyles, 50);
     },
     [editorRef, updateContent, detectActiveStyles]
@@ -702,7 +702,7 @@ export const useEditorFormatting = (
         toggleInlineStyleWithClasses(tag);
       }
 
-      updateContent();
+      if (updateContent) updateContent();
       debouncedDetectActiveStyles();
     },
     [
@@ -746,7 +746,7 @@ export const useEditorFormatting = (
       }
 
       setCurrentTextColor(color);
-      updateContent();
+      if (updateContent) updateContent();
       setTimeout(detectActiveStyles, 50);
     },
     [setCurrentTextColor]
@@ -764,7 +764,7 @@ export const useEditorFormatting = (
       const tagMap = { bold: 'strong', italic: 'em', underline: 'u' };
       try {
         document.execCommand(format, false, undefined);
-        updateContent();
+        if (updateContent) updateContent();
         setTimeout(detectActiveStyles, 50);
       } catch (error) {
         console.error(`Error applying ${format}:`, error);

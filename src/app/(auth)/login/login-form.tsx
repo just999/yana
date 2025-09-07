@@ -19,6 +19,7 @@ import {
 } from '@/components/ui';
 import { loginDefaultValues, registerDefaultValues } from '@/lib/constants';
 import { userAtom } from '@/lib/jotai/user-atoms';
+import { cn } from '@/lib/utils';
 import { User } from '@prisma/client';
 import { useAtom } from 'jotai';
 import { Key, Mail } from 'lucide-react';
@@ -49,12 +50,13 @@ const LoginForm = ({ user }: LoginFormProps) => {
   useEffect(() => {
     if (!data.error && data.message) {
       setHasSubmitted(true);
+      toast.success('successfully');
       router.refresh();
       router.push(callbackUrl);
     }
-    if (data.error) {
+    if (data.error && data.message) {
       setHasSubmitted(false);
-      toast.error(data.message);
+      toast.error('error');
     }
 
     // if (data.twoFactor) {
@@ -155,32 +157,61 @@ const LoginForm = ({ user }: LoginFormProps) => {
           {!showTwoFactor && (
             <>
               <div className='space-y-2'>
-                <Label htmlFor='email'>Email</Label>
+                <Label
+                  htmlFor='email'
+                  className={data.errors?.email ? 'text-red-500' : ''}
+                >
+                  Email {data.errors?.email} {data.inputs?.email}
+                </Label>
                 <InputCustom
-                  defaultValue={loginDefaultValues.email}
+                  defaultValue={data.inputs?.email}
                   id='email'
                   name='email'
                   placeholder='m@example.com'
                   type='email'
                   autoComplete='email'
+                  aria-describedby='email-error'
                   suffix={
                     <Mail
                       size={20}
-                      className='absolute right-2 text-zinc-400'
+                      className={cn(
+                        'absolute right-2',
+                        data.errors?.email ? 'text-red-500' : 'text-zinc-400'
+                      )}
                     />
                   }
-                  required
+                  // required
+                  className={cn(data.errors?.email ? 'border-red-600' : '')}
                 />
+
+                {data.errors?.email && (
+                  <p className='text-sm text-red-500'>
+                    {data.errors?.email?.[0]}
+                  </p>
+                )}
               </div>
               <div className='space-y-2'>
-                <Label htmlFor='password'>Password</Label>
+                <Label
+                  htmlFor='password'
+                  className={data.errors?.password?.[0] ? 'text-red-500' : ''}
+                >
+                  Password
+                </Label>
                 <InputPassword
-                  defaultValue={loginDefaultValues.password}
+                  defaultValue={data.inputs?.password}
                   id='password'
                   name='password'
-                  required
+                  // required
                   autoComplete='current-password'
+                  aria-describedby='password-error'
+                  className={cn(data.errors?.password ? 'border-red-600' : '')}
                 />
+
+                {data.errors?.password && (
+                  <p className='text-sm text-red-500'>
+                    {data.errors?.password?.[0]}
+                  </p>
+                )}
               </div>
 
               <div className='flex items-center justify-between'>
@@ -188,7 +219,7 @@ const LoginForm = ({ user }: LoginFormProps) => {
                   <Checkbox
                     id='remember'
                     name='remember'
-                    defaultChecked={Boolean(loginDefaultValues.remember)}
+                    defaultChecked={Boolean(data.inputs?.remember)}
                   />
                   <label
                     htmlFor='remember'

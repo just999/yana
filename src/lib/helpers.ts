@@ -148,6 +148,11 @@ export const categories = [
     description: 'All fun stuff, educations, science, socials',
     img: '/img/Mental.svg',
   },
+  {
+    name: 'anythings',
+    description: 'learn something new',
+    img: '/img/learn.png',
+  },
 ];
 
 export const menuItems = [

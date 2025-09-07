@@ -40,17 +40,18 @@ const BlogCard = ({ post, type }: BlogCardProps) => {
     <Card key={post.slug} className='group min-w-72 overflow-hidden'>
       <div className='relative h-40 overflow-hidden'>
         {Array.isArray(post.images) && post.images.length > 0 ? (
-          post.images
-            .slice(0, 1)
-            .map((img, i) => (
+          post.images.slice(0, 1).map((img, i) => {
+            return (
               <Image
                 src={img || '/img/noimg.svg'}
                 alt={post.title}
                 fill
                 className='object-cover transition-transform duration-300 group-hover:scale-105'
                 key={img}
+                priority
               />
-            ))
+            );
+          })
         ) : (
           <div className='bg-accent/80 z-10 flex w-full text-center'>
             <Img className='mx-auto h-48 w-auto text-amber-200' />

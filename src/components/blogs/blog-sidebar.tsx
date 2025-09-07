@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { localAvatar } from '@/lib/constants';
-import { categories } from '@/lib/helpers';
+import { editorStateAtom } from '@/lib/jotai/editor-atoms';
 import { PostProps } from '@/lib/types';
 import DOMPurify from 'dompurify';
+import { useAtomValue } from 'jotai';
 import { ChevronUp, Mail, Tag, TrendingUp } from 'lucide-react';
 
 import {
@@ -30,9 +31,16 @@ type BlogSidebarProps = {
 
 const BlogSidebar = ({ blog, allBlogs, featuredBlogs }: BlogSidebarProps) => {
   const [liked, setLiked] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [email, setEmail] = useState('');
+  const editorState = useAtomValue(editorStateAtom);
+  const { editor } = editorState;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleLike = () => setLiked(!liked);
   const handleBookmark = () => setBookmarked(!bookmarked);
@@ -57,6 +65,10 @@ const BlogSidebar = ({ blog, allBlogs, featuredBlogs }: BlogSidebarProps) => {
     cat,
     count,
   }));
+
+  if (!mounted) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className='space-y-8 rounded-lg lg:col-span-1'>
@@ -127,7 +139,39 @@ const BlogSidebar = ({ blog, allBlogs, featuredBlogs }: BlogSidebarProps) => {
           <CardContent>
             <div className='space-y-6'>
               {featuredBlogs?.map((post, index) => {
-                const contentValue = DOMPurify.sanitize(post.content, {
+                // const contentValue = DOMPurify.sanitize(post.content, {
+                //   ALLOWED_TAGS: [
+                //     'img',
+                //     'div',
+                //     'span',
+                //     'p',
+                //     'a',
+                //     'br',
+                //     'strong',
+                //     'em',
+                //     'ul',
+                //     'li',
+                //     'ol',
+                //     'h1',
+                //     'h2',
+                //     'h3',
+                //     'h4',
+                //     'h5',
+                //     'h6',
+                //   ],
+                //   ALLOWED_ATTR: [
+                //     'src',
+                //     'alt',
+                //     'data-image-id',
+                //     'style',
+                //     'class',
+                //     'width',
+                //     'height',
+                //   ],
+                //   ALLOWED_URI_REGEXP: /^data:image\/|^blob:|^https?:\/\//,
+                // });
+
+                const contentValue = DOMPurify.sanitize(blog.content, {
                   ALLOWED_TAGS: [
                     'img',
                     'div',
@@ -146,6 +190,15 @@ const BlogSidebar = ({ blog, allBlogs, featuredBlogs }: BlogSidebarProps) => {
                     'h4',
                     'h5',
                     'h6',
+                    'table',
+                    'tbody',
+                    'thead',
+                    'tr',
+                    'td',
+                    'th',
+                    'colgroup',
+                    'col',
+                    'caption',
                   ],
                   ALLOWED_ATTR: [
                     'src',
@@ -155,12 +208,19 @@ const BlogSidebar = ({ blog, allBlogs, featuredBlogs }: BlogSidebarProps) => {
                     'class',
                     'width',
                     'height',
+                    'colspan',
+                    'rowspan',
+                    'scope',
+                    'min-width', // min-width for your col styles
                   ],
                   ALLOWED_URI_REGEXP: /^data:image\/|^blob:|^https?:\/\//,
+                  // Allow style attributes on table elements
+                  ALLOW_ARIA_ATTR: false,
+                  ALLOW_DATA_ATTR: false,
                 });
-                // console.log('🚀 ~ contentValue:', contentValue);
+
                 return (
-                  <div key={index} className='group cursor-pointer'>
+                  <div key={post.id} className='group cursor-pointer'>
                     <div className='featured-blog space-x-3'>
                       <img
                         src={post.images[0]}
@@ -178,7 +238,7 @@ const BlogSidebar = ({ blog, allBlogs, featuredBlogs }: BlogSidebarProps) => {
                           {post.title}
                         </h4>
                         <p className='mb-2 line-clamp-2 w-full text-xs text-gray-600'>
-                          {/* {contentValue.substring(0, 30)} */}
+                          {contentValue.substring(0, 30)}
                         </p>
                       </div>
                     </div>

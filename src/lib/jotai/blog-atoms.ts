@@ -18,12 +18,24 @@ export interface BlogProps {
 export type ImageData = {
   src: string;
   id: string;
+  alt?: string;
+  file?: File[];
+  HTMLAttributes?: {
+    'data-image-id': string;
+    style: string;
+  };
 };
 
 enum BlogFormType {
   create = 'create',
   update = 'update',
 }
+
+export type PendingImgProps = {
+  id: string;
+  file: File;
+  localUrl: string;
+};
 
 type FileOrStringArray = string[] | File[];
 
@@ -39,9 +51,7 @@ export const uploadingAtoms = atom<boolean>(false);
 
 export const commentsWithParentAtoms = atom<CommentsProps[]>([]);
 
-export const pendingImgAtoms = atom<
-  { id: string; file: File; localUrl: string }[]
->([]);
+export const pendingImgAtoms = atom<PendingImgProps[]>([]);
 
 export const activeStylesAtom = atom<Set<string>>(new Set<string>());
 export const typingStylesAtom = atom<Set<string>>(new Set<string>());

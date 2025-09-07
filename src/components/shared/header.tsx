@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 
 import Search from '@/components/shared/search';
-import SearchInput from '@/components/shared/search-input';
 import { SITE_CONFIG } from '@/lib/constants';
 import { menuItems } from '@/lib/helpers';
 import { userAtom } from '@/lib/jotai/user-atoms';
@@ -22,12 +21,23 @@ type HeaderProps = {
 };
 
 const Header = ({ className, user }: HeaderProps) => {
-  const pathname = usePathname();
+  const [isClient, setIsClient] = useState(false);
+
+  const [mounted, setMounted] = useState(false);
+
+  const currentPathname = usePathname(); // Remove try/catch
   const [curUser, setCurUser] = useAtom(userAtom);
   const router = useRouter();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-
   const { data: session, update, status } = useSession();
+
+  // Use currentPathname directly instead of maintaining separate pathname state
+  const pathname = currentPathname;
+
+  useEffect(() => {
+    setIsClient(true);
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!session) router.push('/');
@@ -87,11 +97,15 @@ const Header = ({ className, user }: HeaderProps) => {
     setIsSearchOpen(false);
   }, [pathname]);
 
+  if (!isClient || !mounted) {
+    return null;
+  }
+
   return (
     <>
       <header
         className={cn(
-          'bg-muted/80 fixed inset-x-0 top-0 z-50 px-4 py-2 shadow-lg backdrop-blur-sm',
+          'dark:bg-muted/80 fixed inset-x-0 top-0 z-50 px-4 py-2 shadow-lg backdrop-blur-sm',
           className
         )}
       >
@@ -113,35 +127,26 @@ const Header = ({ className, user }: HeaderProps) => {
 
               {/* Desktop Navigation Links */}
               {curUser &&
-                menuItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      'w-full rounded-md px-3 py-2 text-sm text-nowrap transition-colors duration-200',
-                      isActive(item.href)
-                        ? 'bg-gray-800/50 font-normal text-white underline decoration-amber-500/60 decoration-4 shadow-md'
-                        : 'hover:bg-muted hover:text-orange-500'
-                    )}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
+                menuItems.map((item) => {
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={cn(
+                        'w-full rounded-md px-3 py-2 text-sm text-nowrap transition-colors duration-200',
+                        isActive(item.href)
+                          ? 'bg-neutral-200/20 font-normal text-stone-700 underline decoration-amber-500/60 decoration-4 shadow-md dark:bg-gray-800/50'
+                          : 'hover:bg-muted hover:text-orange-500'
+                      )}
+                    >
+                      {item.label}
+                    </Link>
+                  );
+                })}
             </div>
 
             {/* Right Side - Search & Menu */}
             <div className='flex items-center gap-2'>
-              {/* Search - Always visible for logged in users */}
-              {/* {curUser && (
-                <div className='relative'>
-                  <SearchInput
-                    isOpen={isSearchOpen}
-                    onToggle={() => setIsSearchOpen(!isSearchOpen)}
-                    onClose={() => setIsSearchOpen(false)}
-                  />
-                </div>
-              )} */}
-
               <Search />
 
               {/* Menu Component */}

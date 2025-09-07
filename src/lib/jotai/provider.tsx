@@ -73,24 +73,24 @@ import { createStore, Provider } from 'jotai';
 const myStore = createStore();
 
 // Conditional DevTools component
-const DevToolsComponent = () => {
-  const [DevTools, setDevTools] = useState<ComponentType<{
-    store: unknown;
-    position: string;
-  }> | null>(null);
+// const DevToolsComponent = () => {
+//   const [DevTools, setDevTools] = useState<ComponentType<{
+//     store: unknown;
+//     position: string;
+//   }> | null>(null);
 
-  if (process.env.NODE_ENV !== 'development' || !DevTools) {
-    return null;
-  }
+//   if (process.env.NODE_ENV !== 'development' || !DevTools) {
+//     return null;
+//   }
 
-  return <DevTools store={myStore} position='bottom-right' />;
-};
+//   return <DevTools store={myStore} position='bottom-right' />;
+// };
 
 const StoreProvider = ({ children }: { children: ReactNode }) => {
   return (
     <Provider store={myStore}>
       {children}
-      <DevToolsComponent />
+      {/* <DevToolsComponent /> */}
     </Provider>
   );
 };

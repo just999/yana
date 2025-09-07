@@ -24,11 +24,29 @@ export interface RichTextEditorRef {
   getDOMElement: () => HTMLDivElement | null;
 }
 
+export interface PostProps {
+  id: string;
+  title: string;
+  slug: string;
+  category: string;
+  content: string;
+  authorId: string;
+  reactions: Reaction[];
+  featured?: boolean;
+  anonymous: boolean;
+  author: User;
+  images: string[];
+  comments?: PostComment[];
+  createdAt: Date;
+}
+
 export interface RichTextEditorProps {
-  value: string;
+  value?: string;
   type: FormType;
+  slug?: string;
+  blog?: PostProps;
   onChange?: (value: string) => void;
-  onBlur: () => void;
+  onBlur?: () => void;
   // onImageFilesChange?: (files: File[]) => void;
   placeholder?: string;
   error?: string;
@@ -36,16 +54,16 @@ export interface RichTextEditorProps {
   // watch: UseFormWatch<BlogFormValues>;
   // form: UseFormReturn<BlogFormValues>;
   name?: string;
-  startUpload: StartUploadFn;
-  routeConfig?: ExpandedRouteConfig;
+  startUpload?: StartUploadFn;
+  routeConfig?: ExpandedRouteConfig | undefined;
   className?: string;
   maxImages?: number;
   editorRef?: React.RefObject<HTMLDivElement | null> | undefined;
-  fileToImageIdMap: Map<File, string>;
+  fileToImageIdMap?: Map<File, string>;
   rules?: {
     required: string;
   };
-  updateContent: (value?: string) => void;
+  updateContent?: (value?: string) => void;
 }
 
 export interface ToolbarButtonProps {
@@ -92,22 +110,6 @@ export interface PostComment {
   comment: string;
   user?: User;
   username?: string;
-}
-
-export interface PostProps {
-  id?: string;
-  title: string;
-  slug: string;
-  category: string;
-  content: string;
-  authorId: string;
-  reactions: Reaction[];
-  featured?: boolean;
-  anonymous: boolean;
-  author: User;
-  images: string[];
-  comments?: PostComment[];
-  createdAt: Date;
 }
 
 export interface PostData {

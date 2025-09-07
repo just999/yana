@@ -1,6 +1,7 @@
 import { getBlogBySlug } from '@/actions/blog-actions';
 import { auth } from '@/auth';
 import BackButton from '@/components/back-button';
+import BlogForm from '@/components/blogs/blog-form';
 import PostForm from '@/components/blogs/post-form';
 import HydrateBlog from '@/lib/jotai/hydrate-blog';
 import { ImageData, PostProps } from '@/lib/types';
@@ -57,13 +58,15 @@ const transformImages = (images: string): ImageData[] | undefined => {
 
 const EditBlogPage = async ({ params }: EditBlogPageProps) => {
   const slug = (await params).slug;
+  console.log('🚀 ~ EditBlogPage ~ slug:', slug);
   const rawBlog = (await getBlogBySlug(slug)).data;
   const session = (await auth()) as Session;
   if (!rawBlog) {
-    throw new Error('Blog not found');
+    return null;
   }
 
   const blog: PostProps = await transformBlogToPost(rawBlog);
+  console.log('🚀 ~ EditBlogPage ~ blog:', blog.id);
 
   const imageDataUrl = Array.isArray(blog.images)
     ? blog.images.map((f) => (typeof f === 'string' ? f : ''))
@@ -93,7 +96,8 @@ const EditBlogPage = async ({ params }: EditBlogPageProps) => {
         slug={slug}
         session={session}
       >
-        <PostForm type='update' slug={slug} />
+        {/* <PostForm type='update' slug={slug} /> */}
+        <BlogForm type='update' slug={slug} blog={blog} />
       </HydrateBlog>
     </>
   );

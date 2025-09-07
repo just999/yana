@@ -86,7 +86,6 @@ const ReviewForm = () => {
 
         const res = await submitSignInAction(prevState, formData);
         const { redirect, error, message, data: dataErrors } = res;
-        console.log('🚀 ~ ReviewForm ~ res:', res.data);
 
         if (!error) {
           setFiles([]);
@@ -149,8 +148,6 @@ const ReviewForm = () => {
       message: '',
     }
   );
-  console.log('🚀 ~ ReviewForm ~ data:', data);
-  console.log('🚀 ~ ReviewForm ~ data:', data);
 
   const searchParams = useSearchParams();
   const router = useRouter();

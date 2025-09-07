@@ -121,6 +121,7 @@ const AlertDialogButton = ({
   action,
 }: AlertDialogButtonProps) => {
   const handleConfirm = () => {
+    console.log('confirm delete');
     remove();
   };
 
@@ -132,7 +133,7 @@ const AlertDialogButton = ({
           size='sm'
           disabled={disabled}
           className={cn(
-            'group flex cursor-pointer items-center justify-start gap-4 overflow-hidden font-normal dark:hover:text-gray-100',
+            'group flex cursor-pointer items-center justify-start gap-0 overflow-hidden font-normal dark:hover:text-gray-100',
             destructive &&
               'text-gray-100 hover:text-red-700 dark:group-hover:text-amber-200',
             className
@@ -140,9 +141,12 @@ const AlertDialogButton = ({
         >
           <Icon
             size={16}
-            className={cn('svg dark:group-hover:text-stone-200', iconClassName)}
+            className={cn(
+              'svg stroke-3 dark:group-hover:text-stone-200',
+              iconClassName
+            )}
           />{' '}
-          <span className='dark:group-hover:text-stone-200'>{action}</span>
+          {/* <span className='dark:group-hover:text-stone-200'>{action}</span> */}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
@@ -165,7 +169,7 @@ const AlertDialogButton = ({
                 <Loader className='animate-spin' /> {action}...
               </>
             ) : (
-              `${action}`
+              action
             )}
           </AlertDialogAction>
         </AlertDialogFooter>

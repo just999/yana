@@ -318,7 +318,7 @@
 //     //   console.log('user:', user);
 //     //   console.log('account:', account);
 //     //   console.log('token before:', token);
-//     //   console.log('🚀 ~ jwt ~ user:', user);
+
 //     //   if (user) {
 //     //     token.role = user.role;
 //     //     token.name = user.name;

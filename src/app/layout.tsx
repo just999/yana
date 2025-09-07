@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Geist, Geist_Mono, Inter } from 'next/font/google';
 
 import './globals.css';
 
@@ -10,7 +10,12 @@ import { Toaster } from '@/components/ui';
 import { ThemeProvider } from '@/lib/contexts/theme-context';
 import Providers from '@/lib/providers/provider';
 import { Theme } from '@/lib/types';
+import { cn } from '@/lib/utils';
 import { cookies } from 'next/headers';
+
+const inter = Inter({
+  subsets: ['latin'],
+});
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -40,12 +45,9 @@ export default async function RootLayout({
   const cookieStore = await cookies();
   const cookieTheme = cookieStore.get('theme');
   const theme = cookieTheme ? (cookieTheme.value as Theme) : 'dark';
-  console.log('🚀 ~ RootLayout ~ theme:', theme);
   return (
     <html lang='en'>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={cn('antialiased', inter.className)}>
         <Providers session={session}>
           <ThemeProvider defaultTheme={theme}>
             <div className='flex flex-col'>
