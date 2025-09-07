@@ -258,7 +258,10 @@ export default function PostForm({
       const response =
         type === 'create'
           ? await createNewBlog(blogData)
-          : await updateBlog({ ...updateBlogData, slug: formData.slug });
+          : await updateBlog({
+              ...updateBlogData,
+              slug: formData.slug,
+            });
 
       if (response?.error) {
         toast.error(response.message);
