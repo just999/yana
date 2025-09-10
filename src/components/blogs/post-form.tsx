@@ -629,7 +629,7 @@ export default function PostForm({
             {/* <pre>{JSON.stringify(contentValue, null, 2)}</pre> */}
           </h3>
 
-          <BlogContent content={formData.content} />
+          {/* <BlogContent content={formData.content} /> */}
         </div>
       )}
 

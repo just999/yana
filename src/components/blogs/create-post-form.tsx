@@ -419,7 +419,7 @@ export default function CreatePostForm({
           <h3 className='mb-4 text-lg font-semibold text-gray-900'>
             Content Preview
           </h3>
-          <BlogContent content={contentValue} />
+          {/* <BlogContent content={contentValue} /> */}
         </div>
       )}
 
