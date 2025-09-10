@@ -1,7 +1,7 @@
+import type { JSONContent } from '@tiptap/core';
 import { clsx, type ClassValue } from 'clsx';
 import { differenceInYears } from 'date-fns';
 import { Ballet } from 'next/font/google';
-import type { JSONContent } from '@tiptap/core';
 // !Helper function (could be in a separate utils file)
 // export async function extractImageUrls(html: string): Promise<string[]> {
 //   if (!html) return [];
@@ -461,38 +461,56 @@ export function extractImageUrlsServer(
   const root = parse(content);
   const images = root.querySelectorAll('img');
 
-  return images.map((img) => {
-    const src = img.getAttribute('src') ?? '';
-    const name = img.getAttribute('alt') ?? 'image.jpg';
-    const id = sanitizeFileName(name);
-    return { src, id };
-  });
+  return images
+    .filter((img) => {
+      const src = img.getAttribute('src') || '';
+      return src.startsWith('https://') && src.length > 10;
+    })
+    .map((img) => {
+      const src = img.getAttribute('src') || '';
+      const name = img.getAttribute('alt') || 'image.jpg';
+      const id = sanitizeFileName(name);
+
+      return { src, id };
+    });
 }
 
 export function extractImageUrls(
   content: string
 ): { src: string; id: string; alt: string }[] {
-  if (!content) return [];
+  try {
+    if (!content || typeof content !== 'string') return [];
 
-  // Using DOMParser (works in Node.js with jsdom or in the browser)
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(content, 'text/html');
-  const images = doc.querySelectorAll('img');
-  // const images = doc.querySelectorAll('img[src^="https://"]');
-  // return Array.from(images).map((img) => (img as HTMLImageElement).src);
-  return Array.from(images)
-    .filter((img) => {
-      // Filter out images with empty or missing src
-      return img && img.src && img.src.trim() !== '' && img.alt;
-    })
-    .map((img) => {
-      const src = (img as HTMLImageElement).src;
-      const name = img.getAttribute('alt') ?? 'image.jpg';
-      const id = src.split('/').pop() || 'image.jpg';
-      const alt = img.alt;
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(content, 'text/html');
+    const images = doc.querySelectorAll('img[src^="https"]');
+    console.log('🚀 ~ extractImageUrls ~ images:', images);
 
-      return { src, id, alt };
+    let result: { src: string; id: string; alt: string }[] = [];
+    console.log('🚀 ~ extractImageUrls ~ result:', result);
+
+    images.forEach((img) => {
+      try {
+        const imgElement = img as HTMLImageElement;
+        const src = imgElement.src?.trim() || '';
+
+        if (!src) return; // Skip if no src
+
+        const id = src.split('/').pop() || 'image.jpg';
+        const alt =
+          typeof imgElement.alt === 'string' ? imgElement.alt.trim() : '';
+
+        result.push({ src, id, alt });
+      } catch (error) {
+        console.warn('Error processing image element:', error);
+      }
     });
+
+    return result;
+  } catch (error) {
+    console.error('Error extracting image URLs:', error);
+    return [];
+  }
 }
 
 export function extractUploadedImages(

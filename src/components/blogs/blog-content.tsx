@@ -406,11 +406,13 @@ import {
   useEditorExtensions,
   useOptimizedEditor,
 } from '@/hooks/use-editor-extensions';
+import { useSlugNavigation } from '@/hooks/use-slug-navigation';
 import {
   editorContentAtom,
   editorStateAtom,
   setEditorAtom,
 } from '@/lib/jotai/editor-atoms';
+import type { PostProps } from '@/lib/types';
 import { cn } from '@/lib/utils';
 // import { generateHTML } from '@tiptap/core';
 import type { JSONContent } from '@tiptap/core';
@@ -433,41 +435,47 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { all, createLowlight } from 'lowlight';
 import { Ellipsis } from 'lucide-react';
 
+import SlugNavigation from './slug-navigation';
+
 import css from 'highlight.js/lib/languages/css';
 
 type BlogContentProps = {
+  slug: string;
+  blogs: PostProps[];
   content: string; // Assuming content is a JSON string
 };
 
-const BlogContent = ({ content }: BlogContentProps) => {
-  console.log('🚀 ~ BlogContent ~ content:', content);
+const BlogContent = ({ content, blogs, slug }: BlogContentProps) => {
   const [mounted, setMounted] = useState(false);
   const [htmlContent, setHtmlContent] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const setEditor = useSetAtom(setEditorAtom);
   const [value, setValue] = useAtom(editorContentAtom);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-
+  const { previousPost, nextPost, currentPost } = useSlugNavigation(
+    blogs,
+    slug
+  );
   // Create lowlight instance with languages
-  const lowlight = useMemo(() => {
-    if (typeof window === 'undefined') {
-      return null;
-    }
-    const lowlightInstance = createLowlight(all);
+  // const lowlight = useMemo(() => {
+  //   if (typeof window === 'undefined') {
+  //     return null;
+  //   }
+  //   const lowlightInstance = createLowlight(all);
 
-    // Register additional languages
-    lowlightInstance.register('html', html);
-    lowlightInstance.register('css', css);
-    lowlightInstance.register('js', js);
-    lowlightInstance.register('javascript', js); // alias
-    lowlightInstance.register('ts', ts);
-    lowlightInstance.register('typescript', ts); // alias
-    lowlightInstance.register('python', python);
-    lowlightInstance.register('json', json);
-    lowlightInstance.register('bash', bash);
+  //   // Register additional languages
+  //   lowlightInstance.register('html', html);
+  //   lowlightInstance.register('css', css);
+  //   lowlightInstance.register('js', js);
+  //   lowlightInstance.register('javascript', js); // alias
+  //   lowlightInstance.register('ts', ts);
+  //   lowlightInstance.register('typescript', ts); // alias
+  //   lowlightInstance.register('python', python);
+  //   lowlightInstance.register('json', json);
+  //   lowlightInstance.register('bash', bash);
 
-    return lowlightInstance;
-  }, []);
+  //   return lowlightInstance;
+  // }, []);
 
   const editor = useOptimizedEditor({
     value,
@@ -486,40 +494,11 @@ const BlogContent = ({ content }: BlogContentProps) => {
     }
   }, [editor, content]);
 
-  // Create extensions array
-  // const extensions = useMemo(
-  //   () => [
-  //     StarterKit.configure({
-  //       codeBlock: false,
-  //     }),
-  //     Document,
-  //     Paragraph.configure({
-  //       HTMLAttributes: {
-  //         class: 'paragraph-class',
-  //       },
-  //     }),
-  //     Link.configure({
-  //       openOnClick: false,
-  //       autolink: true,
-  //       defaultProtocol: 'https',
-  //     }),
-  //     CodeBlockLowlight.configure({
-  //       lowlight,
-  //       defaultLanguage: 'javascript',
-  //       HTMLAttributes: {
-  //         class: 'hljs code-block-custom',
-  //         'data-language-indicator': 'true',
-  //       },
-  //     }),
-  //   ],
-  //   [lowlight]
-  // );
-
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const extensions = useEditorExtensions();
+  const { extensions, lowlight } = useEditorExtensions();
 
   const parsed = JSON.parse(content);
   const codeNode = parsed.content.find(
@@ -533,7 +512,8 @@ const BlogContent = ({ content }: BlogContentProps) => {
         const language = node.attrs.language || 'plaintext';
         const tree = lowlight?.highlight(language, code);
         const htmlRes = tree && toHtml(tree);
-        return `<div class="hljs code-block-custom w-full m-auto" key="code-${index}">${htmlRes}</div>`;
+        return `<div class="${cn('hljs code-block-custom w-full m-auto', `language-${language}`)}" key="code-${index}"><div class="${cn(`code-${language}`)}">${htmlRes}</div>
+        </div>`;
       }
     } catch (error) {
       console.error('Error highlighting code:', error);
@@ -596,14 +576,14 @@ const BlogContent = ({ content }: BlogContentProps) => {
       <div className='not-prose'>
         <div
           className={cn(
-            'prose prose-sm max-w-none px-8 py-2 text-justify whitespace-pre-wrap dark:bg-black/20 dark:text-stone-100',
-            `language-${language}`
+            'prose prose-sm max-w-none px-8 py-2 text-justify dark:bg-black/20 dark:text-stone-100'
           )}
           dangerouslySetInnerHTML={{
             __html: htmlCont,
           }}
         />
       </div>
+      <SlugNavigation previousPost={previousPost} nextPost={nextPost} />
       <span className='mx-auto flex w-full justify-center text-center'>
         <Ellipsis size={24} className='text-black' />
       </span>

@@ -35,6 +35,7 @@ import {
 import BlogContent from './blog-content';
 
 type BlogDetailProps = {
+  blogs: PostProps[];
   blog: PostProps;
   slug: string;
   initialCommentReactions?: CommentReactionsProps;
@@ -42,11 +43,13 @@ type BlogDetailProps = {
 };
 
 const BlogDetail = async ({
+  blogs,
   blog,
   slug,
   initialCommentReactions,
   postInitialReactions,
 }: BlogDetailProps) => {
+  console.log('🚀 ~ BlogDetail ~ blogs:', blogs);
   const session = (await auth()) as Session;
   const rt = calculateReadTime(blog?.content);
   const post = (await getBlogBySlug(slug)).data as PostProps;
@@ -133,7 +136,9 @@ const BlogDetail = async ({
           </div>
         </div>
 
-        {blog?.content && <BlogContent content={blog?.content} />}
+        {blog?.content && (
+          <BlogContent content={blog?.content} blogs={blogs} slug={slug} />
+        )}
       </article>
       <div className='flex w-full justify-between px-8 py-2'>
         <div className='flex items-center gap-2'>

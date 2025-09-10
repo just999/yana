@@ -92,41 +92,33 @@ const PostTable = ({
     []
   );
 
-  const handleDelete = useCallback(
-    async (slug: string) => {
-      setDeletingSlug(slug);
-
-      try {
-        startTransition(async () => {
-          const result = await deleteBlogBySlug(slug);
-
-          if (result?.error) {
-            toast.error(result?.message || 'Failed to delete blog');
-          } else {
-            toast.success(result?.message || 'Blog deleted successfully');
-
-            setBlogs((prevBlogs) =>
-              prevBlogs.filter((blog) => blog.slug !== slug)
-            );
-
-            setFeaturedStatus((prev) => {
-              const newStatus = { ...prev };
-              delete newStatus[slug];
-              return newStatus;
-            });
-
-            router.refresh();
-          }
-        });
-      } catch (error) {
-        console.error('Error deleting blog:', error);
-        toast.error('An unexpected error occurred');
-      } finally {
-        setDeletingSlug(null);
-      }
-    },
-    [router]
-  );
+  const handleDelete = useCallback(async (slug: string) => {
+    // Or slug: string if switching
+    setDeletingSlug(slug);
+    try {
+      const result = await deleteBlogBySlug(slug);
+      startTransition(() => {
+        if (result?.error) {
+          toast.error(result.message || 'Failed to delete blog');
+        } else {
+          toast.success(result?.message || 'Blog deleted successfully');
+          setBlogs((prevBlogs) =>
+            prevBlogs.filter((blog) => blog.slug !== slug)
+          );
+          setFeaturedStatus((prev) => {
+            const newStatus = { ...prev };
+            delete newStatus[slug];
+            return newStatus;
+          });
+        }
+      });
+    } catch (error) {
+      console.error('Error deleting blog:', error);
+      toast.error('An unexpected error occurred');
+    } finally {
+      setDeletingSlug(null);
+    }
+  }, []);
 
   const isDeleting = (slug: string) => deletingSlug === slug && isPending;
 

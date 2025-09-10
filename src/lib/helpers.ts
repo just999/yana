@@ -153,6 +153,11 @@ export const categories = [
     description: 'learn something new',
     img: '/img/learn.png',
   },
+  {
+    name: 'html5',
+    description: 'basic html5',
+    img: '/img/html5.png',
+  },
 ];
 
 export const menuItems = [

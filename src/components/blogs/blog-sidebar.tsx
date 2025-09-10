@@ -3,10 +3,8 @@
 import { useEffect, useState } from 'react';
 
 import { localAvatar } from '@/lib/constants';
-import { editorStateAtom } from '@/lib/jotai/editor-atoms';
 import { PostProps } from '@/lib/types';
 import DOMPurify from 'dompurify';
-import { useAtomValue } from 'jotai';
 import { ChevronUp, Mail, Tag, TrendingUp } from 'lucide-react';
 
 import {
@@ -35,8 +33,6 @@ const BlogSidebar = ({ blog, allBlogs, featuredBlogs }: BlogSidebarProps) => {
   const [bookmarked, setBookmarked] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [email, setEmail] = useState('');
-  const editorState = useAtomValue(editorStateAtom);
-  const { editor } = editorState;
 
   useEffect(() => {
     setMounted(true);

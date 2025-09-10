@@ -4,6 +4,7 @@ import { FontSizeExtension } from '@/components/tiptap/extensions/font-size';
 import { LineHeightExtension } from '@/components/tiptap/extensions/line-height';
 import { TableDeletionExtension } from '@/components/tiptap/extensions/table-deletion';
 import { blogAtom } from '@/lib/jotai/blog-atoms';
+import { useEditorStore } from '@/store/use-editor-store';
 import type { User } from '@prisma/client';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import Highlight from '@tiptap/extension-highlight';
@@ -27,6 +28,7 @@ import {
   default as js,
 } from 'highlight.js/lib/languages/javascript';
 import json from 'highlight.js/lib/languages/json';
+import markdown from 'highlight.js/lib/languages/markdown';
 import python from 'highlight.js/lib/languages/python';
 import {
   default as ts,
@@ -61,38 +63,84 @@ interface UseOptimizedEditorProps {
   setEditor: (editor: Editor | null) => void;
 }
 
-const lowlight = createLowlight(all);
+// const lowlight = createLowlight(all);
 
-lowlight.register('html', html);
-lowlight.register('css', css);
-lowlight.register('js', js);
-lowlight.register('ts', ts);
-lowlight.register('javascript', javascript);
-lowlight.register('typescript', typescript);
-lowlight.register('python', python);
-lowlight.register('html', html);
-lowlight.register('css', css);
-lowlight.register('json', json);
-lowlight.register('bash', bash);
+// lowlight.register('html', html);
+// lowlight.register('css', css);
+// lowlight.register('js', js);
+// lowlight.register('ts', ts);
+// lowlight.register('javascript', javascript);
+// lowlight.register('typescript', typescript);
+// lowlight.register('python', python);
+// lowlight.register('html', html);
+// lowlight.register('css', css);
+// lowlight.register('json', json);
+// lowlight.register('bash', bash);
 
-const LANGUAGES = [
-  { value: 'javascript', label: 'JavaScript' },
-  { value: 'typescript', label: 'TypeScript' },
-  { value: 'python', label: 'Python' },
-  { value: 'html', label: 'HTML' },
-  { value: 'css', label: 'CSS' },
-  { value: 'json', label: 'JSON' },
-  { value: 'bash', label: 'Bash' },
-  { value: 'text', label: 'Plain Text' },
-];
+// const LANGUAGES = [
+//   { value: 'javascript', label: 'JavaScript' },
+//   { value: 'typescript', label: 'TypeScript' },
+//   { value: 'python', label: 'Python' },
+//   { value: 'html', label: 'HTML' },
+//   { value: 'css', label: 'CSS' },
+//   { value: 'json', label: 'JSON' },
+//   { value: 'bash', label: 'Bash' },
+//   { value: 'text', label: 'Plain Text' },
+// ];
 
 interface TiptapEditorProps {
   content?: string;
   onChange?: (content: string) => void;
 }
 
+// const createCodeBlockWithMarkupFix = (lowlight: any) => {
+//   return CodeBlockLowlight.configure({
+//     lowlight,
+//     defaultLanguage: 'plaintext',
+//     HTMLAttributes: {
+//       class: 'hljs code-block-custom',
+//       'data-language-indicator': 'true',
+//     },
+//   }).extend({
+//     addAttributes() {
+//       return {
+//         ...this.parent?.(),
+//         language: {
+//           default: 'plaintext',
+//           parseHTML: (element) => {
+//             const lang = element.getAttribute('class') || 'plaintext';
+//             return lang === 'language-markup' ? 'HTML' : 'plaintext';
+//           },
+//         },
+//       };
+//     },
+//   });
+// };
+
 export const useEditorExtensions = () => {
-  return useMemo(
+  // Create lowlight instance with languages
+  const lowlight = useMemo(() => {
+    if (typeof window === 'undefined') {
+      return null;
+    }
+    const lowlightInstance = createLowlight(all);
+
+    // Register additional languages
+    lowlightInstance.register('html', html);
+    lowlightInstance.register('css', css);
+    lowlightInstance.register('js', js);
+    lowlightInstance.register('javascript', js); // alias
+    lowlightInstance.register('ts', ts);
+    lowlightInstance.register('typescript', ts); // alias
+    lowlightInstance.register('python', python);
+    lowlightInstance.register('json', json);
+    lowlightInstance.register('bash', bash);
+    lowlightInstance.register('markdown', markdown);
+
+    return lowlightInstance;
+  }, []);
+
+  const extensions = useMemo(
     () => [
       Dropcursor.configure({
         color: '#ff0000',
@@ -125,7 +173,8 @@ export const useEditorExtensions = () => {
       Link.configure({
         openOnClick: false,
         autolink: true,
-        defaultProtocol: 'https',
+        defaultProtocol: 'http',
+        // protocols: ['http', 'https'],
       }),
       TaskList,
       ListKit.configure({
@@ -178,11 +227,14 @@ export const useEditorExtensions = () => {
         HTMLAttributes: {
           class: 'hljs code-block-custom ',
           'data-language-indicator': 'true',
+          spellcheck: 'false',
         },
       }),
     ],
-    []
+    [lowlight]
   );
+
+  return { extensions, lowlight };
 };
 
 // Optimized editor configuration
@@ -190,9 +242,9 @@ export function useOptimizedEditor({
   value,
   setContent,
   setHasUnsavedChanges,
-  setEditor,
+  // setEditor,
 }: UseOptimizedEditorProps): Editor | null {
-  const extensions = useEditorExtensions();
+  const { extensions } = useEditorExtensions();
   const [formData, setFormData] = useAtom(blogAtom);
   // Debounced content update to prevent excessive re-renders
   const debouncedUpdateRef = useRef<NodeJS.Timeout>(null);
@@ -206,6 +258,7 @@ export function useOptimizedEditor({
       debouncedUpdateRef.current = setTimeout(() => {
         const newContent = JSON.stringify(editor.getJSON());
         setContent(newContent);
+        setEditor(editor);
         setFormData((prev) => ({
           ...prev,
           content: newContent,
@@ -215,6 +268,8 @@ export function useOptimizedEditor({
     },
     [setContent, setFormData, setHasUnsavedChanges]
   );
+
+  const { setEditor } = useEditorStore();
 
   const editor = useEditor({
     autofocus: true,
@@ -254,7 +309,21 @@ export function useOptimizedEditor({
     onUpdate({ editor }) {
       debouncedUpdate(editor);
     },
-
+    onSelectionUpdate({ editor }) {
+      setEditor(editor);
+    },
+    onTransaction({ editor }) {
+      setEditor(editor);
+    },
+    onFocus({ editor }) {
+      setEditor(editor);
+    },
+    onBlur({ editor }) {
+      setEditor(editor);
+    },
+    onContentError({ editor }) {
+      setEditor(editor);
+    },
     onDestroy() {
       setEditor(null);
       setFormData((prev) => ({

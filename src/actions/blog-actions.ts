@@ -334,6 +334,9 @@ export const getBlogsByUserId = async (userId: string) => {
       where: {
         authorId: userId,
       },
+      orderBy: {
+        createdAt: 'asc',
+      },
       include: {
         author: true,
         reactions: true,
@@ -698,68 +701,73 @@ export const deleteBlogBySlug = async (slug: string) => {
     const session = await auth();
     const admin = session?.user.role === 'ADMIN';
     if (!session) {
-      return { error: true, message: 'unauthorized' };
+      return { error: true, message: 'Unauthorized' };
     }
 
-    const deletedBlog = await db.$transaction(async (tx) => {
-      const existingBlog = await db.post.findUnique({
-        where: {
-          slug,
-        },
-        include: {
-          comments: true,
-        },
+    const result = await db.$transaction(async (tx) => {
+      // Query by slug, not id
+      const existingBlog = await tx.post.findUnique({
+        where: { slug }, // Fix: Use slug instead of id
+        include: { comments: true },
       });
 
       if (!existingBlog) {
-        return {
-          error: true,
-          message: 'no post found',
-        };
+        return { error: true, message: 'No post found' };
       }
 
-      if (existingBlog.authorId !== session.user.id || admin) {
+      // Fix: Allow admins to delete any blog, or author to delete their own
+      if (existingBlog.authorId !== session.user.id && !admin) {
         return {
           error: true,
           message: 'You are not authorized to delete this blog',
         };
       }
 
-      if (existingBlog.images.length > 0) {
-        const fileKey = existingBlog.images.map(async (url) => {
-          const key = url.split('/').pop();
-          if (!key) return;
-          return await utapi.deleteFiles(key);
+      // Await image deletions
+      if (existingBlog.images?.length > 0) {
+        const fileKeys = existingBlog.images
+          .map((url) => url.split('/').pop())
+          .filter((key): key is string => !!key); // Type guard to filter out undefined
+        if (fileKeys.length > 0) {
+          await utapi.deleteFiles(fileKeys); // Delete all files at once
+        }
+      }
+
+      // Delete related likes
+      await tx.like.deleteMany({
+        where: { postId: existingBlog.id },
+      });
+
+      // Delete related comments
+      if (existingBlog.comments.length > 0) {
+        await tx.comment.deleteMany({
+          where: { postId: existingBlog.id },
         });
       }
-      await tx.like.deleteMany({
-        where: {
-          postId: existingBlog.id,
-        },
-      });
 
+      // Delete the post
       await tx.post.delete({
-        where: { slug: existingBlog.slug },
+        where: { slug }, // Fix: Use slug
       });
 
-      existingBlog.comments.length > 0 &&
-        (await tx.comment.deleteMany({
-          where: {
-            postId: existingBlog.id,
-          },
-        }));
+      return { error: false, message: 'Post successfully deleted' };
     });
+
+    // Check transaction result before revalidating
+    if (result.error) {
+      return result; // Propagate error (e.g., no post found, unauthorized)
+    }
+
     revalidatePath('/dashboard/blogs');
-    return {
-      error: false,
-      message: 'post successfully deleted',
-    };
+    return { error: false, message: 'Post successfully deleted' };
   } catch (error) {
-    console.error('❌ UploadThing deletion failed:', error);
-    return { success: false, error: 'Deletion failed.' };
+    console.error('❌ Blog deletion failed:', error);
+    return {
+      error: true,
+      message: error instanceof Error ? error.message : 'Deletion failed',
+    };
   }
 };
-
 // export const reactToPost = async (
 //   userId: string,
 //   postId: string,

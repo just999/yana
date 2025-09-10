@@ -477,7 +477,7 @@
 
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import {
   fileAtoms,
@@ -485,10 +485,8 @@ import {
   ImageData,
   pendingImgAtoms,
 } from '@/lib/jotai/blog-atoms';
-import { editorStateAtom } from '@/lib/jotai/editor-atoms';
-import { extractImageUrls, sanitizeFileName } from '@/lib/utils';
-import { EditorState } from '@tiptap/pm/state';
-import { useAtom, useAtomValue } from 'jotai';
+import { extractImageUrls } from '@/lib/utils';
+import { useAtom } from 'jotai';
 import { X } from 'lucide-react';
 
 import AlertDialogButton from '../alert-dialog-button';
@@ -507,27 +505,33 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
   const [pendingImages, setPendingImages] = useAtom(pendingImgAtoms);
   const [imageFiles, setImageFiles] = useAtom(fileAtoms);
   const [images, setImages] = useAtom(imageAtoms);
-
-  const editorState = useAtomValue(editorStateAtom);
-  const { editor } = editorState;
-
-  const contentHtml = editor?.getHTML();
+  console.log('🚀 ~ ImagePreview ~ images:', images);
 
   useEffect(() => {
-    if (!content) return;
+    if (!content) {
+      setImages([]);
+      return;
+    }
+
     const imgData = extractImageUrls(content);
+    const httpsImages = imgData.reduce((acc, img) => {
+      if (img.src.startsWith('https')) {
+        acc.push({
+          src: img.src,
+          id: img.id,
+          alt: img.alt,
+        });
+      }
+      return acc;
+    }, [] as ImageData[]);
+    console.log('🚀 ~ ImagePreview ~ httpsImages:', httpsImages);
 
-    if (imgData) {
-      const data = imgData.map((img) => ({
-        src: img.src,
-        id: img.id,
-        alt: img.alt,
-      }));
-
-      setImages(data);
+    if (httpsImages) {
+      setImages(httpsImages);
+    } else if (Array.from(httpsImages).length === 0) {
+      setImages([]);
     }
   }, [content]);
-
   // const extractedImages = useMemo(() => {
   //   if (!content) return [];
 
@@ -600,57 +604,61 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
             Images in Content ({images.length})
           </h4>
           <div className='flex flex-wrap justify-center gap-1'>
-            {images.map((image, index) => {
-              const isRemoving = removingImages.has(image.id);
+            {images.some((img) => img.src.startsWith('https')) &&
+              images.map((image, index) => {
+                const isRemoving = removingImages.has(image.id);
 
-              return (
-                <div
-                  key={`${image.id}-${index}`}
-                  className={`group relative ${
-                    isRemoving
-                      ? 'pointer-events-none opacity-50'
-                      : 'group-hover:cursor-pointer'
-                  }`}
-                >
-                  {/* Use regular img tag instead of Next.js Image */}
-                  <img
-                    src={image.src}
-                    alt={image.alt}
-                    className='group-hover:bg-red/70 h-20 w-20 rounded-sm object-cover object-center group-hover:box-border group-hover:border-2'
-                    style={{ width: 'auto', height: '100px' }}
-                    data-image-id={image.alt}
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      console.error('Image load error for:', image.src);
-
-                      target.src =
-                        'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMiAxNkw4IDEySDEwVjhIMTRWMTJIMTZMMTIgMTZaIiBmaWxsPSIjOUI5QkExIi8+Cjwvc3ZnPgo=';
-                    }}
-                    onLoad={() => {
-                      console.log('Image loaded:', image.src.substring(0, 50));
-                    }}
-                  />
-
-                  {isRemoving && (
-                    <div className='bg-opacity-50 absolute inset-0 flex items-center justify-center rounded-sm bg-black'>
-                      <div className='text-xs text-white'>Removing...</div>
-                    </div>
-                  )}
-                  {isRemoving ? 'true' : 'false'}
-                  <AlertDialogButton
-                    icon={X}
-                    action='remove'
-                    remove={() => !isRemoving && handleRemoveImage(image)}
-                    disabled={isRemoving}
-                    className={`absolute -top-2 -right-3 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 p-0 shadow-lg transition-opacity duration-200 hover:bg-red-600 ${
+                return (
+                  <div
+                    key={`${image.id}-${index}`}
+                    className={`group relative ${
                       isRemoving
-                        ? 'cursor-not-allowed opacity-50'
-                        : 'opacity-0 group-hover:opacity-100'
+                        ? 'pointer-events-none opacity-50'
+                        : 'group-hover:cursor-pointer'
                     }`}
-                  />
-                </div>
-              );
-            })}
+                  >
+                    {/* Use regular img tag instead of Next.js Image */}
+                    <img
+                      src={image.src}
+                      alt={image.alt}
+                      className='group-hover:bg-red/70 h-20 w-20 rounded-sm object-cover object-center group-hover:box-border group-hover:border-2'
+                      style={{ width: 'auto', height: '100px' }}
+                      data-image-id={image.alt}
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        console.error('Image load error for:', image.src);
+
+                        target.src =
+                          'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMiAxNkw4IDEySDEwVjhIMTRWMTJIMTZMMTIgMTZaIiBmaWxsPSIjOUI5QkExIi8+Cjwvc3ZnPgo=';
+                      }}
+                      onLoad={() => {
+                        console.log(
+                          'Image loaded:',
+                          image.src.substring(0, 50)
+                        );
+                      }}
+                    />
+
+                    {isRemoving && (
+                      <div className='bg-opacity-50 absolute inset-0 flex items-center justify-center rounded-sm bg-black'>
+                        <div className='text-xs text-white'>Removing...</div>
+                      </div>
+                    )}
+                    {isRemoving ? 'true' : 'false'}
+                    <AlertDialogButton
+                      icon={X}
+                      action='remove'
+                      remove={() => !isRemoving && handleRemoveImage(image)}
+                      disabled={isRemoving}
+                      className={`absolute -top-2 -right-3 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 p-0 shadow-lg transition-opacity duration-200 hover:bg-red-600 ${
+                        isRemoving
+                          ? 'cursor-not-allowed opacity-50'
+                          : 'opacity-0 group-hover:opacity-100'
+                      }`}
+                    />
+                  </div>
+                );
+              })}
           </div>
 
           <p className='mt-2 text-xs text-gray-500'>

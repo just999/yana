@@ -1,6 +1,7 @@
 import {
   getAllBlogs,
   getBlogBySlug,
+  getBlogsByUserId,
   getFeaturedBlogs,
 } from '@/actions/blog-actions';
 import {
@@ -10,12 +11,14 @@ import {
   updateCommentReaction,
 } from '@/actions/comment-actions';
 import { updatePostReaction } from '@/actions/toggle-actions';
+import { auth } from '@/auth';
 import BackButton from '@/components/back-button';
 import BlogDetail from '@/components/blogs/blog-detail';
 import BlogSidebar from '@/components/blogs/blog-sidebar';
 import { CommentReactionsProvider } from '@/lib/contexts/like-context';
 import { PostReactionsProvider } from '@/lib/contexts/post-like-context';
 import { CommentsProps, PostProps } from '@/lib/types';
+import type { Session } from 'next-auth';
 import { redirect } from 'next/navigation';
 
 type BlogDetailPageProps = {
@@ -38,6 +41,12 @@ const BlogDetailPage = async ({
   const newSlug = await params;
 
   const featuredBlogs = (await getFeaturedBlogs()).data;
+
+  const session = (await auth()) as Session;
+  const posts = await getBlogsByUserId(session.user.id);
+  const transformedBlogs = posts.data?.map((blog) => ({
+    ...blog,
+  }));
 
   const {
     q = '',
@@ -88,6 +97,7 @@ const BlogDetailPage = async ({
                     updatePostReactionAction={updatePostReaction}
                   >
                     <BlogDetail
+                      blogs={transformedBlogs!}
                       blog={blog}
                       slug={newSlug.slug}
                       initialCommentReactions={initialCommentReactions}

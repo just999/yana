@@ -9,7 +9,7 @@ import {
   useState,
 } from 'react';
 
-import { createNewBlog, newBlog, updateBlog } from '@/actions/blog-actions';
+import { newBlog, updateBlog } from '@/actions/blog-actions';
 import {
   Button,
   Checkbox,
@@ -36,11 +36,7 @@ import {
   imageCountAtoms,
   imageUrlAtoms,
 } from '@/lib/jotai/blog-atoms';
-import {
-  editorContentAtom,
-  editorStateAtom,
-  setEditorAtom,
-} from '@/lib/jotai/editor-atoms';
+import { editorContentAtom, setEditorAtom } from '@/lib/jotai/editor-atoms';
 import type {
   BlogFormValues,
   ExtendedRichTextEditorProps,
@@ -52,14 +48,11 @@ import {
   cn,
   extractImageUrls,
   extractImageUrlsFromContent,
-  replaceImageSourcesAndIdsDOMBased,
-  replaceImageSourcesAndIdsHybrid,
   replaceImageSourcesInJSON,
-  replaceImageSourcesJSONToHTML,
 } from '@/lib/utils';
 import { EditorContent } from '@tiptap/react';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { BookPlusIcon, Loader, RotateCcw } from 'lucide-react';
+import { useAtom, useSetAtom } from 'jotai';
+import { Loader, RotateCcw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useFormStatus } from 'react-dom';
 // import { useFormStatus } from 'react-dom';
@@ -68,7 +61,6 @@ import { toast } from 'sonner';
 
 import { ImagePreview } from '../rich-text-editor/image-preview';
 import { useImagePaste } from '../tiptap/extensions/image-paste';
-import { Ruler } from '../tiptap/ruler';
 import { Toolbar } from '../tiptap/toolbar';
 
 type BlogFormProps = {
@@ -109,9 +101,9 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
     const [postData, setPostData] = useAtom(blogAtom);
     const [content, setContent] = useAtom(editorContentAtom);
     const [imageCount, setImageCount] = useAtom(imageCountAtoms);
-
+    const [mounted, setMounted] = useState(false);
     const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
-
+    const [isLoading, setIsLoading] = useState(true);
     const [lastAutoSlug, setLastAutoSlug] = useState('');
     const blogRef = useRef<HTMLFormElement>(null);
 
@@ -121,8 +113,19 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
     const setEditor = useSetAtom(setEditorAtom);
+    const { extensions, lowlight } = useEditorExtensions();
 
-    const extensions = useEditorExtensions();
+    // Add timing logs to suspect areas
+    // console.time('expensive-operation');
+    // Your code here
+    // console.timeEnd('expensive-operation');
+
+    // Or use Performance API
+    // const start = performance.now();
+    // Your code here
+    // const end = performance.now();
+    // console.log(`Operation took ${end - start}ms`);
+
     const router = useRouter();
     const editor = useOptimizedEditor({
       value,
@@ -131,12 +134,36 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
       setEditor,
     });
 
+    // const { editor, scrollToEditorPosition, isScrolling } =
+    //   useOptimizedEditorWithScroll({
+    //     value,
+    //     setContent,
+    //     setHasUnsavedChanges,
+    //     setEditor,
+    //     clickScrollOptions: {
+    //       enabled: true,
+    //       scrollOffset: 100,
+    //       animationDuration: 600,
+    //       excludeSelectors: [
+    //         'button',
+    //         'input',
+    //         'textarea',
+    //         'select',
+    //         'a',
+    //         '.ProseMirror-menubar',
+    //         '.toolbar',
+    //         '[data-toolbar]',
+    //         '.floating-menu',
+    //         '.bubble-menu',
+    //         '.image-resize-handle',
+    //       ],
+    //     },
+    //   });
     useEffect(() => {
       if (blog && type === 'update') {
         setPostData(blog);
       }
     }, [setPostData]);
-    console.log('🚀 ~ postData:', postData);
 
     // Add this to debug
     useEffect(() => {
@@ -148,13 +175,16 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
       console.log('🔧 Extensions changed:', extensions);
     }, [extensions]);
 
+    useEffect(() => {
+      setMounted(true);
+    }, []);
+
     const [data, action, isPending] = useActionState(
       async (prevState: unknown, formData: FormData) => {
         console.log('🔍 FormData entries:');
         for (const [key, value] of formData.entries()) {
           console.log(`${key}:`, value);
         }
-        console.log('🚀 ~ formData:', formData);
 
         const jsonContent = editor?.getJSON();
         const jsonString = JSON.stringify(jsonContent);
@@ -165,7 +195,7 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
         const urls = extractImageUrls(postData.content);
 
         const existingImgUrls = urls
-          .filter((img) => img.src.startsWith('https'))
+          .filter((img) => img.src.startsWith('https://hz9t4nphtm.ufs.sh'))
           .map((dat) => ({
             src: dat.src,
             id: dat.src.split('/').pop() || dat.id,
@@ -303,10 +333,10 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
         message: '',
       }
     );
-
+    const jsonData = editor?.getJSON();
     useEffect(() => {
-      if (postData.title && !isSlugManuallyEdited) {
-        const autoSlug = slugify(postData.title);
+      if (postData.title) {
+        const autoSlug = slugify(postData.title).toLowerCase();
         setLastAutoSlug(autoSlug);
         setPostData((prev) => ({
           ...prev,
@@ -355,7 +385,7 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
     };
 
     useEffect(() => {
-      if (editor && blog?.content && type === 'update') {
+      if (editor && blog?.content) {
         // Load the saved JSON content
         const parsedContent =
           typeof blog?.content === 'string'
@@ -456,6 +486,67 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
       );
     };
 
+    // const parsed = JSON.parse(postData.content);
+    // const codeNode = parsed.content.find(
+    //   (node: any) => node.type === 'codeBlock'
+    // );
+
+    // const htmlFragments = parsed.content.map((node: any, index: number) => {
+    //   try {
+    //     if (node.type === 'codeBlock') {
+    //       const code = node.content[0].text || '';
+    //       const language = node.attrs.language || 'plaintext';
+    //       const tree = lowlight?.highlight(language, code);
+    //       const htmlRes = tree && toHtml(tree);
+    //       return `<div class="hljs code-block-custom w-full m-auto" key="code-${index}">${htmlRes}</div>`;
+    //     }
+    //   } catch (error) {
+    //     console.error('Error highlighting code:', error);
+
+    //     return `<pre class="code-block-custom w-full m-auto"><code class="language-${language}">${code}</code></pre>`;
+    //   }
+
+    //   const htmlData = generateHTML(
+    //     { type: 'doc', content: [node] },
+    //     extensions
+    //   );
+
+    //   const hasTable = hasTag(htmlData, 'table');
+
+    //   const tableClass = hasTable ? 'tableWrapper' : '';
+
+    //   return `<div class="content-block-wrapper ${tableClass}" key="block-${index}">${htmlData}</div>`;
+    // });
+
+    // const code = codeNode ? codeNode.content[0].text : '';
+    // const language = codeNode ? codeNode.attrs.language : 'plaintext';
+
+    // const htmlCont = htmlFragments.join('');
+    // // Generate HTML when component mounts and content is available
+    // useEffect(() => {
+    //   const processContent = async () => {
+    //     if (mounted && content) {
+    //       setIsLoading(true);
+
+    //       try {
+    //         // Dynamic import to ensure client-side only
+    //         const { createLowlight, all } = await import('lowlight');
+    //         const { toHtml } = await import('hast-util-to-html');
+
+    //         const lowlight = createLowlight(all);
+    //         // Register languages...
+
+    //         // Process content...
+    //       } catch (error) {
+    //         console.error('Error processing content:', error);
+    //       } finally {
+    //         setIsLoading(false);
+    //       }
+    //     }
+    //   };
+    //   processContent();
+    // }, [mounted, content]);
+
     return (
       <div className='container mx-auto w-full min-w-2xl p-6'>
         <div className='mb-8'>
@@ -485,7 +576,7 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
                     id='title'
                     aria-describedby='title-error'
                     placeholder='Title'
-                    value={type === 'update' ? postData.title : ''}
+                    value={postData.title || ''}
                     required
                     className='w-full flex-1'
                     onChange={(e) => {
@@ -520,7 +611,7 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
                         id='slug'
                         aria-describedby='slug-error'
                         placeholder='Slug'
-                        value={type === 'update' ? postData.slug : ''}
+                        value={postData.slug || ''}
                         required
                         className='w-full flex-1'
                         onChange={handleSlugChange}
@@ -531,7 +622,7 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
                         </p>
                       )}
                     </div>
-                    {isSlugManuallyEdited && (
+                    {/* {isSlugManuallyEdited && (
                       <button
                         type='button'
                         onClick={resetSlugToAuto}
@@ -540,7 +631,7 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
                       >
                         Auto
                       </button>
-                    )}
+                    )} */}
                     <p className='w-full text-center text-[10px] text-blue-300/40'>
                       ** Slug harus unik
                     </p>
@@ -592,9 +683,11 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
           </div>
 
           <div>
-            <Label className='text-gray-700'>Content *</Label>
+            <Label htmlFor='content' className='text-gray-700'>
+              Content *
+            </Label>
 
-            <div className='size-full overflow-x-auto rounded-2xl bg-[#F9FBFD]/90 px-4 py-2 dark:bg-stone-800/50 print:overflow-visible print:bg-white print:p-0'>
+            <div className='size-full rounded-2xl bg-[#F9FBFD]/90 px-4 py-2 dark:bg-stone-800/50 print:overflow-visible print:bg-white print:p-0'>
               <section>
                 <ImagePreview
                   content={postData.content}
@@ -627,12 +720,12 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
                 getInputProps={getInputProps}
                 getRootProps={getRootProps}
               />
-              <Ruler />
+              {/* <Ruler /> */}
               <div className='mx-auto flex justify-center py-0.5 text-gray-700 print:py-0'>
                 <EditorContent
                   editor={editor}
                   ref={editorRef}
-                  className='editor-wrapper w-full max-w-[816px]'
+                  className='editor-wrapper editor-paper w-full max-w-[816px] shadow-2xl/30'
                 />
               </div>
             </div>
@@ -645,16 +738,14 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
                       )}
                     </pre> */}
           </div>
-          <div className='flex items-center gap-2 pt-4'>
+          <div className='m-auto flex max-w-[816px] items-center gap-2 pt-4'>
             <Checkbox
               checked={postData.anonymous}
               onCheckedChange={(checked) => {
-                const currentChecked = checked;
-                if (currentChecked)
-                  setPostData((prev) => ({
-                    ...prev,
-                    anonymous: !currentChecked,
-                  }));
+                setPostData((prev) => ({
+                  ...prev,
+                  anonymous: Boolean(checked),
+                }));
               }}
               className='dark:bg-accent'
             />
@@ -666,8 +757,8 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
             </div>
           </div>
           {/* Form Actions */}
-          <div className='flex gap-4 pt-2'>
-            {/* <Button
+          <div className='m-auto flex max-w-[816px] gap-4 pt-2'>
+            <Button
               type='submit'
               size={'sm'}
               className='rounded-md bg-blue-600 px-6 py-2 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50'
@@ -680,16 +771,16 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
               ) : (
                 <span>{type === 'create' ? 'Create Post' : 'Update Post'}</span>
               )}
-            </Button> */}
+            </Button>
 
-            <SubmitButton />
+            {/* <SubmitButton /> */}
 
             <Button
               type='button'
               variant={'ghost'}
               size={'sm'}
               className={cn(
-                'rounded-md px-6 py-2 text-gray-700 focus:ring-2 focus:ring-gray-500 focus:outline-none dark:bg-gray-300 dark:hover:bg-gray-300/80 dark:hover:text-gray-500'
+                'rounded-md bg-amber-600/20 px-6 py-2 text-gray-700 shadow-2xl/30 focus:ring-2 focus:ring-gray-500 focus:outline-none dark:bg-gray-300 dark:hover:bg-gray-300/80 dark:hover:text-gray-500'
               )}
             >
               <span className='flex items-center gap-1 text-xs'>
@@ -711,6 +802,24 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
 
             {/* <BlogContent content={formData.content} /> */}
           </div>
+
+          // <div className='dark:bg-accent/90 flex flex-col items-center justify-center py-8'>
+          //   <div className='not-prose'>
+          //     <div
+          //       className={cn(
+          //         'prose prose-sm max-w-none px-8 py-2 text-justify whitespace-pre-wrap dark:bg-black/20 dark:text-stone-100',
+          //         `language-${language}`
+          //       )}
+          //       dangerouslySetInnerHTML={{
+          //         __html: htmlCont,
+          //       }}
+          //     />
+          //   </div>
+          //   <span className='mx-auto flex w-full justify-center text-center'>
+          //     <Ellipsis size={24} className='text-black' />
+          //   </span>
+          //   <pre>{JSON.stringify(htmlCont, null, 2)}</pre>
+          // </div>
         )}
 
         {/* HTML Output (for debugging) */}

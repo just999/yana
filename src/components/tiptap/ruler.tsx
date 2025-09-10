@@ -1,25 +1,20 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { MIN_SPACE, PAGE_WIDTH } from '@/lib/constants';
-import { editorStateAtom, setEditorAtom } from '@/lib/jotai/editor-atoms';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { ArrowBigDown, ChevronDown } from 'lucide-react';
+import { useEditorStore } from '@/store/use-editor-store';
+import { ChevronDown } from 'lucide-react';
 
 type RulerProps = unknown;
 
 const markers = Array.from({ length: 83 }, (_, i) => i);
 
 export const RulerComp = () => {
-  const editorState = useAtomValue(editorStateAtom);
-  const { editor } = editorState;
+  const { editor } = useEditorStore();
   const [leftMargin, setLeftMargin] = useState(56);
   const [rightMargin, setRightMargin] = useState(56);
   const [isDraggingLeft, setIsDraggingLeft] = useState(false);
   const [isDraggingRight, setIsDraggingRight] = useState(false);
   const rulerRef = useRef<HTMLDivElement>(null);
-
-  // Get the editor from the store
-  // const { editor } = useEditorStore();
 
   // Apply margins to the editor when they change
   useEffect(() => {

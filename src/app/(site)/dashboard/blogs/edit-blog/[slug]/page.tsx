@@ -84,6 +84,7 @@ const EditBlogPage = async ({ params }: EditBlogPageProps) => {
         return img;
       })
     : [];
+  console.log('🚀 ~ EditBlogPage ~ imgData:', imgData);
 
   return (
     <>

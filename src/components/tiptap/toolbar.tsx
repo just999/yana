@@ -1,6 +1,12 @@
 'use client';
 
-import { useCallback, useMemo, useState, type HTMLProps } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type HTMLProps,
+} from 'react';
 
 import {
   Button,
@@ -23,16 +29,13 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui';
-import { useEditorImages } from '@/hooks/use-editor-images';
 import { useTheme } from '@/lib/contexts/theme-context';
 import { blogAtom, imageAtoms, pendingImgAtoms } from '@/lib/jotai/blog-atoms';
-import { editorStateAtom } from '@/lib/jotai/editor-atoms';
-import { useUploadThing } from '@/lib/uploadthing';
 import { cn } from '@/lib/utils';
+import { useEditorStore } from '@/store/use-editor-store';
 // import { useEditorStore } from '@/store/use-editor-store';
 import { type Level } from '@tiptap/extension-heading';
-import { useDropzone } from '@uploadthing/react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import {
   AlignCenterIcon,
   AlignLeftIcon,
@@ -48,7 +51,6 @@ import {
   Link2Icon,
   ListIcon,
   ListOrderedIcon,
-  ListPlusIcon,
   ListTodoIcon,
   LucideIcon,
   MessageSquarePlusIcon,
@@ -80,10 +82,8 @@ import {
 import { BsFilePdf } from 'react-icons/bs';
 import { RiJavascriptLine, RiLineHeight } from 'react-icons/ri';
 import { SiGnubash, SiJson } from 'react-icons/si';
-import {
-  generateClientDropzoneAccept,
-  generatePermittedFileTypes,
-} from 'uploadthing/client';
+
+import { Ruler } from './ruler';
 
 // const AlignButton = () => {
 //   const { editor } = useEditorStore();
@@ -141,10 +141,7 @@ import {
 //   );
 // };
 const SaveButton = () => {
-  // const { editor } = useEditorStore();
-  const editorState = useAtomValue(editorStateAtom);
-  const { editor } = editorState;
-
+  const { editor } = useEditorStore();
   // Check if editor content is empty
   const isContentEmpty = useMemo(() => {
     if (!editor?.state.doc) return true;
@@ -299,8 +296,7 @@ const CODE_LANGUAGES = [
 ];
 
 export const InsertButton = () => {
-  const editorState = useAtomValue(editorStateAtom);
-  const { editor } = editorState;
+  const { editor } = useEditorStore();
 
   const insertCodeBlock = (language: string) => {
     if (editor?.can().setBlockquote()) {
@@ -606,9 +602,7 @@ echo greeting("World");
 };
 
 const LineHeightButton = () => {
-  // const { editor } = useEditorStore();
-  const editorState = useAtomValue(editorStateAtom);
-  const { editor } = editorState;
+  const { editor } = useEditorStore();
 
   const lineHeights = [
     {
@@ -686,9 +680,7 @@ const LineHeightButton = () => {
 };
 
 const FontSizeButton = () => {
-  // const { editor } = useEditorStore();
-  const editorState = useAtomValue(editorStateAtom);
-  const { editor } = editorState;
+  const { editor } = useEditorStore();
 
   const getCurrentFontSize = () => {
     if (!editor) return '14';
@@ -809,9 +801,7 @@ const FontSizeButton = () => {
 };
 
 const ListButton = () => {
-  // const { editor } = useEditorStore();
-  const editorState = useAtomValue(editorStateAtom);
-  const { editor } = editorState;
+  const { editor } = useEditorStore();
 
   const lists = [
     {
@@ -871,9 +861,7 @@ const ListButton = () => {
 };
 
 const AlignButton = () => {
-  // const { editor } = useEditorStore();
-  const editorState = useAtomValue(editorStateAtom);
-  const { editor } = editorState;
+  const { editor } = useEditorStore();
 
   const alignments = [
     {
@@ -962,15 +950,14 @@ const ImageButton = ({
   getInputProps: () => HTMLProps<HTMLInputElement>;
   getRootProps: () => HTMLProps<HTMLDivElement>;
 }) => {
-  // const { editor } = useEditorStore();
-  const editorState = useAtomValue(editorStateAtom);
+  const { editor } = useEditorStore();
+
   const [pendingImages, setPendingImages] = useAtom(pendingImgAtoms);
   const [imageFiles, setImageFiles] = useState<File[] | null>(null);
 
   const [formData, setFormData] = useAtom(blogAtom);
   const [images, setImages] = useAtom(imageAtoms);
 
-  const { editor } = editorState;
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [imgUrl, setImgUrl] = useState('');
 
@@ -1126,9 +1113,8 @@ const ImageButton = ({
 };
 
 const LinkButton = () => {
-  // const { editor } = useEditorStore();
-  const editorState = useAtomValue(editorStateAtom);
-  const { editor } = editorState;
+  const { editor } = useEditorStore();
+
   const [value, setValue] = useState('');
 
   const onChange = (href: string) => {
@@ -1175,9 +1161,7 @@ const LinkButton = () => {
 };
 
 const HighlightColorButton = () => {
-  // const { editor } = useEditorStore();
-  const editorState = useAtomValue(editorStateAtom);
-  const { editor } = editorState;
+  const { editor } = useEditorStore();
 
   const value = editor?.getAttributes('highlight').color || '#FFF';
 
@@ -1227,9 +1211,7 @@ const HighlightColorButton = () => {
 };
 
 const TextColorButton = () => {
-  // const { editor } = useEditorStore();
-  const editorState = useAtomValue(editorStateAtom);
-  const { editor } = editorState;
+  const { editor } = useEditorStore();
 
   const value = editor?.getAttributes('textStyle').color || '#000000';
 
@@ -1276,9 +1258,7 @@ const TextColorButton = () => {
 };
 
 const HeadingLevelButton = () => {
-  // const { editor } = useEditorStore();
-  const editorState = useAtomValue(editorStateAtom);
-  const { editor } = editorState;
+  const { editor } = useEditorStore();
 
   const headings = [
     {
@@ -1377,9 +1357,7 @@ const HeadingLevelButton = () => {
 };
 
 const FontFamilyButton = () => {
-  // const { editor } = useEditorStore();
-  const editorState = useAtomValue(editorStateAtom);
-  const { editor } = editorState;
+  const { editor } = useEditorStore();
 
   const fonts = [
     {
@@ -1541,8 +1519,10 @@ export const Toolbar = ({
   getInputProps: () => HTMLProps<HTMLInputElement>;
   getRootProps: () => HTMLProps<HTMLDivElement>;
 }) => {
-  const editorState = useAtomValue(editorStateAtom);
-  const { editor, activeStates } = editorState;
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  const { editor } = useEditorStore();
 
   const insertTable = ({ rows, cols }: { rows: number; cols: number }) => {
     editor
@@ -1564,6 +1544,25 @@ export const Toolbar = ({
     // TODO: Implement comment functionality
     editor?.chain().focus().redo().run();
   };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY < lastScrollY || currentScrollY < 100) {
+        // Scrolling up or near the top
+        setIsVisible(true);
+      } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Scrolling down and not near the top
+        setIsVisible(false);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
 
   const sections: {
     label: string;
@@ -1603,19 +1602,19 @@ export const Toolbar = ({
       {
         label: 'Bold',
         icon: BoldIcon,
-        isActive: activeStates?.bold || false,
+        isActive: editor?.isActive('bold'),
         onClick: () => editor?.chain().focus().toggleBold().run(),
       },
       {
         label: 'Italic',
         icon: ItalicIcon,
-        isActive: activeStates?.italic || false,
+        isActive: editor?.isActive('italic'),
         onClick: () => editor?.chain().focus().toggleItalic().run(),
       },
       {
         label: 'Underline',
         icon: UnderlineIcon,
-        isActive: activeStates?.underline || false,
+        isActive: editor?.isActive('underline'),
         onClick: () => editor?.chain().focus().toggleUnderline().run(),
       },
     ],
@@ -1629,7 +1628,7 @@ export const Toolbar = ({
       {
         label: 'List Todo',
         icon: ListTodoIcon,
-        isActive: activeStates?.taskList || false,
+        isActive: editor?.isActive('taskList'),
         onClick: () => editor?.chain().focus().toggleTaskList().run(),
       },
       {
@@ -1640,44 +1639,57 @@ export const Toolbar = ({
     ],
   ];
   return (
-    <div className='flex min-h-10 items-center justify-center gap-x-0.5 overflow-x-auto rounded-full bg-[#f1f4f9] px-4 shadow-2xl dark:bg-stone-100/20 dark:text-amber-100'>
-      {sections[0].map((item) => (
-        <ToolbarButton key={item.label} {...item} />
-      ))}
-      <Separator orientation='vertical' className='h-6 bg-gray-600' />
-      <SaveButton />
-      <Separator orientation='vertical' className='h-6 bg-gray-600' />
-      <FontFamilyButton />
-      <Separator orientation='vertical' className='h-6 bg-gray-600' />
-      <InsertButton />
-      <Separator orientation='vertical' className='h-6 bg-gray-600' />
-      <HeadingLevelButton />
-      <Separator orientation='vertical' className='h-6 bg-gray-600' />
-      <FontSizeButton />
-      <Separator orientation='vertical' className='h-6 bg-gray-600' />
-      {sections[1].map((item) => (
-        <ToolbarButton key={item.label} {...item} />
-      ))}
-      <TextColorButton />
-      <HighlightColorButton />
-      <Separator orientation='vertical' className='h-6 bg-gray-600' />
-      <LinkButton />
-      <ImageButton
-        editorRef={editorRef}
-        fileInputRef={fileInputRef}
-        maxImages={maxImages}
-        updateContent={updateContent}
-        handleFileInputChange={handleFileInputChange}
-        insertImage={insertImage}
-        getInputProps={getInputProps}
-        getRootProps={getRootProps}
-      />
-      <AlignButton />
-      <LineHeightButton />
-      <ListButton />
-      {sections[2].map((item) => (
-        <ToolbarButton key={item.label} {...item} />
-      ))}
+    <div
+      className={cn(
+        'sticky top-44 z-50 transition-transform duration-300',
+        isVisible ? 'translate-y-0' : '-translate-y-full'
+      )}
+    >
+      <div
+        className={cn(
+          'flex min-h-10 items-center justify-center gap-x-0.5 overflow-x-auto rounded-t-xl bg-[#f1f4f9] px-4 shadow-2xl dark:bg-stone-100/20 dark:text-amber-100',
+          !isVisible ? 'border border-amber-700/30 dark:bg-stone-600' : ''
+        )}
+      >
+        {sections[0].map((item) => (
+          <ToolbarButton key={item.label} {...item} />
+        ))}
+        <Separator orientation='vertical' className='h-6 bg-gray-600' />
+        <SaveButton />
+        <Separator orientation='vertical' className='h-6 bg-gray-600' />
+        <FontFamilyButton />
+        <Separator orientation='vertical' className='h-6 bg-gray-600' />
+        <InsertButton />
+        <Separator orientation='vertical' className='h-6 bg-gray-600' />
+        <HeadingLevelButton />
+        <Separator orientation='vertical' className='h-6 bg-gray-600' />
+        <FontSizeButton />
+        <Separator orientation='vertical' className='h-6 bg-gray-600' />
+        {sections[1].map((item) => (
+          <ToolbarButton key={item.label} {...item} />
+        ))}
+        <TextColorButton />
+        <HighlightColorButton />
+        <Separator orientation='vertical' className='h-6 bg-gray-600' />
+        <LinkButton />
+        <ImageButton
+          editorRef={editorRef}
+          fileInputRef={fileInputRef}
+          maxImages={maxImages}
+          updateContent={updateContent}
+          handleFileInputChange={handleFileInputChange}
+          insertImage={insertImage}
+          getInputProps={getInputProps}
+          getRootProps={getRootProps}
+        />
+        <AlignButton />
+        <LineHeightButton />
+        <ListButton />
+        {sections[2].map((item) => (
+          <ToolbarButton key={item.label} {...item} />
+        ))}
+      </div>
+      <Ruler />
     </div>
   );
 };

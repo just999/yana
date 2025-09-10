@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import Search from '@/components/shared/search';
 import { SITE_CONFIG } from '@/lib/constants';
@@ -21,6 +21,15 @@ type HeaderProps = {
 };
 
 const Header = ({ className, user }: HeaderProps) => {
+  // Add debugging
+  // console.log('React:', React);
+  // console.log('useState:', useState);
+
+  if (!useState) {
+    console.error('useState is not available');
+    return <div>Loading...</div>;
+  }
+
   const [isClient, setIsClient] = useState(false);
 
   const [mounted, setMounted] = useState(false);

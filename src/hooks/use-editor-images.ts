@@ -9,17 +9,15 @@ import {
   imageUrlAtoms,
   pendingImgAtoms,
 } from '@/lib/jotai/blog-atoms';
-import { editorStateAtom } from '@/lib/jotai/editor-atoms';
-
 import { useUploadThing } from '@/lib/uploadthing';
+import { useEditorStore } from '@/store/use-editor-store';
 import { useDropzone } from '@uploadthing/react';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom } from 'jotai';
 import { toast } from 'sonner';
 import {
   generateClientDropzoneAccept,
   generatePermittedFileTypes,
 } from 'uploadthing/client';
-import type { ExpandedRouteConfig } from 'uploadthing/types';
 
 export const useEditorImages = (
   editorRef: RefObject<HTMLDivElement | null> | undefined,
@@ -43,8 +41,7 @@ export const useEditorImages = (
 
   const fileToImageIdMap = useRef(new Map<File, string>());
 
-  const editorState = useAtomValue(editorStateAtom);
-  const { editor } = editorState;
+  const { editor } = useEditorStore();
 
   // const insertImage = useCallback(
   //   (file: File, imageId: string, isInline: boolean = false) => {

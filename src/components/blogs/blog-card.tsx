@@ -26,11 +26,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 type BlogCardProps = {
+  slug: string;
   post: PostProps;
   type: 'guest' | 'user';
+  blogs: PostProps[];
 };
 
-const BlogCard = ({ post, type }: BlogCardProps) => {
+const BlogCard = ({ post, type, blogs, slug }: BlogCardProps) => {
   const sumContent = summarizeBlogContent(post.content, 200);
 
   const commentCount = post.comments?.length;
@@ -84,7 +86,9 @@ const BlogCard = ({ post, type }: BlogCardProps) => {
       <CardContent>
         <div>
           <div className='flex items-center justify-center gap-5'>
-            {type === 'user' && <BlogContent content={post.content} />}
+            {type === 'user' && (
+              <BlogContent content={post.content} blogs={blogs} slug={slug} />
+            )}
           </div>
         </div>
       </CardContent>
