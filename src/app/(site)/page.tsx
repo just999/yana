@@ -11,6 +11,7 @@ type HomeProps = {
     q?: string;
     slug?: string;
     category: string;
+    excerpt?: string;
     sort?: string;
     page?: string;
   }>;
@@ -20,6 +21,7 @@ export default async function Home({ searchParams }: HomeProps) {
     q = 'all',
     slug = 'all',
     category = 'all',
+    excerpt = 'all',
     sort = 'newest',
     page = '1',
   } = await searchParams;

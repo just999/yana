@@ -12,6 +12,7 @@ export const blogSchema = z.object({
   title: z.string().min(2, { message: 'must have blog title' }),
   slug: z.string().min(2, { message: 'must have blog slug' }),
   category: z.string().min(2, { message: 'must have blog category' }),
+  excerpt: z.string().optional(),
   content: z.string().min(2, { message: 'must have content' }),
   images: z.array(z.string()).optional(),
   anonymous: z.boolean().optional(),

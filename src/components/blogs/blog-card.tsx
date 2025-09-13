@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from '@/components/ui';
 import { localAvatar } from '@/lib/constants';
+import { categories } from '@/lib/helpers';
 import { PostProps } from '@/lib/types';
 import {
   calculateReadTime,
@@ -37,19 +38,22 @@ const BlogCard = ({ post, type, blogs, slug }: BlogCardProps) => {
 
   const commentCount = post.comments?.length;
   const readTime = calculateReadTime(post.content);
-  const postLikeCount = post.reactions.length;
+  const postLikeCount = post.reactions?.length;
+
+  const postImg = categories.filter((cat) => cat.name === post.category)[0].img;
+
   return (
     <Card key={post.slug} className='group min-w-72 overflow-hidden'>
       <div className='relative h-40 overflow-hidden'>
-        {Array.isArray(post.images) && post.images.length > 0 ? (
-          post.images.slice(0, 1).map((img, i) => {
+        {postImg.length > 0 ? (
+          Array.from(postImg).map((img, i) => {
             return (
               <Image
-                src={img || '/img/noimg.svg'}
+                src={postImg}
                 alt={post.title}
                 fill
-                className='object-cover transition-transform duration-300 group-hover:scale-105'
-                key={img}
+                className='object-contain transition-transform duration-300 group-hover:scale-105'
+                key={i}
                 priority
               />
             );
@@ -75,12 +79,16 @@ const BlogCard = ({ post, type, blogs, slug }: BlogCardProps) => {
             href={`/blogs/${post.slug}`}
             className='underline-offset-2 hover:underline hover:decoration-amber-500'
           >
-            {post.title.substring(0, 35)}...
+            {post.title.length > 35
+              ? `${post.title.substring(0, 35)}...`
+              : post.title}
           </Link>
         </CardTitle>
-        <CardDescription className='bg-foreground/10 mt-2 line-clamp-2 w-full p-1 text-[12px] text-stone-500'>
-          {/* {post.excerpt} */} {sumContent}
-        </CardDescription>
+        {post.excerpt && (
+          <CardDescription className='bg-foreground/10 mt-2 line-clamp-2 w-full p-1 text-[12px] text-stone-500'>
+            {/* {post.excerpt} */} {post.excerpt}
+          </CardDescription>
+        )}
       </CardHeader>
 
       <CardContent>
@@ -104,10 +112,10 @@ const BlogCard = ({ post, type, blogs, slug }: BlogCardProps) => {
               <AvatarFallback>{post.author?.avatar || 'avatar'}</AvatarFallback>
             </Avatar>
             <div className='text-sm'>
-              <p className='max-w-14 text-xs leading-none font-medium text-wrap'>
+              <p className='max-w-14 text-[10px] leading-none font-medium text-nowrap'>
                 {post.author?.name}
               </p>
-              <p className='text-muted-foreground text-xs'>
+              <p className='text-muted-foreground text-[10px]'>
                 {formatDate.date(post.createdAt?.toISOString() ?? '')}
               </p>
             </div>

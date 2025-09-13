@@ -1,8 +1,5 @@
-'use client';
-
 import BlogCard from '@/components/blogs/blog-card';
 import { PostProps } from '@/lib/types';
-import { summarizeBlogContent } from '@/lib/utils';
 
 type BlogsProps = {
   blogs: PostProps[];

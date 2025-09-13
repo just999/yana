@@ -24,7 +24,6 @@ const SlugNavigation = ({
   nextPost,
   className = '',
 }: SlugNavigationProps) => {
-  console.log('🚀 ~ SlugNavigation ~ nextPost:', nextPost);
   return (
     <nav
       className={`flex w-full items-center justify-between border-t border-gray-200 px-8 py-2 ${className}`}

@@ -9,6 +9,7 @@ export interface BlogProps {
   slug: string;
   content: string;
   category: string;
+  excerpt?: string | null;
   authorId: string;
   author?: User | null;
   anonymous: boolean;
@@ -61,6 +62,7 @@ export const blogAtom = atom<BlogProps>({
   slug: '',
   content: '',
   category: '',
+  excerpt: '',
   authorId: '',
   author: null,
   anonymous: false,
@@ -86,6 +88,7 @@ export const hydrateBlogAtomWithConversion = atom<
           slug: res.data.slug || '',
           content: res.data.content || '',
           category: res.data.category || '',
+          excerpt: res.data.excerpt || '',
           authorId: res.data.authorId || '',
           author: res.data.author || null,
           anonymous: res.data.anonymous || false,

@@ -3,6 +3,7 @@ import { Control } from 'react-hook-form';
 import { ClientUploadedFileData, ExpandedRouteConfig } from 'uploadthing/types';
 
 import { AvatarSchema } from './schemas/auth-schemas';
+import type { BlogSchema } from './schemas/blog-schemas';
 
 // import { BlogSchema, UpdateBlogSchema } from './schemas/blog-schemas';
 
@@ -29,12 +30,13 @@ export interface PostProps {
   title: string;
   slug: string;
   category: string;
+  excerpt?: string | null;
   content: string;
   authorId: string;
-  reactions: Reaction[];
+  reactions?: Reaction[];
   featured?: boolean;
   anonymous: boolean;
-  author: User;
+  author?: User;
   images: string[];
   comments?: PostComment[];
   createdAt: Date;
@@ -243,3 +245,12 @@ export enum RegistrationRoutes {
 export interface FormErrors {
   [key: string]: string | undefined;
 }
+
+export type BlogActionResult = {
+  success?: boolean;
+  error: boolean;
+  errors?: Record<string, string[]>;
+  message: string;
+  inputs?: BlogSchema;
+  data?: PostProps;
+};

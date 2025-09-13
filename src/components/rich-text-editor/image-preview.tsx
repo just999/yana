@@ -505,7 +505,6 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
   const [pendingImages, setPendingImages] = useAtom(pendingImgAtoms);
   const [imageFiles, setImageFiles] = useAtom(fileAtoms);
   const [images, setImages] = useAtom(imageAtoms);
-  console.log('🚀 ~ ImagePreview ~ images:', images);
 
   useEffect(() => {
     if (!content) {
@@ -524,7 +523,6 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
       }
       return acc;
     }, [] as ImageData[]);
-    console.log('🚀 ~ ImagePreview ~ httpsImages:', httpsImages);
 
     if (httpsImages) {
       setImages(httpsImages);

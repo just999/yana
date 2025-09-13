@@ -1,20 +1,24 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useMemo } from 'react';
 
 import TestComponent from '@/app/(site)/playground/test-component';
 import App from '@/app/(site)/playground/youtube-comment-reaction';
 import YouTubeStyleComment from '@/app/(site)/playground/youtube-style-comment';
 import { Button } from '@/components/ui';
 import { jokeObjAtom } from '@/lib/jotai/atoms';
+import { jsonToHtml } from '@/lib/json-to-html';
 import { useAtom } from 'jotai';
 import { Loader } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 import Area from './area';
+import CodeBlockComponent from './code-block-editor';
+import CodeBlockEditor from './code-block-editor';
 import InputForm from './input-form';
 import Perimeter from './perimeter';
+import RenderedContent from './rendered-content';
 import Volume from './volume';
 
 const data = [
@@ -69,6 +73,9 @@ function AsyncComp() {
 }
 
 const PgPage = () => {
+  // const htmlContent = useMemo(() => jsonToHtml(cont), []);
+
+  // const codeNode = cont.content.find((node: any) => node.type === 'codeBlock');
   return (
     <>
       <div className='flex flex-col space-y-2 pt-16'>
@@ -91,6 +98,9 @@ const PgPage = () => {
           <Perimeter />
           <Volume />
         </div>
+
+        {/* <RenderedContent content={cont} /> */}
+        <CodeBlockEditor />
       </div>
     </>
   );

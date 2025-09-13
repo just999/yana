@@ -3,9 +3,11 @@
 import { useEffect, useState } from 'react';
 
 import { localAvatar } from '@/lib/constants';
+import { categories } from '@/lib/helpers';
 import { PostProps } from '@/lib/types';
 import DOMPurify from 'dompurify';
 import { ChevronUp, Mail, Tag, TrendingUp } from 'lucide-react';
+import Image from 'next/image';
 
 import {
   Avatar,
@@ -62,6 +64,8 @@ const BlogSidebar = ({ blog, allBlogs, featuredBlogs }: BlogSidebarProps) => {
     count,
   }));
 
+  const postImg = categories.filter((cat) => cat.name === blog.category)[0].img;
+
   if (!mounted) {
     return <div>Loading...</div>;
   }
@@ -75,13 +79,15 @@ const BlogSidebar = ({ blog, allBlogs, featuredBlogs }: BlogSidebarProps) => {
             <div className='text-center'>
               <Avatar className='mx-auto mb-4 h-20 w-20'>
                 <AvatarImage
-                  src={blog.author.avatar || localAvatar}
-                  alt={blog.author.name}
+                  src={blog.author?.avatar || localAvatar}
+                  alt={blog.author?.name}
                 />
                 <AvatarFallback>SM</AvatarFallback>
               </Avatar>
-              <h3 className='mb-1 text-lg font-semibold'>{blog.author.name}</h3>
-              <p className='mb-3 text-sm text-gray-600'>{blog.author.role}</p>
+              <h3 className='mb-1 text-lg font-semibold'>
+                {blog.author?.name}
+              </h3>
+              <p className='mb-3 text-sm text-gray-600'>{blog.author?.role}</p>
               <p className='mb-4 text-sm text-gray-700'>
                 {/* {blogPost.author.bio} */}
               </p>
@@ -216,25 +222,30 @@ const BlogSidebar = ({ blog, allBlogs, featuredBlogs }: BlogSidebarProps) => {
                 });
 
                 return (
-                  <div key={post.id} className='group cursor-pointer'>
+                  <div
+                    key={post.id}
+                    className='group cursor-pointer rounded-lg border border-amber-700/10 px-1 py-2 shadow-2xl/40'
+                  >
                     <div className='featured-blog space-x-3'>
-                      <img
-                        src={post.images[0]}
+                      <Image
+                        src={post.images[0] || postImg}
                         alt={post.title}
-                        className='rounded-lg object-cover transition-opacity group-hover:opacity-90'
+                        width={800}
+                        height={300}
+                        className='h-auto max-w-80 rounded-xs object-cover transition-opacity group-hover:opacity-90'
                       />
                       <div className='flex-1'>
                         <div className='flex flex-col items-start justify-between text-xs text-gray-500'>
-                          <Badge variant='secondary' className='text-[10px]'>
+                          {/* <Badge variant='secondary' className='text-[10px]'>
                             {blog.category}
-                          </Badge>
+                          </Badge> */}
                           {/* <span className='text-[8px]'>({post.readTime})</span> */}
                         </div>
                         <h4 className='mb-2 text-sm leading-tight font-semibold transition-colors group-hover:text-blue-600'>
                           {post.title}
                         </h4>
                         <p className='mb-2 line-clamp-2 w-full text-xs text-gray-600'>
-                          {contentValue.substring(0, 30)}
+                          {blog.excerpt}
                         </p>
                       </div>
                     </div>

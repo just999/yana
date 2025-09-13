@@ -1,6 +1,7 @@
 import type { JSONContent } from '@tiptap/core';
 import { clsx, type ClassValue } from 'clsx';
 import { differenceInYears } from 'date-fns';
+import type { Root } from 'hast';
 import { Ballet } from 'next/font/google';
 // !Helper function (could be in a separate utils file)
 // export async function extractImageUrls(html: string): Promise<string[]> {
@@ -484,10 +485,8 @@ export function extractImageUrls(
     const parser = new DOMParser();
     const doc = parser.parseFromString(content, 'text/html');
     const images = doc.querySelectorAll('img[src^="https"]');
-    console.log('🚀 ~ extractImageUrls ~ images:', images);
 
     let result: { src: string; id: string; alt: string }[] = [];
-    console.log('🚀 ~ extractImageUrls ~ result:', result);
 
     images.forEach((img) => {
       try {
@@ -872,4 +871,227 @@ export function formUrlQuery({
     },
     { skipNull: true }
   );
+}
+
+export function flattenHighlightClasses(node: any) {
+  if (node.type === 'element' && node.tagName === 'span') {
+    while (
+      node.children?.[0]?.type === 'element' &&
+      node.children[0].tagName === 'span'
+    ) {
+      const child = node.children[0];
+      node.properties.className = [
+        ...(node.properties.className || []),
+        ...(child.properties.className || []),
+      ];
+      node.children = child.children;
+    }
+  }
+
+  if (Array.isArray(node.children)) {
+    node.children = node.children.map(flattenHighlightClasses);
+  }
+
+  return node;
+}
+export function mergeAdjacentSpans(node: any): any {
+  if (node.type === 'element' && Array.isArray(node.children)) {
+    const mergedChildren: any[] = [];
+
+    for (let i = 0; i < node.children.length; i++) {
+      const current = node.children[i];
+      const next = node.children[i + 1];
+
+      if (
+        current?.type === 'element' &&
+        current.tagName === 'span' &&
+        next?.type === 'element' &&
+        next.tagName === 'span'
+      ) {
+        // Merge classNames
+        const mergedClassName = [
+          ...(current.properties.className || []),
+          ...(next.properties.className || []),
+        ];
+
+        // Merge children
+        const mergedChild = {
+          type: 'element',
+          tagName: 'span',
+          properties: { className: mergedClassName },
+          children: [...(current.children || []), ...(next.children || [])],
+        };
+
+        mergedChildren.push(mergedChild);
+        i++; // Skip next
+      } else {
+        mergedChildren.push(current);
+      }
+    }
+
+    node.children = mergedChildren.map(mergeAdjacentSpans);
+  }
+
+  return node;
+}
+
+// Types for the lowlight tree structure
+export interface TextNode {
+  type: 'text';
+  value: string;
+}
+
+export interface ElementNode {
+  type: 'element';
+  tagName: string;
+  properties: {
+    className?: string[];
+    [key: string]: any;
+  };
+  children: (TextNode | ElementNode)[];
+}
+
+export interface RootNode {
+  type: 'root';
+  children: (TextNode | ElementNode)[];
+  data: {
+    language: string;
+    relevance: number;
+  };
+}
+
+export function flattenLowlightTreeAggressive(
+  tree: RootNode,
+  language?: string
+): string {
+  if (!tree || tree.type !== 'root') {
+    return '';
+  }
+
+  function escapeHtml(text: string): string {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function collectClasses(
+    node: ElementNode,
+    ancestorClasses: string[] = []
+  ): string[] {
+    const nodeClasses = node.properties.className || [];
+    return [...ancestorClasses, ...nodeClasses];
+  }
+
+  function processNode(
+    node: TextNode | ElementNode,
+    parentClasses: string[] = []
+  ): string {
+    if (node.type === 'text') {
+      return escapeHtml(node.value);
+    }
+
+    if (node.type === 'element') {
+      const currentClasses = node.properties.className || [];
+      const allClasses = [...parentClasses, ...currentClasses];
+
+      // If this node has no children or only text children, create a single span
+      if (node.children.length === 1 && node.children[0].type === 'text') {
+        const classAttr = allClasses.length > 0 ? allClasses.join(' ') : '';
+        const textContent = escapeHtml(node.children[0].value);
+        return classAttr
+          ? `<span class="${classAttr}">${textContent}</span>`
+          : textContent;
+      }
+
+      // For complex nested elements, flatten them
+      let result = '';
+      for (const child of node.children) {
+        if (child.type === 'text') {
+          const classAttr = allClasses.length > 0 ? allClasses.join(' ') : '';
+          const textContent = escapeHtml(child.value);
+          result += classAttr
+            ? `<span class="${classAttr}">${textContent}</span>`
+            : textContent;
+        } else {
+          // For nested elements, merge classes
+          result += processNode(child, allClasses);
+        }
+      }
+
+      return result;
+    }
+
+    return '';
+  }
+
+  const innerHTML = tree.children.map((child) => processNode(child)).join('');
+
+  const languageClass = language || tree.data?.language || 'plaintext';
+  return `<code class="language-${languageClass}">${innerHTML}</code>`;
+}
+
+export function flattenLowlightTree(tree: RootNode, language?: string): string {
+  if (!tree || tree.type !== 'root') {
+    return '';
+  }
+
+  // Helper function to escape HTML entities
+  function escapeHtml(text: string): string {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  // Helper function to merge parent and child classes
+  function mergeClasses(
+    parentClasses: string[] = [],
+    childClasses: string[] = []
+  ): string[] {
+    const merged = [...parentClasses, ...childClasses];
+    // Remove duplicates while preserving order
+    return [...new Set(merged)];
+  }
+
+  // Recursive function to process nodes
+  function processNode(
+    node: TextNode | ElementNode,
+    parentClasses: string[] = []
+  ): string {
+    if (node.type === 'text') {
+      return escapeHtml(node.value);
+    }
+
+    if (node.type === 'element') {
+      const nodeClasses = node.properties.className || [];
+      const mergedClasses = mergeClasses(parentClasses, nodeClasses);
+
+      // Process children
+      const childrenHtml = node.children
+        .map((child) => processNode(child, mergedClasses))
+        .join('');
+
+      // Create span with merged classes
+      if (mergedClasses.length > 0) {
+        const classAttr = mergedClasses.join(' ');
+        return `<span class="${classAttr}">${childrenHtml}</span>`;
+      } else {
+        return `<span>${childrenHtml}</span>`;
+      }
+    }
+
+    return '';
+  }
+
+  // Process all root children
+  const innerHTML = tree.children.map((child) => processNode(child)).join('');
+
+  // Wrap in code element with language class
+  const languageClass = language || tree.data?.language || 'plaintext';
+  return `<code class="language-${languageClass}">${innerHTML}</code>`;
 }

@@ -413,7 +413,14 @@ import {
   setEditorAtom,
 } from '@/lib/jotai/editor-atoms';
 import type { PostProps } from '@/lib/types';
-import { cn } from '@/lib/utils';
+import {
+  cn,
+  flattenHighlightClasses,
+  flattenLowlightTree,
+  flattenLowlightTreeAggressive,
+  mergeAdjacentSpans,
+  type RootNode,
+} from '@/lib/utils';
 // import { generateHTML } from '@tiptap/core';
 import type { JSONContent } from '@tiptap/core';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
@@ -511,9 +518,22 @@ const BlogContent = ({ content, blogs, slug }: BlogContentProps) => {
         const code = node.content[0].text || '';
         const language = node.attrs.language || 'plaintext';
         const tree = lowlight?.highlight(language, code);
-        const htmlRes = tree && toHtml(tree);
-        return `<div class="${cn('hljs code-block-custom w-full m-auto', `language-${language}`)}" key="code-${index}"><div class="${cn(`code-${language}`)}">${htmlRes}</div>
-        </div>`;
+        // console.log(JSON.stringify(tree, null, 2));
+
+        // Test the function
+        // console.log('Standard flattening:');
+        // console.log(flattenLowlightTree(tree as RootNode));
+
+        // console.log('\nAggressive flattening:');
+        // console.log(flattenLowlightTreeAggressive(tree as RootNode));
+
+        const flattenTree = flattenLowlightTreeAggressive(
+          tree as RootNode,
+          language
+        );
+        // const htmlRes = tree && toHtml(tree);
+        return `<pre class="${cn('hljs code-block-custom w-full m-auto', `code-${language}`)}" key="code-${index}">${flattenTree}
+        </pre>`;
       }
     } catch (error) {
       console.error('Error highlighting code:', error);
@@ -523,8 +543,8 @@ const BlogContent = ({ content, blogs, slug }: BlogContentProps) => {
 
     const htmlData = generateHTML({ type: 'doc', content: [node] }, extensions);
 
-    const hasTable = hasTag(htmlData, 'table');
-
+    // const hasTable = hasTag(htmlData, 'table');
+    const hasTable = htmlData.toLowerCase().includes('<table');
     const tableClass = hasTable ? 'tableWrapper' : '';
 
     return `<div class="content-block-wrapper ${tableClass}" key="block-${index}">${htmlData}</div>`;
@@ -564,7 +584,7 @@ const BlogContent = ({ content, blogs, slug }: BlogContentProps) => {
   if (!mounted || isLoading) {
     return (
       <div className='flex flex-col items-center justify-center py-8'>
-        <div className='prose prose-sm max-w-none px-8 py-0'>
+        <div className='prose prose-sm max-w-[816px] px-8 py-0'>
           <p>Loading...</p>
         </div>
       </div>
@@ -572,11 +592,11 @@ const BlogContent = ({ content, blogs, slug }: BlogContentProps) => {
   }
 
   return (
-    <div className='dark:bg-accent/90 flex flex-col items-center justify-center py-8'>
+    <div className='dark:bg-accent/90 flex w-full flex-col items-center justify-center py-8'>
       <div className='not-prose'>
         <div
           className={cn(
-            'prose prose-sm max-w-none px-8 py-2 text-justify dark:bg-black/20 dark:text-stone-100'
+            'prose prose-sm max-w-[816px] px-8 py-2 text-justify font-normal dark:bg-black/20 dark:text-stone-100'
           )}
           dangerouslySetInnerHTML={{
             __html: htmlCont,
@@ -609,17 +629,38 @@ export function convertToHTML(tree: Root): string {
   } as ExtendedOptions);
 }
 
-export function hasTag(htmlString: string, tagName: string) {
-  if (
-    typeof htmlString !== 'string' ||
-    typeof tagName !== 'string' ||
-    !tagName
-  ) {
-    return false;
-  }
+// export function hasTag(htmlString: string, tagName: string) {
+//   if (
+//     typeof htmlString !== 'string' ||
+//     typeof tagName !== 'string' ||
+//     !tagName
+//   ) {
+//     return false;
+//   }
 
-  if (typeof window === 'undefined') {
-    const regex = new RegExp(`<${tagName}\\b`, 'i');
-    return regex.test(htmlString);
-  }
+//   if (typeof window === 'undefined') {
+//     const regex = new RegExp(`<${tagName}\\b`, 'i');
+//     return regex.test(htmlString);
+//   }
+// }
+
+// Make sure your hasTag function looks like this:
+export function hasTag(html: string, tagName: string): boolean {
+  if (!html || !tagName) return false;
+
+  // Create regex to match opening tag
+  const regex = new RegExp(`<${tagName}(\\s[^>]*)?(/?)>`, 'i');
+  return regex.test(html);
 }
+
+// Or simpler version:
+export function hasTagSimple(html: string, tagName: string): boolean {
+  if (!html || !tagName) return false;
+  return html.toLowerCase().includes(`<${tagName.toLowerCase()}`);
+}
+
+// Test your hasTag function:
+// console.log('Testing hasTag function:');
+// console.log(hasTag('<table><tr><td>test</td></tr></table>', 'table')); // should be true
+// console.log(hasTag('<div>no table here</div>', 'table')); // should be false
+// console.log(hasTag('<table class="test">', 'table')); // should be true

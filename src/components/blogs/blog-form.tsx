@@ -106,7 +106,9 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
     const [isLoading, setIsLoading] = useState(true);
     const [lastAutoSlug, setLastAutoSlug] = useState('');
     const blogRef = useRef<HTMLFormElement>(null);
-
+    const [localErrors, setLocalErrors] = useState<Record<string, string[]>>(
+      {}
+    );
     const [imageFiles, setImageFiles] = useAtom(fileAtoms);
     const [imgUrl, setImgUrl] = useAtom(imageUrlAtoms);
     const [images, setImages] = useAtom(imageAtoms);
@@ -159,6 +161,7 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
     //       ],
     //     },
     //   });
+
     useEffect(() => {
       if (blog && type === 'update') {
         setPostData(blog);
@@ -179,15 +182,170 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
       setMounted(true);
     }, []);
 
+    // const [data, action, isPending] = useActionState(
+    //   async (prevState: unknown, formData: FormData) => {
+    //     console.log('🔍 FormData entries:');
+    //     for (const [key, value] of formData.entries()) {
+    //       console.log(`${key}:`, value);
+    //     }
+
+    //     const jsonContent = editor?.getJSON();
+    //     const jsonString = JSON.stringify(jsonContent);
+
+    //     let allImgUrls: ImageInfo[] = [];
+    //     let newlyUploadedImages: ImageInfo[] = [];
+
+    //     const urls = extractImageUrls(postData.content);
+
+    //     const existingImgUrls = urls
+    //       .filter((img) => img.src.startsWith('https://hz9t4nphtm.ufs.sh'))
+    //       .map((dat) => ({
+    //         src: dat.src,
+    //         id: dat.src.split('/').pop() || dat.id,
+    //         alt: dat.id,
+    //       }));
+    //     if (pendingImages.length > 0) {
+    //       const filesToUpload = pendingImages.map((img) => img.file);
+    //       const uploaded = await startUpload(filesToUpload);
+    //       uploaded?.forEach((file) => {
+    //         updateImageUrl(file.key, file.ufsUrl);
+    //       });
+    //       const newBlogImg = uploaded?.map((img) => img.ufsUrl) || [];
+    //       setImgUrl(newBlogImg);
+
+    //       newlyUploadedImages =
+    //         uploaded?.map((file) => ({
+    //           src: file.ufsUrl,
+    //           id: file.key,
+    //           alt: file.name,
+    //         })) ?? [];
+
+    //       allImgUrls = [...existingImgUrls, ...newlyUploadedImages];
+
+    //       setPostData((prev) => ({
+    //         ...prev,
+    //         images: allImgUrls.map((img) => img.src),
+    //       }));
+    //     }
+
+    //     const curImg = postData.images || [];
+
+    //     const contentImageUrls = extractImageUrlsFromContent(postData.content);
+
+    //     const stillUsedExistingImages = curImg.filter((imgUrl) =>
+    //       contentImageUrls.includes(imgUrl)
+    //     );
+
+    //     const allImages = [
+    //       ...stillUsedExistingImages,
+    //       ...allImgUrls.map((img) => img.src),
+    //     ];
+    //     const uniqueImages = [...new Set(allImages)];
+
+    //     const updatedContent = replaceImageSourcesInJSON(
+    //       jsonString,
+    //       allImgUrls
+    //     );
+
+    //     if (updatedContent) {
+    //       setPostData((prev) => ({
+    //         ...prev,
+    //         content: updatedContent,
+    //       }));
+    //     }
+
+    //     try {
+    //       // Extract data from FormData and convert to expected format
+    //       const blogData = {
+    //         id: blog?.id as string,
+    //         slug: formData.get('slug') as string,
+    //         title: formData.get('title') as string,
+    //         content: jsonString as string,
+    //         category: formData.get('category') as string,
+    //         anonymous: formData.has('anonymous')
+    //           ? formData.get('anonymous') === 'true'
+    //           : undefined,
+    //         featured: formData.has('featured')
+    //           ? formData.get('featured') === 'true'
+    //           : undefined,
+    //         // Add comments if needed
+    //         // comments: formData.has('comments') ? JSON.parse(formData.get('comments') as string) : undefined
+    //       };
+
+    //       console.log(
+    //         '🔍 Original content sample:',
+    //         postData.content.substring(0, 200)
+    //       );
+    //       console.log('🔍 Images to replace:', allImgUrls);
+    //       console.log(
+    //         '🔍 Updated content sample:',
+    //         updatedContent.substring(0, 200)
+    //       );
+    //       console.log('📦 FormData content:', formData.get('content'));
+
+    //       const newBlogData = {
+    //         ...blogData,
+    //         content: updatedContent,
+    //         images: allImgUrls.map((img) => img.src),
+    //       };
+
+    //       const updateBlogData = {
+    //         ...blogData,
+    //         content: updatedContent,
+    //         images: allImgUrls.map((img) => img.src),
+    //       };
+
+    //       const res =
+    //         type === 'create'
+    //           ? await newBlog(prevState, newBlogData)
+    //           : await updateBlog({ ...updateBlogData, slug: postData.slug });
+
+    //       if (!res.error) {
+    //         toast.success(res.message);
+    //         setImageFiles([]);
+    //         setImgUrl([]);
+    //         setPendingImages([]);
+
+    //         if (images) {
+    //           setImages([]);
+    //         }
+    //         router.push('/blogs');
+    //       } else {
+    //         toast.error(res.message);
+    //       }
+
+    //       return res;
+    //     } catch (err) {
+    //       console.error('Error creating blog:', err);
+    //       return {
+    //         error: true,
+    //         message:
+    //           err instanceof Error ? err.message : 'Error creating new blog',
+    //       };
+    //     }
+    //   },
+    //   {
+    //     error: false,
+    //     message: '',
+    //   }
+    // );
+
     const [data, action, isPending] = useActionState(
       async (prevState: unknown, formData: FormData) => {
-        console.log('🔍 FormData entries:');
+        // console.log('🔍 FormData entries:');
         for (const [key, value] of formData.entries()) {
-          console.log(`${key}:`, value);
+          // console.log(`${key}:`, value);
         }
 
+        // Get the raw JSON from editor
         const jsonContent = editor?.getJSON();
-        const jsonString = JSON.stringify(jsonContent);
+
+        if (!jsonContent) {
+          return {
+            error: true,
+            message: 'No content found in editor',
+          };
+        }
 
         let allImgUrls: ImageInfo[] = [];
         let newlyUploadedImages: ImageInfo[] = [];
@@ -201,6 +359,7 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
             id: dat.src.split('/').pop() || dat.id,
             alt: dat.id,
           }));
+
         if (pendingImages.length > 0) {
           const filesToUpload = pendingImages.map((img) => img.file);
           const uploaded = await startUpload(filesToUpload);
@@ -226,9 +385,7 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
         }
 
         const curImg = postData.images || [];
-
         const contentImageUrls = extractImageUrlsFromContent(postData.content);
-
         const stillUsedExistingImages = curImg.filter((imgUrl) =>
           contentImageUrls.includes(imgUrl)
         );
@@ -239,72 +396,60 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
         ];
         const uniqueImages = [...new Set(allImages)];
 
-        const updatedContent = replaceImageSourcesInJSON(
-          jsonString,
-          allImgUrls
-        );
-        // const updatedContent = replaceImageSourcesAndIdsHybrid(
-        //   postData.content,
-        //   allImgUrls
-        // );
-        // const updatedContent = replaceImageSourcesAndIdsDOMBased(
-        //   postData.content,
-        //   allImgUrls
-        // );
-        if (updatedContent) {
+        // IMPORTANT: Update the JSON structure, not convert to HTML
+        let updatedJsonContent = jsonContent;
+
+        if (allImgUrls.length > 0) {
+          // Function to update image URLs in JSON structure
+          updatedJsonContent = updateImageUrlsInJsonContent(
+            jsonContent,
+            allImgUrls
+          );
+        }
+
+        // Convert the final JSON to string for storage
+        const finalContentString = JSON.stringify(updatedJsonContent);
+
+        if (updatedJsonContent) {
           setPostData((prev) => ({
             ...prev,
-            content: updatedContent,
+            content: finalContentString, // Keep it as JSON string
           }));
         }
 
         try {
-          // Extract data from FormData and convert to expected format
           const blogData = {
             id: blog?.id as string,
             slug: formData.get('slug') as string,
             title: formData.get('title') as string,
-            content: jsonString as string,
+            content: finalContentString, // ← Always save as JSON string
             category: formData.get('category') as string,
+            excerpt: formData.get('excerpt') as string,
             anonymous: formData.has('anonymous')
               ? formData.get('anonymous') === 'true'
               : undefined,
             featured: formData.has('featured')
               ? formData.get('featured') === 'true'
               : undefined,
-            // Add comments if needed
-            // comments: formData.has('comments') ? JSON.parse(formData.get('comments') as string) : undefined
           };
 
           console.log(
-            '🔍 Original content sample:',
-            postData.content.substring(0, 200)
+            '🔍 Final JSON content sample:',
+            finalContentString.substring(0, 200)
           );
-          console.log('🔍 Images to replace:', allImgUrls);
-          console.log(
-            '🔍 Updated content sample:',
-            updatedContent.substring(0, 200)
-          );
-          console.log('📦 FormData content:', formData.get('content'));
+          // console.log('🔍 Images to update:', allImgUrls);
 
-          const newBlogData = {
+          const finalBlogData = {
             ...blogData,
-            content: updatedContent,
-            images: allImgUrls.map((img) => img.src),
-          };
-
-          const updateBlogData = {
-            ...blogData,
-            content: updatedContent,
-            images: allImgUrls.map((img) => img.src),
+            images: uniqueImages, // Use the deduplicated images array
           };
 
           const res =
             type === 'create'
-              ? await newBlog(prevState, newBlogData)
-              : await updateBlog({ ...updateBlogData, slug: postData.slug });
+              ? await newBlog(prevState, finalBlogData)
+              : await updateBlog({ ...finalBlogData, slug: postData.slug });
 
-          if (!res.error) {
+          if (!res.error || !res.errors) {
             toast.success(res.message);
             setImageFiles([]);
             setImgUrl([]);
@@ -315,7 +460,7 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
             }
             router.push('/blogs');
           } else {
-            toast.error(res.message);
+            toast.error('something went wrong');
           }
 
           return res;
@@ -333,6 +478,57 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
         message: '',
       }
     );
+
+    useEffect(() => {
+      if (data.errors) {
+        setLocalErrors(data.errors);
+      }
+    }, [data.errors]);
+
+    // Helper function to update image URLs in JSON content structure
+    function updateImageUrlsInJsonContent(
+      jsonContent: any,
+      imageUrls: ImageInfo[]
+    ): any {
+      if (!jsonContent || !jsonContent.content) return jsonContent;
+
+      const updateNode = (node: any): any => {
+        if (node.type === 'image' && node.attrs?.src) {
+          // Find matching image URL to replace
+          const matchingImage = imageUrls.find(
+            (img) =>
+              node.attrs.src.includes(img.id) || node.attrs.src === img.src
+          );
+
+          if (matchingImage) {
+            return {
+              ...node,
+              attrs: {
+                ...node.attrs,
+                src: matchingImage.src,
+                alt: matchingImage.alt,
+              },
+            };
+          }
+        }
+
+        // Recursively update child nodes
+        if (node.content && Array.isArray(node.content)) {
+          return {
+            ...node,
+            content: node.content.map(updateNode),
+          };
+        }
+
+        return node;
+      };
+
+      return {
+        ...jsonContent,
+        content: jsonContent.content.map(updateNode),
+      };
+    }
+
     const jsonData = editor?.getJSON();
     useEffect(() => {
       if (postData.title) {
@@ -373,6 +569,12 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
         ...prev,
         slug: newSlug,
       }));
+
+      setLocalErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[e.target.name]; // Remove the property
+        return newErrors;
+      });
     };
 
     const resetSlugToAuto = () => {
@@ -461,6 +663,38 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
     //     </Button>
     //   );
     // };
+
+    const handleFieldChange =
+      (fieldName: keyof typeof postData) =>
+      (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const value = e.target.value;
+        if (fieldName === 'slug') {
+          const newSlug = e.target.value;
+
+          const autoSlug = slugify(postData.title || '');
+          if (newSlug !== autoSlug && newSlug !== lastAutoSlug) {
+            setIsSlugManuallyEdited(true);
+          }
+
+          if (newSlug === '') {
+            setIsSlugManuallyEdited(false);
+          }
+        }
+
+        setPostData((prev) => ({
+          ...prev,
+          [fieldName]: value,
+        }));
+
+        // Remove the field error entirely instead of setting to undefined
+        fieldName === 'title' &&
+          setLocalErrors((prev) => {
+            const newErrors = { ...prev };
+            delete newErrors[fieldName];
+            delete newErrors['slug'];
+            return newErrors;
+          });
+      };
 
     const SubmitButton = () => {
       const { pending } = useFormStatus();
@@ -567,7 +801,13 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
           <div className='flex flex-col justify-between gap-8 sm:flex-row'>
             <div className='flex-1'>
               <div className='flex w-fit flex-grow items-baseline'>
-                <Label className='text-nowrap' htmlFor='title'>
+                <Label
+                  className={cn(
+                    'text-nowrap',
+                    localErrors?.title ? 'text-red-500' : ''
+                  )}
+                  htmlFor='title'
+                >
                   Title *
                 </Label>
                 <div className='flex flex-col'>
@@ -575,22 +815,31 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
                     name='title'
                     id='title'
                     aria-describedby='title-error'
-                    placeholder='Title'
+                    placeholder={cn(
+                      localErrors?.title ? localErrors.title[0] : 'Title'
+                    )}
                     value={postData.title || ''}
-                    required
-                    className='w-full flex-1'
-                    onChange={(e) => {
-                      setPostData((prev) => ({
-                        ...prev,
-                        title: e.target.value,
-                      }));
-                    }}
+                    // required
+                    className={cn(
+                      'h-8 w-full flex-1',
+                      localErrors?.title
+                        ? 'border-red-500 placeholder:text-red-500'
+                        : ''
+                    )}
+                    // onChange={(e) => {
+                    //   setPostData((prev) => ({
+                    //     ...prev,
+                    //     title: e.target.value,
+                    //   }));
+                    // }}
+                    onChange={handleFieldChange('title')}
                   />
-                  {data.errors?.title && (
-                    <p className='text-sm text-red-500'>
-                      {data.errors.title?.[0]}
+                  {localErrors?.title && (
+                    <p className='text-[10px] text-red-500'>
+                      {localErrors.title?.[0]}
                     </p>
                   )}
+
                   {/* <pre>{JSON.stringify(field, null, 2)}</pre> */}
                 </div>
               </div>
@@ -598,45 +847,54 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
 
             <div className='flex-1'>
               <div className='flex w-fit flex-grow items-baseline'>
-                <Label className='text-nowrap' htmlFor='slug'>
+                <Label
+                  className={cn(
+                    'text-nowrap',
+                    localErrors?.slug ? 'text-red-500' : ''
+                  )}
+                  htmlFor='slug'
+                >
                   Slug **
                 </Label>
 
-                <div className=''>
-                  <div>
-                    <div className='relative flex w-full items-center'>
-                      <InputCustom
-                        type='text'
-                        name='slug'
-                        id='slug'
-                        aria-describedby='slug-error'
-                        placeholder='Slug'
-                        value={postData.slug || ''}
-                        required
-                        className='w-full flex-1'
-                        onChange={handleSlugChange}
-                      />
-                      {data.errors?.slug && (
-                        <p className='text-sm text-red-500'>
-                          {data.errors.slug?.[0]}
+                <div>
+                  <div className='relative flex w-full flex-col items-center'>
+                    <InputCustom
+                      type='text'
+                      name='slug'
+                      id='slug'
+                      aria-describedby='slug-error'
+                      placeholder='Slug'
+                      value={postData.slug || ''}
+                      // required
+                      className={cn(
+                        'h-8 w-full flex-1',
+                        localErrors?.slug ? 'border-red-500' : ''
+                      )}
+                      onChange={handleFieldChange('slug')}
+                    />
+                    <div className='flex gap-4'>
+                      {localErrors?.slug && (
+                        <p className='text-[10px] text-nowrap text-red-500'>
+                          {localErrors.slug?.[0]}
                         </p>
                       )}
-                    </div>
-                    {/* {isSlugManuallyEdited && (
+                      {/* {isSlugManuallyEdited && (
                       <button
-                        type='button'
-                        onClick={resetSlugToAuto}
-                        className='absolute right-2 text-xs text-blue-500 hover:text-blue-700'
-                        title='Reset to auto-generated slug'
+                      type='button'
+                      onClick={resetSlugToAuto}
+                      className='absolute right-2 text-xs text-blue-500 hover:text-blue-700'
+                      title='Reset to auto-generated slug'
                       >
-                        Auto
+                      Auto
                       </button>
-                    )} */}
-                    <p className='w-full text-center text-[10px] text-blue-300/40'>
-                      ** Slug harus unik
-                    </p>
-                    {/* <pre>{JSON.stringify(field, null, 2)}</pre> */}
+                      )} */}
+                      <p className='w-full text-center text-[10px] text-blue-300/40'>
+                        ** Slug harus unik
+                      </p>
+                    </div>
                   </div>
+                  {/* <pre>{JSON.stringify(field, null, 2)}</pre> */}
 
                   {/* {!field.value && (
                         
@@ -648,7 +906,13 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
             {/* Category Field */}
             <div className='flex-1'>
               <div className='flex w-fit flex-grow items-baseline'>
-                <Label className='text-nowrap' htmlFor='category'>
+                <Label
+                  className={cn(
+                    'text-nowrap',
+                    localErrors?.title ? 'text-red-500' : ''
+                  )}
+                  htmlFor='category'
+                >
                   Category
                 </Label>
                 <Select
@@ -661,7 +925,12 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
                   }
                   defaultValue={postData.category}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger
+                    className={cn(
+                      'h-8 w-full flex-1',
+                      localErrors?.category ? 'border-red-500' : ''
+                    )}
+                  >
                     <SelectValue placeholder='Select category' />
                   </SelectTrigger>
 
@@ -676,8 +945,42 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
                     ))}
                   </SelectContent>
                 </Select>
-
+                {localErrors?.category && (
+                  <p className='text-[10px] text-nowrap text-red-500'>
+                    {localErrors.category?.[0]}
+                  </p>
+                )}
                 {/* <pre>{JSON.stringify(field.value, null, 2)}</pre> */}
+              </div>
+            </div>
+          </div>
+          <div className='flex-1'>
+            <div className='flex w-fit flex-grow items-baseline'>
+              <Label className='text-[12px] text-nowrap' htmlFor='excerpt'>
+                Excerpt *
+              </Label>
+              <div className='flex flex-col'>
+                <InputCustom
+                  name='excerpt'
+                  id='excerpt'
+                  aria-describedby='excerpt-error'
+                  placeholder='Excerpt'
+                  value={postData.excerpt || ''}
+                  // required
+                  className='h-6 w-full flex-1 text-[12px] placeholder:text-[12px]'
+                  onChange={(e) => {
+                    setPostData((prev) => ({
+                      ...prev,
+                      excerpt: e.target.value,
+                    }));
+                  }}
+                />
+                {localErrors?.excerpt && (
+                  <p className='text-sm text-red-500'>
+                    {localErrors.excerpt?.[0]}
+                  </p>
+                )}
+                {/* <pre>{JSON.stringify(field, null, 2)}</pre> */}
               </div>
             </div>
           </div>

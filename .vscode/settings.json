@@ -100,10 +100,10 @@
   "better-comments.tags": [
     {
       "tag": "@",
-      "color": "orange",
+      "color": "black",
       "strikethrough": false,
       "underline": false,
-      "backgroundColor": "lightblue",
+      "backgroundColor": "rgba(255, 255, 224, 1)",
       "bold": false,
       "italic": false,
       "fontWeight": 100,
@@ -188,16 +188,16 @@
     "activityBar.inactiveForeground": "#0C5481",
     "activityBarBadge.foreground": "#270051",
     "activityBarBadge.background": "#C996FF",
-    "statusBar.foreground": "#D5F381",
-    "statusBar.background": "#527000",
-    "statusBarItem.hoverBackground": "#2D5911",
-    "statusBarItem.remoteForeground": "#A6FFA5",
-    "statusBarItem.remoteBackground": "#1F851E",
+    "statusBar.foreground": "#A8FFA2",
+    "statusBar.background": "#22841B",
+    "statusBarItem.hoverBackground": "#175F2F",
+    "statusBarItem.remoteForeground": "#97FFDD",
+    "statusBarItem.remoteBackground": "#0E825B",
     "activityBar.activeBackground": "#6c782e11",
     "commandCenter.border": "#e7e7e799",
     "sash.hoverBorder": "#6c782e11",
     "statusBar.debuggingForeground": "#000000",
-    "statusBar.debuggingBackground": "#89A735"
+    "statusBar.debuggingBackground": "#58BB51"
   },
   "editor.quickSuggestions": {
     "strings": "on"

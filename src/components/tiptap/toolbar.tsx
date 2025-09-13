@@ -284,7 +284,7 @@ const CODE_LANGUAGES = [
     icon: BiLogoTypescript,
     ext: 'ts',
   },
-  { value: 'python', label: 'Python', icon: BiLogoPython, ext: 'py' },
+  { value: 'plaintext', label: 'Plaintext', icon: BiText, ext: 'txt' },
   { value: 'html', label: 'HTML', icon: BiLogoHtml5, ext: 'html' },
   { value: 'css', label: 'CSS', icon: BiLogoCss3, ext: 'css' },
   { value: 'json', label: 'JSON', icon: SiJson, ext: 'json' },
@@ -292,7 +292,7 @@ const CODE_LANGUAGES = [
   { value: 'sql', label: 'SQL', icon: BiLogoPostgresql, ext: 'sql' },
   { value: 'java', label: 'Java', icon: BiLogoJava, ext: 'java' },
   { value: 'php', label: 'PHP', icon: BiLogoPhp, ext: 'php' },
-  { value: 'text', label: 'Plain Text', icon: BiText, ext: 'txt' },
+  { value: 'python', label: 'Python', icon: BiLogoPython, ext: 'py' },
 ];
 
 export const InsertButton = () => {

@@ -49,7 +49,6 @@ const BlogDetail = async ({
   initialCommentReactions,
   postInitialReactions,
 }: BlogDetailProps) => {
-  console.log('🚀 ~ BlogDetail ~ blogs:', blogs);
   const session = (await auth()) as Session;
   const rt = calculateReadTime(blog?.content);
   const post = (await getBlogBySlug(slug)).data as PostProps;
@@ -63,14 +62,14 @@ const BlogDetail = async ({
   const commentsWithReaction = comments?.filter(
     (comment) => comment.parentId !== null
   );
-  const authorId = blog.authorId;
+  const authorId = blog.author?.id;
 
   const sumContent = summarizeBlogContent(blog.content, 200);
   const keyToCheck = 'authorId';
 
   return (
     <div className='max-w-7xl lg:col-span-3'>
-      <article className='overflow-hidden rounded-2xl bg-white shadow-lg'>
+      <article className='overflow-hidden rounded-2xl bg-[#F9FBFD]/90 shadow-lg dark:bg-stone-800/50'>
         <div className='relative h-96 overflow-hidden'>
           <img
             src={imgCat}
@@ -84,12 +83,12 @@ const BlogDetail = async ({
                 {blog?.category}
               </Badge>
             </div>
-            <h1 className='mb-2 text-center text-5xl leading-tight font-bold text-stone-100'>
+            <h1 className='mb-2 text-center text-3xl leading-tight font-bold text-amber-100 underline'>
               {blog?.title}
             </h1>
-            {/* <p className='text-xl leading-relaxed text-gray-300'>
-              {sumContent}
-            </p> */}
+            <p className='text-center text-sm leading-relaxed text-amber-200 italic'>
+              {blog.excerpt}
+            </p>
           </div>
         </div>
 
@@ -98,38 +97,42 @@ const BlogDetail = async ({
           <div className='border-b px-8 pt-8'>
             <div className='flex items-center justify-between'>
               <div className='flex flex-col items-start space-x-4'>
-                {/* <Avatar className='h-12 w-12'>
+                <Avatar className='h-12 w-12'>
                   <AvatarImage
-                    src={blog?.author.avatar || localAvatar}
-                    alt={blog?.author.name}
+                    src={blog?.author?.avatar || localAvatar}
+                    alt={blog?.author?.name}
                   />
                   <AvatarFallback>SM</AvatarFallback>
-                </Avatar> */}
-                <h1 className='mb-2 text-center text-2xl leading-tight font-bold text-stone-100 dark:text-stone-600'>
+                </Avatar>
+                {/* <h1 className='mb-2 text-center text-2xl leading-tight font-bold text-stone-100 dark:text-stone-600'>
                   {blog?.title}
-                </h1>
+                </h1> */}
                 <div>
-                  <div className='font-semibold text-gray-900'>
-                    @{blog?.author.name}
+                  <div className='text-xs font-semibold text-gray-900 dark:text-neutral-100/50'>
+                    @{blog?.author?.name}
                   </div>
                   <div className='text-xs text-gray-500 lowercase'>
-                    {/* {blog?.author.role} */}
+                    {/* {blog?.author?.role} */}
                   </div>
                 </div>
               </div>
               <div className='flex items-center space-x-6 text-sm text-gray-600'>
-                <div className='flex items-center space-x-1 rounded-lg bg-amber-200/40 px-2 shadow-xl/30'>
-                  <Calendar className='h-4 w-4' />
+                <div className='flex items-center space-x-1 rounded-lg bg-amber-200/40 px-2 shadow-xl/30 dark:bg-amber-700/30'>
+                  <Calendar className='h-3 w-3 dark:text-sky-100' size={12} />
                   {blog?.createdAt && (
-                    <span className='text-xs text-sky-700'>
+                    <span className='text-[10px] font-light text-sky-700 dark:text-sky-100'>
                       {formatDate.date(blog?.createdAt.toString())}
                     </span>
                   )}
                 </div>
-                <div className='flex items-center space-x-1 rounded-lg bg-emerald-200/30 px-1 font-light text-emerald-800 shadow-xl/30px-2'>
-                  <Clock className='h-4 w-4' />
-                  <span className='font-bold'>{rt} </span>{' '}
-                  <span className='text-xs'>min readTime</span>
+                <div className='flex items-center space-x-1 rounded-lg bg-emerald-200/30 px-1 font-light text-emerald-800 shadow-xl/30px-2 dark:bg-emerald-700/30'>
+                  <Clock className='h-3 w-3 dark:text-sky-100' size={12} />
+                  <span className='text-[10px] font-light text-sky-700 dark:text-sky-100'>
+                    {rt}{' '}
+                  </span>{' '}
+                  <span className='text-[10px] font-light text-sky-700 dark:text-sky-100'>
+                    min readTime
+                  </span>
                 </div>
               </div>
             </div>
@@ -144,13 +147,13 @@ const BlogDetail = async ({
         <div className='flex items-center gap-2'>
           <Avatar className='h-8 w-8'>
             <AvatarImage
-              src={blog?.author.avatar || localAvatar}
-              alt={blog?.author.name}
+              src={blog?.author?.avatar || localAvatar}
+              alt={blog?.author?.name}
             />
             <AvatarFallback>SM</AvatarFallback>
           </Avatar>
           <Badge className='h-4 bg-stone-500/30 text-stone-100'>
-            @{blog.author.name}{' '}
+            @{blog.author?.name}{' '}
           </Badge>
         </div>
         <div className='flex items-center gap-8'>

@@ -37,6 +37,7 @@ export const blogDefaultValue = {
   title: '',
   slug: '',
   category: '',
+  excerpt: '',
   content: '',
   authorId: '',
   author: null,

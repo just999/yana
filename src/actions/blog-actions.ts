@@ -11,6 +11,7 @@ import {
   updateBlogSchema,
   type UpdateBlogSchema,
 } from '@/lib/schemas/blog-schemas';
+import type { BlogActionResult } from '@/lib/types';
 import { formatError } from '@/lib/utils';
 import { Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
@@ -122,7 +123,10 @@ export async function createNewBlog(data: BlogSchema) {
 }
 
 // !CREATE NEW BLOG
-export async function newBlog(prevState: unknown, formData: BlogSchema) {
+export async function newBlog(
+  prevState: unknown,
+  formData: BlogSchema
+): Promise<BlogActionResult> {
   // TODO: validate the data
 
   try {
@@ -136,11 +140,13 @@ export async function newBlog(prevState: unknown, formData: BlogSchema) {
     }
 
     const validated = blogSchema.safeParse(formData);
+    const validatedError = validated.error?.flatten().fieldErrors;
 
     if (!validated.success) {
       return {
         success: false,
-        errors: validated.error.flatten().fieldErrors,
+        errors: validatedError,
+        error: true,
         message: 'validation error',
         inputs: formData,
       };
@@ -164,6 +170,7 @@ export async function newBlog(prevState: unknown, formData: BlogSchema) {
         title: formData.title,
         slug: formData.slug,
         content: formData.content,
+        excerpt: formData.excerpt,
         category: formData.category,
         authorId: session.user.id,
         images: formData.images,
@@ -195,7 +202,6 @@ export async function newBlog(prevState: unknown, formData: BlogSchema) {
 
 // !UPDATE BLOG
 export async function updateBlog(data: UpdateBlogSchema & { slug: string }) {
-  console.log('🚀 ~ updateBlog ~ data:', data);
   // TODO: validate the data
   try {
     const session = await auth();
@@ -207,7 +213,6 @@ export async function updateBlog(data: UpdateBlogSchema & { slug: string }) {
       };
     }
     const validated = updateBlogSchema.safeParse(data);
-    console.log('🚀 ~ updateBlog ~ validated:', validated);
 
     if (!validated.success) {
       return {
@@ -225,7 +230,6 @@ export async function updateBlog(data: UpdateBlogSchema & { slug: string }) {
       },
       select: { images: true },
     });
-    console.log('🚀 ~ updateBlog ~ existingBlog:', existingBlog);
 
     if (!existingBlog) {
       return {
@@ -239,7 +243,6 @@ export async function updateBlog(data: UpdateBlogSchema & { slug: string }) {
 
     // Get existing images (assuming they're stored as array of strings)
     const existingImages = existingBlog.images;
-    console.log('🚀 ~ updateBlog ~ existingImages:', existingImages);
     // Merge existing and new images, removing duplicates
     // const mergedImages = [...new Set([...existingImages, ...newImages])];
 
@@ -461,6 +464,7 @@ export const getAllBlogs = async ({
   query,
   slug,
   category,
+  excerpt,
   limit = PAGE_SIZE,
   sort,
   page,
@@ -468,6 +472,7 @@ export const getAllBlogs = async ({
   query?: string; // Made optional
   slug?: string; // Made optional
   category?: string;
+  excerpt?: string;
   limit?: number;
   sort?: string;
   page: number;

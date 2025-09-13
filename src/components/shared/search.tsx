@@ -1,3 +1,5 @@
+'use client';
+
 import { useCallback, useEffect, useState } from 'react';
 
 import { Button, InputCustom } from '@/components/ui';

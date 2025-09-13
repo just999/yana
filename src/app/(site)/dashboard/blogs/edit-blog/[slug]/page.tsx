@@ -58,7 +58,6 @@ const transformImages = (images: string): ImageData[] | undefined => {
 
 const EditBlogPage = async ({ params }: EditBlogPageProps) => {
   const slug = (await params).slug;
-  console.log('🚀 ~ EditBlogPage ~ slug:', slug);
   const rawBlog = (await getBlogBySlug(slug)).data;
   const session = (await auth()) as Session;
   if (!rawBlog) {
@@ -66,7 +65,6 @@ const EditBlogPage = async ({ params }: EditBlogPageProps) => {
   }
 
   const blog: PostProps = await transformBlogToPost(rawBlog);
-  console.log('🚀 ~ EditBlogPage ~ blog:', blog.id);
 
   const imageDataUrl = Array.isArray(blog.images)
     ? blog.images.map((f) => (typeof f === 'string' ? f : ''))
@@ -84,7 +82,6 @@ const EditBlogPage = async ({ params }: EditBlogPageProps) => {
         return img;
       })
     : [];
-  console.log('🚀 ~ EditBlogPage ~ imgData:', imgData);
 
   return (
     <>

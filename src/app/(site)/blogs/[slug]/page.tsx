@@ -27,6 +27,7 @@ type BlogDetailPageProps = {
     q?: string;
     slug?: string;
     category?: string;
+    excerpt?: string;
     sort?: string;
     page?: string;
   }>;
@@ -52,6 +53,7 @@ const BlogDetailPage = async ({
     q = '',
     slug = '',
     category = 'all',
+    excerpt = 'all',
     sort = 'newest',
     page = '1',
   } = resolvedParams;
@@ -60,6 +62,7 @@ const BlogDetailPage = async ({
       query: q || 'all', // Don't pass empty string, pass
       slug: slug || 'all', // Don't pass empty string, pass undefined
       category: category === 'all' ? undefined : category,
+      excerpt: excerpt === 'all' ? undefined : excerpt,
       sort,
       page: Number(page),
     })

@@ -29,6 +29,7 @@ import {
 } from 'highlight.js/lib/languages/javascript';
 import json from 'highlight.js/lib/languages/json';
 import markdown from 'highlight.js/lib/languages/markdown';
+import plaintext from 'highlight.js/lib/languages/plaintext';
 import python from 'highlight.js/lib/languages/python';
 import {
   default as ts,
@@ -136,9 +137,10 @@ export const useEditorExtensions = () => {
     lowlightInstance.register('json', json);
     lowlightInstance.register('bash', bash);
     lowlightInstance.register('markdown', markdown);
+    lowlightInstance.register('plaintext', plaintext);
 
     return lowlightInstance;
-  }, []);
+  }, [createLowlight]);
 
   const extensions = useMemo(
     () => [
@@ -220,14 +222,33 @@ export const useEditorExtensions = () => {
       //   table: { resizable: true },
       // }),
 
-      CodeBlockLowlight.configure({
+      CodeBlockLowlight.extend({
+        addAttributes() {
+          return {
+            ...this.parent?.(),
+            class: {
+              default: 'hljs code-block-custom',
+              parseHTML: (element) => element.getAttribute('class'),
+              renderHTML: (attributes) => {
+                const language = attributes.language || 'plaintext';
+                if (language === 'text') {
+                  return { class: `hljs code-block-custom code-plaintext` };
+                }
+                return {
+                  class: `hljs code-block-custom code-${language}`,
+                };
+              },
+            },
+          };
+        },
+      }).configure({
         lowlight,
         defaultLanguage: 'plaintext',
         languageClassPrefix: 'language-',
         HTMLAttributes: {
           class: 'hljs code-block-custom ',
           'data-language-indicator': 'true',
-          spellcheck: 'false',
+          spellCheck: 'false',
         },
       }),
     ],
