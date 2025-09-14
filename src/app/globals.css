@@ -11,6 +11,10 @@
 @source "../node_modules/@uploadthing/react/dist";
 
 @custom-variant dark (&:is(.dark *));
+
+body {
+  @apply container mx-auto max-w-4xl bg-white text-black dark:bg-slate-950 dark:text-slate-100;
+}
 /* 
 @layer base {
   @import 'highlight.js/styles/base16-windows-high-contrast.css';

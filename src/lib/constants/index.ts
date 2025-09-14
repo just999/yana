@@ -98,7 +98,7 @@ const ha = {
   terms: false,
 };
 
-export const PAGE_SIZE = 5;
+export const PAGE_SIZE = 8;
 
 export const PAGE_WIDTH = 816;
 export const MIN_SPACE = 100;

@@ -40,24 +40,35 @@ const BlogCard = ({ post, type, blogs, slug }: BlogCardProps) => {
   const readTime = calculateReadTime(post.content);
   const postLikeCount = post.reactions?.length;
 
-  const postImg = categories.filter((cat) => cat.name === post.category)[0].img;
+  const postCat = categories.find((cat) => cat.name === post.category);
+  const categoryImg = postCat?.img;
+
+  const postImg = post.images[0] || categoryImg;
 
   return (
     <Card key={post.slug} className='group min-w-72 overflow-hidden'>
       <div className='relative h-40 overflow-hidden'>
-        {postImg.length > 0 ? (
-          Array.from(postImg).map((img, i) => {
-            return (
-              <Image
-                src={postImg}
-                alt={post.title}
-                fill
-                className='object-contain transition-transform duration-300 group-hover:scale-105'
-                key={i}
-                priority
-              />
-            );
-          })
+        {postImg ? (
+          // Array.from(postImg).map((img, i) => {
+          //   console.log('🚀 ~ BlogCard ~ img:', img);
+          //   return (
+          //     <Image
+          //       src={img}
+          //       alt={post.title}
+          //       fill
+          //       className='object-contain transition-transform duration-300 group-hover:scale-105'
+          //       key={i}
+          //       priority
+          //     />
+          //   );
+          // })
+          <Image
+            src={postImg}
+            alt={`${post.category}-${post.title}`}
+            fill
+            className='object-contain transition-transform duration-300 group-hover:scale-105'
+            priority
+          />
         ) : (
           <div className='bg-accent/80 z-10 flex w-full text-center'>
             <Img className='mx-auto h-48 w-auto text-amber-200' />

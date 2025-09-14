@@ -400,51 +400,25 @@
 
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
   useEditorExtensions,
   useOptimizedEditor,
 } from '@/hooks/use-editor-extensions';
 import { useSlugNavigation } from '@/hooks/use-slug-navigation';
-import {
-  editorContentAtom,
-  editorStateAtom,
-  setEditorAtom,
-} from '@/lib/jotai/editor-atoms';
+import { editorContentAtom, setEditorAtom } from '@/lib/jotai/editor-atoms';
 import type { PostProps } from '@/lib/types';
-import {
-  cn,
-  flattenHighlightClasses,
-  flattenLowlightTree,
-  flattenLowlightTreeAggressive,
-  mergeAdjacentSpans,
-  type RootNode,
-} from '@/lib/utils';
+import { cn, flattenLowlightTreeAggressive, type RootNode } from '@/lib/utils';
 // import { generateHTML } from '@tiptap/core';
-import type { JSONContent } from '@tiptap/core';
-import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
-import { Document } from '@tiptap/extension-document';
-import { Link } from '@tiptap/extension-link';
-import { Paragraph } from '@tiptap/extension-paragraph';
 import { generateHTML } from '@tiptap/html';
-import { StarterKit } from '@tiptap/starter-kit';
 import type { Root } from 'hast';
 import { toHtml } from 'hast-util-to-html';
-import bash from 'highlight.js/lib/languages/bash';
-import js from 'highlight.js/lib/languages/javascript';
-import json from 'highlight.js/lib/languages/json';
-import python from 'highlight.js/lib/languages/python';
-import ts from 'highlight.js/lib/languages/typescript';
 // Import specific languages you want to support
-import html from 'highlight.js/lib/languages/xml';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { all, createLowlight } from 'lowlight';
+import { useAtom, useSetAtom } from 'jotai';
 import { Ellipsis } from 'lucide-react';
 
 import SlugNavigation from './slug-navigation';
-
-import css from 'highlight.js/lib/languages/css';
 
 type BlogContentProps = {
   slug: string;
@@ -453,6 +427,7 @@ type BlogContentProps = {
 };
 
 const BlogContent = ({ content, blogs, slug }: BlogContentProps) => {
+  console.log('🚀 ~ BlogContent ~ slug:', slug);
   const [mounted, setMounted] = useState(false);
   const [htmlContent, setHtmlContent] = useState('');
   const [isLoading, setIsLoading] = useState(true);

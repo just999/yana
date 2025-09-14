@@ -2,6 +2,7 @@ import type { JSONContent } from '@tiptap/core';
 import { clsx, type ClassValue } from 'clsx';
 import { differenceInYears } from 'date-fns';
 import type { Root } from 'hast';
+import { toHtml } from 'hast-util-to-html';
 import { Ballet } from 'next/font/google';
 // !Helper function (could be in a separate utils file)
 // export async function extractImageUrls(html: string): Promise<string[]> {
@@ -1095,3 +1096,51 @@ export function flattenLowlightTree(tree: RootNode, language?: string): string {
   const languageClass = language || tree.data?.language || 'plaintext';
   return `<code class="language-${languageClass}">${innerHTML}</code>`;
 }
+
+// export function flattenLowlightTreeAggressive(
+//   node: RootNode,
+//   language: string
+// ): string {
+//   if (!node || !node.children) {
+//     return '';
+//   }
+
+//   function processNode(node: any): string {
+//     // If it's a text node, escape HTML characters
+//     if (node.type === 'text') {
+//       return escapeHtml(node.value || '');
+//     }
+
+//     // If it's an element node
+//     if (node.type === 'element') {
+//       const tagName = node.tagName;
+//       const className = node.properties?.className?.join(' ') || '';
+
+//       // Process children recursively
+//       const content = node.children?.map(processNode).join('') || '';
+
+//       // Return properly formatted HTML with escaped content
+//       if (className) {
+//         return `<${tagName} class="${className}">${content}</${tagName}>`;
+//       } else {
+//         return `<${tagName}>${content}</${tagName}>`;
+//       }
+//     }
+
+//     return '';
+//   }
+
+//   return node.children.map(processNode).join('');
+// }
+
+// // Alternative: Use lowlight's built-in toHtml with proper escaping
+// export function safeFlattenLowlightTree(tree: RootNode): string {
+//   try {
+//     // Use lowlight's toHtml which should handle escaping
+//     const htmlResult = toHtml(tree);
+//     return htmlResult;
+//   } catch (error) {
+//     console.error('Error converting tree to HTML:', error);
+//     return '';
+//   }
+// }

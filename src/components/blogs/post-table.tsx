@@ -2,7 +2,11 @@
 
 import { useCallback, useEffect, useState, useTransition } from 'react';
 
-import { deleteBlogBySlug, updateBlogFeatured } from '@/actions/blog-actions';
+import {
+  deleteBlogBySlug,
+  updateBlogAnonymous,
+  updateBlogFeatured,
+} from '@/actions/blog-actions';
 import {
   Button,
   Checkbox,
@@ -44,6 +48,16 @@ const PostTable = ({
   const [featuredStatus, setFeaturedStatus] = useState<Record<string, boolean>>(
     {}
   );
+  const [anonymousStatus, setAnonymousStatus] = useState<
+    Record<string, boolean>
+  >({});
+
+  const [updatingFeatured, setUpdatingFeatured] = useState<Set<string>>(
+    new Set()
+  );
+  const [updatingAnonymous, setUpdatingAnonymous] = useState<Set<string>>(
+    new Set()
+  );
   const [updatingPosts, setUpdatingPosts] = useState(new Set<string>());
   const [deletingSlug, setDeletingSlug] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -64,7 +78,8 @@ const PostTable = ({
   const handleFeaturedChange = useCallback(
     async (post: PostProps, checked: boolean) => {
       setFeaturedStatus((prev) => ({ ...prev, [post.slug]: checked }));
-      setUpdatingPosts((prev) => new Set([...prev, post.slug]));
+      setUpdatingFeatured((prev) => new Set([...prev, post.slug]));
+      // setUpdatingPosts((prev) => new Set([...prev, post.slug]));
 
       try {
         const result = await updateBlogFeatured(post.slug, checked);
@@ -82,7 +97,37 @@ const PostTable = ({
         toast.error('Failed to update featured status');
         console.error('Error updating featured status:', error);
       } finally {
-        setUpdatingPosts((prev) => {
+        setUpdatingFeatured((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(post.slug);
+          return newSet;
+        });
+      }
+    },
+    []
+  );
+  const handleAnonymousChange = useCallback(
+    async (post: PostProps, checked: boolean) => {
+      setAnonymousStatus((prev) => ({ ...prev, [post.slug]: checked }));
+      setUpdatingAnonymous((prev) => new Set([...prev, post.slug]));
+
+      try {
+        const result = await updateBlogAnonymous(post.slug, checked);
+        if (result.error) throw new Error(result.message);
+
+        toast.success('Anonymous status updated successfully');
+
+        setBlogs((prevBlogs) =>
+          prevBlogs.map((blog) =>
+            blog.slug === post.slug ? { ...blog, anonymous: checked } : blog
+          )
+        );
+      } catch (error) {
+        setAnonymousStatus((prev) => ({ ...prev, [post.slug]: !checked }));
+        toast.error('Failed to update anonymous status');
+        console.error('Error updating anonymous status:', error);
+      } finally {
+        setUpdatingAnonymous((prev) => {
           const newSet = new Set(prev);
           newSet.delete(post.slug);
           return newSet;
@@ -142,6 +187,11 @@ const PostTable = ({
                 Featured
               </TableHead>
             )}
+            {(session?.user.role === 'ADMIN' || session?.user.email) && (
+              <TableHead className='hidden text-center md:table-cell'>
+                Anonymous
+              </TableHead>
+            )}
             <TableHead className='hidden text-center md:table-cell'>
               Actions
             </TableHead>
@@ -183,12 +233,46 @@ const PostTable = ({
                             checked === 'indeterminate' ? false : checked
                           )
                         }
-                        disabled={updatingPosts.has(post.slug) || isPending}
+                        disabled={updatingFeatured.has(post.slug) || isPending}
                       />
                       <span className='text-sm'>
-                        {updatingPosts.has(post.slug)
-                          ? 'Updating...'
-                          : 'isFeatured'}
+                        {updatingFeatured.has(post.slug) ? (
+                          <span className='flex items-center gap-0.5 text-amber-200'>
+                            <Loader2 className='size-4 animate-spin' />
+                            Update
+                          </span>
+                        ) : (
+                          'isFeatured'
+                        )}
+                      </span>
+                    </div>
+                  </TableCell>
+                )}
+                {(session?.user.role === 'ADMIN' || session?.user.email) && (
+                  <TableCell className='hidden text-center md:table-cell'>
+                    <div className='flex items-center justify-center gap-2'>
+                      <Checkbox
+                        className='bg-amber-50'
+                        checked={
+                          anonymousStatus[post.slug] ?? post.anonymous ?? false
+                        }
+                        onCheckedChange={(checked) =>
+                          handleAnonymousChange(
+                            post,
+                            checked === 'indeterminate' ? false : checked
+                          )
+                        }
+                        disabled={updatingAnonymous.has(post.slug) || isPending}
+                      />
+                      <span className='text-sm'>
+                        {updatingAnonymous.has(post.slug) ? (
+                          <span className='flex items-center gap-0.5 text-amber-200'>
+                            <Loader2 className='size-4 animate-spin' />
+                            Updating...
+                          </span>
+                        ) : (
+                          'isAnonymous'
+                        )}
                       </span>
                     </div>
                   </TableCell>

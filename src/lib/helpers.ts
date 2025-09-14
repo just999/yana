@@ -158,6 +158,11 @@ export const categories = [
     description: 'basic html5',
     img: '/img/html5.png',
   },
+  {
+    name: 'html advanced',
+    description: 'advanced html',
+    img: '/img/html-advance.jpg',
+  },
 ];
 
 export const menuItems = [

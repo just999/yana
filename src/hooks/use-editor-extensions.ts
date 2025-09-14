@@ -368,6 +368,7 @@ export function useOptimizedEditor({
       handlePaste: (view, event, slice) => {
         // Let our custom image paste handler deal with images
         const items = Array.from(event.clipboardData?.items || []);
+        console.log('🚀 ~ useOptimizedEditor ~ items:', items);
         const hasImages = items.some((item) => item.type.startsWith('image/'));
 
         if (hasImages) {

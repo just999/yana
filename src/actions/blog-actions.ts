@@ -151,10 +151,11 @@ export async function newBlog(
         inputs: formData,
       };
     }
+    console.log('🚀 ~ newBlog ~ validated:', validated);
 
     const existingBlogSlug = await db.post.findUnique({
       where: {
-        slug: formData.slug,
+        slug: validated.data.slug,
       },
     });
 
@@ -164,16 +165,17 @@ export async function newBlog(
         message: 'this slug is taken, please select different slug',
       };
     }
-
+    console.log('Anonymous value:', validated.data.anonymous);
     const post = await db.post.create({
       data: {
-        title: formData.title,
-        slug: formData.slug,
-        content: formData.content,
-        excerpt: formData.excerpt,
-        category: formData.category,
+        title: validated.data.title,
+        slug: validated.data.slug,
+        content: validated.data.content,
+        excerpt: validated.data.excerpt,
+        category: validated.data.category,
         authorId: session.user.id,
-        images: formData.images,
+        images: validated.data.images,
+        anonymous: validated.data.anonymous,
       },
     });
 
@@ -202,6 +204,7 @@ export async function newBlog(
 
 // !UPDATE BLOG
 export async function updateBlog(data: UpdateBlogSchema & { slug: string }) {
+  console.log('🚀 ~ updateBlog ~ data:', data);
   // TODO: validate the data
   try {
     const session = await auth();
@@ -249,7 +252,17 @@ export async function updateBlog(data: UpdateBlogSchema & { slug: string }) {
     // Get new images from the validated data
     const newImages = validated.data.images || [];
     const imagesToSave = newImages;
-    const { slug, comments, id, ...updateData } = validated.data;
+    const { slug, comments, id, anonymous, category, ...updateData } =
+      validated.data;
+    console.log('🚀 ~ updateBlog ~ slug, comments, id, anonymous, category:', {
+      slug,
+      comments,
+      id,
+      anonymous,
+      category,
+    });
+
+    console.log('Anonymous value:', validated.data.anonymous);
 
     const uniqueImg = [...new Set([...existingImages, ...newImages])];
     const post = await db.post.update({
@@ -257,6 +270,8 @@ export async function updateBlog(data: UpdateBlogSchema & { slug: string }) {
       data: {
         ...updateData,
         slug,
+        category,
+        anonymous,
         images: imagesToSave,
         updatedAt: new Date(),
       },
@@ -315,6 +330,48 @@ export async function updateBlogFeatured(slug: string, featured: boolean) {
       ...existingBlog,
       slug,
       featured,
+    });
+
+    return result;
+  } catch (err: unknown) {
+    return { error: true, message: formatError(err) };
+  }
+}
+export async function updateBlogAnonymous(slug: string, anonymous: boolean) {
+  try {
+    const session = await auth();
+
+    if (!session) {
+      return {
+        error: true,
+        message: 'unauthorized',
+      };
+    }
+
+    const existingBlog = await db.post.findUnique({
+      where: { slug },
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        images: true,
+        category: true,
+        // ... other required fields for your BlogSchema
+      },
+    });
+
+    if (!existingBlog) {
+      return {
+        error: true,
+        message: 'blog not found',
+      };
+    }
+
+    // Use your existing updateBlog function with the anonymous status
+    const result = await updateBlog({
+      ...existingBlog,
+      slug,
+      anonymous,
     });
 
     return result;

@@ -97,8 +97,10 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
     },
     ref
   ) => {
+    console.log('🚀 ~ blog:', blog);
     const editorRef = useRef<HTMLDivElement>(null);
     const [postData, setPostData] = useAtom(blogAtom);
+    console.log('🚀 ~ postData:', postData);
     const [content, setContent] = useAtom(editorContentAtom);
     const [imageCount, setImageCount] = useAtom(imageCountAtoms);
     const [mounted, setMounted] = useState(false);
@@ -425,12 +427,18 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
             content: finalContentString, // ← Always save as JSON string
             category: formData.get('category') as string,
             excerpt: formData.get('excerpt') as string,
-            anonymous: formData.has('anonymous')
-              ? formData.get('anonymous') === 'true'
-              : undefined,
-            featured: formData.has('featured')
-              ? formData.get('featured') === 'true'
-              : undefined,
+            // anonymous: formData.has('anonymous')
+            //   ? formData.get('anonymous') === 'true'
+            //   : undefined,
+            anonymous:
+              formData.get('anonymous') === 'true' ||
+              formData.get('anonymous') === 'on',
+            featured:
+              formData.get('featured') === 'true' ||
+              formData.get('featured') === 'on',
+            // featured: formData.has('featured')
+            //   ? formData.get('featured') === 'true'
+            //   : undefined,
           };
 
           console.log(
@@ -917,13 +925,14 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
                 </Label>
                 <Select
                   name={'category'}
-                  onValueChange={(value) =>
-                    setPostData((prev) => ({
+                  onValueChange={(value) => {
+                    console.log('🚀 ~ value:', value);
+                    return setPostData((prev) => ({
                       ...prev,
                       category: value,
-                    }))
-                  }
-                  defaultValue={postData.category}
+                    }));
+                  }}
+                  defaultValue={postData.category || ''}
                 >
                   <SelectTrigger
                     className={cn(
@@ -1043,6 +1052,8 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
           </div>
           <div className='m-auto flex max-w-[816px] items-center gap-2 pt-4'>
             <Checkbox
+              id='anonymous'
+              name='anonymous'
               checked={postData.anonymous}
               onCheckedChange={(checked) => {
                 setPostData((prev) => ({

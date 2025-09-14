@@ -24,6 +24,8 @@ const SlugNavigation = ({
   nextPost,
   className = '',
 }: SlugNavigationProps) => {
+  console.log('🚀 ~ SlugNavigation ~ nextPost:', nextPost);
+  console.log('🚀 ~ SlugNavigation ~ previousPost:', previousPost);
   return (
     <nav
       className={`flex w-full items-center justify-between border-t border-gray-200 px-8 py-2 ${className}`}
@@ -44,12 +46,12 @@ const SlugNavigation = ({
             className='flex items-center space-x-2 text-amber-600 transition-colors hover:text-amber-400'
           >
             <ChevronsLeft className='svg h-4 w-4' />
-            <span className='text-xs font-medium'>Previous</span>
+            <span className='text-xs font-medium'>Previous page</span>
           </Link>
         ) : (
           <div className='text-muted flex items-center space-x-2'>
             <ChevronsLeft className='svg h-4 w-4' />
-            <span className='text-sm font-medium'>Previous</span>
+            <span className='text-sm font-medium'>Previous page</span>
           </div>
         )}
       </Button>
@@ -69,12 +71,12 @@ const SlugNavigation = ({
             href={`/blogs/${nextPost.slug}`}
             className='flex items-center space-x-2 text-amber-600 transition-colors hover:text-amber-400'
           >
-            <span className='text-sm font-medium'>Next</span>
+            <span className='text-sm font-medium'>Next page</span>
             <ChevronsRight className='h-4 w-4' />
           </Link>
         ) : (
           <div className='text-muted flex items-center space-x-2'>
-            <span className='text-sm font-medium'>Next</span>
+            <span className='text-sm font-medium'>Next page</span>
             <ChevronsRight className='h-4 w-4' />
           </div>
         )}

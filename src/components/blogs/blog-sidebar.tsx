@@ -35,6 +35,10 @@ const BlogSidebar = ({ blog, allBlogs, featuredBlogs }: BlogSidebarProps) => {
   const [bookmarked, setBookmarked] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [email, setEmail] = useState('');
+  console.log(
+    '🚀 ~ blog:',
+    featuredBlogs?.map((cat) => cat.category)
+  );
 
   useEffect(() => {
     setMounted(true);
@@ -232,6 +236,7 @@ const BlogSidebar = ({ blog, allBlogs, featuredBlogs }: BlogSidebarProps) => {
                         alt={post.title}
                         width={800}
                         height={300}
+                        priority
                         className='h-auto max-w-80 rounded-xs object-cover transition-opacity group-hover:opacity-90'
                       />
                       <div className='flex-1'>
