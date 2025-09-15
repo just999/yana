@@ -271,7 +271,7 @@ const StepThreeForm = () => {
                 Create Account
               </Button> */}
         <SubmitButton
-          text='continue...'
+          value='continue...'
           submittingText='continue to user review...'
         />
         <p className='text-muted-foreground mt-4 text-center text-sm'>

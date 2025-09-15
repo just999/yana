@@ -51,7 +51,7 @@
 //       {/* <Button type='submit' className='w-full' disabled={isPending}>
 //         {isPending ? 'Updating...' : 'Reset Password'}
 //       </Button> */}
-//       <SubmitButton text='reset password' submittingText='resetting...' />
+//       <SubmitButton value='reset password' submittingText='resetting...' />
 
 //       <div className='text-center text-sm'>
 //         <Button
@@ -533,7 +533,7 @@ export function ResetPasswordForm(): JSX.Element {
           )}
 
           <SubmitButton
-            text='reset password'
+            value='reset password'
             submittingText='resetting...'
             disabled={!formState.isValid || formState.isSubmitting || isPending}
           />

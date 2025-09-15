@@ -244,7 +244,7 @@ const LoginForm = ({ user }: LoginFormProps) => {
           <div className='flex w-full flex-col'>
             {/* <LoginButton /> */}
             <SubmitButton
-              text={showTwoFactor ? 'Verify Code' : 'Sign In'}
+              value={showTwoFactor ? 'Verify Code' : 'Sign In'}
               submittingText={showTwoFactor ? 'Verifying...' : 'Signing in...'}
             />
             <span className='text-center text-xs text-stone-500 italic'>

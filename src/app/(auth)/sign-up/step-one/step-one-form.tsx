@@ -334,7 +334,7 @@ const StepOneForm = () => {
                 Create Account
               </Button> */}
         <SubmitButton
-          text='continue...'
+          value='continue...'
           submittingText='continue to user description...'
         />
         <p className='text-muted-foreground mt-4 text-center text-sm'>

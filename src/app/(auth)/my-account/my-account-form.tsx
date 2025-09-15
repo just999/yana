@@ -107,7 +107,7 @@ const MyAccountForm = ({ user }: MyAccountFormProps) => {
         </div>
       </div>
       <div className='flex flex-col'>
-        <SubmitButton text='Update' submittingText='Updating...' />
+        <SubmitButton value='Update' submittingText='Updating...' />
       </div>
     </form>
   );

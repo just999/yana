@@ -352,7 +352,7 @@ const CommentUpdateDropdown = ({
               >
                 Cancel
               </Button>
-              <SubmitButton text='Submit Report' disabled={!reportReason} />
+              <SubmitButton value='Submit Report' disabled={!reportReason} />
             </DialogFooter>
           </form>
         </DialogContent>

@@ -445,7 +445,7 @@ const ReviewForm = () => {
           Create Account
         </Button> */}
         <SubmitButton
-          text='create account'
+          value='create account'
           submittingText='Creating account...'
         />
         <p className='text-muted-foreground mt-4 text-center text-sm'>

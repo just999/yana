@@ -455,7 +455,7 @@ const StepTwoForm = () => {
 
       <div className='flex flex-col'>
         <SubmitButton
-          text='continue...'
+          value='continue...'
           submittingText='continue to user contact...'
         />
         <p className='text-muted-foreground mt-4 text-center text-sm'>

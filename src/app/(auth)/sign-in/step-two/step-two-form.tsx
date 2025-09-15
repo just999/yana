@@ -549,7 +549,7 @@ const StepTwoForm = () => {
         </div>
       )}
       <SubmitButton
-        text='continue...'
+        value='continue...'
         submittingText='continue to user contact...'
       />
     </form>

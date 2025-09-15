@@ -7,13 +7,13 @@ import { useFormStatus } from 'react-dom';
 
 type SubmitButtonProps = {
   submittingText?: string;
-  text: string;
+  value: string;
   className?: string;
   disabled?: boolean;
 };
 
 const SubmitButton = ({
-  text,
+  value,
   className,
   disabled,
   submittingText,
@@ -34,7 +34,7 @@ const SubmitButton = ({
           {submittingText ? submittingText : 'Submitting...'}
         </>
       ) : (
-        text
+        value
       )}
     </Button>
   );

@@ -5,7 +5,8 @@ import { Suspense, useMemo } from 'react';
 import TestComponent from '@/app/(site)/playground/test-component';
 import App from '@/app/(site)/playground/youtube-comment-reaction';
 import YouTubeStyleComment from '@/app/(site)/playground/youtube-style-comment';
-import { Button } from '@/components/ui';
+import Trend from '@/components/expense/trend';
+import { Button, Separator } from '@/components/ui';
 import { jokeObjAtom } from '@/lib/jotai/atoms';
 import { jsonToHtml } from '@/lib/json-to-html';
 import { useAtom } from 'jotai';
@@ -78,7 +79,7 @@ const PgPage = () => {
   // const codeNode = cont.content.find((node: any) => node.type === 'codeBlock');
   return (
     <>
-      <div className='flex flex-col space-y-2 pt-16'>
+      {/* <div className='flex flex-col space-y-2 pt-16'>
         <Suspense
           fallback={
             <span>
@@ -99,8 +100,23 @@ const PgPage = () => {
           <Volume />
         </div>
 
-        {/* <RenderedContent content={cont} /> */}
+        <RenderedContent content={cont} />
         <CodeBlockEditor />
+      </div> */}
+      <div className='w-full pt-16'>
+        <div className='m-auto flex max-w-xl flex-col'>
+          <h2 className='mb-4 font-mono text-lg'>Trend</h2>
+          <Separator
+            className='my-4 h-1 border-t-gray-300 border-b-gray-300'
+            decorative
+          />
+          <div className='flex space-x-8'>
+            <Trend type='Income' amount={10000} prevAmount={500} />
+            <Trend type='Expense' amount={5000} prevAmount={500} />
+            <Trend type='Investment' amount={3000} prevAmount={500} />
+            <Trend type='Saving' amount={2000} prevAmount={500} />
+          </div>
+        </div>
       </div>
     </>
   );
