@@ -25,14 +25,14 @@ const Header = ({ className, user }: HeaderProps) => {
   // console.log('React:', React);
   // console.log('useState:', useState);
 
-  if (!useState) {
-    console.error('useState is not available');
-    return <div>Loading...</div>;
-  }
+  // if (!useState) {
+  //   console.error('useState is not available');
+  //   return <div>Loading...</div>;
+  // }
 
-  const [isClient, setIsClient] = useState(false);
+  // const [isClient, setIsClient] = useState(false);
 
-  const [mounted, setMounted] = useState(false);
+  // const [mounted, setMounted] = useState(false);
 
   const currentPathname = usePathname(); // Remove try/catch
   const [curUser, setCurUser] = useAtom(userAtom);
@@ -43,10 +43,10 @@ const Header = ({ className, user }: HeaderProps) => {
   // Use currentPathname directly instead of maintaining separate pathname state
   const pathname = currentPathname;
 
-  useEffect(() => {
-    setIsClient(true);
-    setMounted(true);
-  }, []);
+  // useEffect(() => {
+  //   setIsClient(true);
+  //   setMounted(true);
+  // }, []);
 
   useEffect(() => {
     if (!session) router.push('/');
@@ -106,9 +106,9 @@ const Header = ({ className, user }: HeaderProps) => {
     setIsSearchOpen(false);
   }, [pathname]);
 
-  if (!isClient || !mounted) {
-    return null;
-  }
+  // if (!isClient || !mounted) {
+  //   return null;
+  // }
 
   return (
     <>

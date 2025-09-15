@@ -31,7 +31,7 @@ type BlogSidebarProps = {
 
 const BlogSidebar = ({ blog, allBlogs, featuredBlogs }: BlogSidebarProps) => {
   const [liked, setLiked] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  // const [mounted, setMounted] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [email, setEmail] = useState('');
@@ -40,9 +40,9 @@ const BlogSidebar = ({ blog, allBlogs, featuredBlogs }: BlogSidebarProps) => {
     featuredBlogs?.map((cat) => cat.category)
   );
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // useEffect(() => {
+  //   setMounted(true);
+  // }, []);
 
   const handleLike = () => setLiked(!liked);
   const handleBookmark = () => setBookmarked(!bookmarked);
@@ -70,9 +70,9 @@ const BlogSidebar = ({ blog, allBlogs, featuredBlogs }: BlogSidebarProps) => {
 
   const postImg = categories.filter((cat) => cat.name === blog.category)[0].img;
 
-  if (!mounted) {
-    return <div>Loading...</div>;
-  }
+  // if (!mounted) {
+  //   return <div>Loading...</div>;
+  // }
 
   return (
     <div className='space-y-8 rounded-lg lg:col-span-1'>

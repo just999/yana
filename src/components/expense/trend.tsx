@@ -1,5 +1,7 @@
 'use client';
 
+import { useMemo } from 'react';
+
 import { cn, ptSans } from '@/lib/utils';
 
 type TrendProps = {
@@ -7,43 +9,6 @@ type TrendProps = {
   amount?: number;
   prevAmount?: number;
 };
-
-// const Trend = ({ type, amount, prevAmount }: TrendProps) => {
-//   const colorClasses = {
-//     Income: 'text-green-700 dark:text-green-300',
-//     Expense: 'text-red-700 dark:text-red-300',
-//     Investment: 'text-indigo-700 dark:text-indigo-300',
-//     Saving: 'text-amber-700 dark:text-amber-300',
-//   };
-
-//   const calcPercentageChange = (amount: number, prevAmount: number) => {
-//     if (prevAmount === 0) return 0;
-
-//     return ((amount - prevAmount) / prevAmount) * 100;
-//   };
-
-//   const formatCurrency = (amount: number) =>
-//     new Intl.NumberFormat('id-ID', {
-//       style: 'currency',
-//       currency: 'IDR',
-//       minimumFractionDigits: 0,
-//       maximumFractionDigits: 0,
-
-//     }).format(amount);
-
-//     const formatted = formatCurrency(amount)
-
-//     const [prefix, value] = formatCurrency.split(/(?=\d)/)
-
-//   return (
-//     <div>
-//       <div className={cn('font-semibold', colorClasses[type])}>{type}</div>
-//       <div className='mb-2 text-2xl font-semibold text-black dark:text-amber-100'>
-//         {amount ? formatCurrency(amount) : formatCurrency(0)}
-//       </div>
-//     </div>
-//   );
-// };
 
 const Trend = ({ type, amount, prevAmount }: TrendProps) => {
   const colorClasses = {
@@ -54,10 +19,19 @@ const Trend = ({ type, amount, prevAmount }: TrendProps) => {
   };
 
   const calcPercentageChange = (amount: number, prevAmount: number) => {
-    if (prevAmount === 0) return 0;
+    if (!amount || !prevAmount) return 0;
 
     return ((amount - prevAmount) / prevAmount) * 100;
   };
+  console.log(
+    '🚀 ~ calcPercentageChange ~ calcPercentageChange:',
+    amount && prevAmount && calcPercentageChange(amount, prevAmount)
+  );
+
+  const percentageChange = useMemo(() => {
+    if (!amount || !prevAmount) return 0;
+    return calcPercentageChange(amount, prevAmount);
+  }, [amount, prevAmount]);
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat('id-ID', {
@@ -69,7 +43,6 @@ const Trend = ({ type, amount, prevAmount }: TrendProps) => {
 
   const formatted = formatCurrency(amount || 0);
 
-  // Split at the first digit to separate prefix (Rp) from value
   const match = formatted.match(/^(\D+)([\d.,]+)/);
   const prefix = match?.[1] ?? '';
   const value = match?.[2] ?? '';
@@ -78,17 +51,22 @@ const Trend = ({ type, amount, prevAmount }: TrendProps) => {
 
   return (
     <div>
-      <div className={cn('font-semibold', colorClasses[type])}>{type}</div>
-      <div className='mb-2 text-2xl font-semibold text-black dark:text-amber-100'>
-        <span
-          className={cn(
-            'font-mono font-normal text-emerald-100',
-            ptSans.className
-          )}
-        >
+      <div className={cn('text-sm font-semibold', colorClasses[type])}>
+        {type}
+      </div>
+      <div
+        className={cn(
+          'mb-2 text-xs font-normal text-black dark:text-amber-100',
+          ptSans.className
+        )}
+      >
+        <span className={cn('font-mono font-normal text-emerald-100')}>
           {prefix}
         </span>
         <span>{value}</span>
+      </div>
+      <div className='text-xs text-nowrap'>
+        {percentageChange} % vs last period
       </div>
     </div>
   );

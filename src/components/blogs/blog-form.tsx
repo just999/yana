@@ -103,7 +103,7 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
     console.log('🚀 ~ postData:', postData);
     const [content, setContent] = useAtom(editorContentAtom);
     const [imageCount, setImageCount] = useAtom(imageCountAtoms);
-    const [mounted, setMounted] = useState(false);
+    // const [mounted, setMounted] = useState(false);
     const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [lastAutoSlug, setLastAutoSlug] = useState('');
@@ -180,9 +180,9 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
       console.log('🔧 Extensions changed:', extensions);
     }, [extensions]);
 
-    useEffect(() => {
-      setMounted(true);
-    }, []);
+    // useEffect(() => {
+    //   setMounted(true);
+    // }, []);
 
     // const [data, action, isPending] = useActionState(
     //   async (prevState: unknown, formData: FormData) => {
