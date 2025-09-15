@@ -87,7 +87,7 @@ const BlogDetailPage = async ({
 
   return (
     <section className='p-6 pt-16'>
-      <BackButton text='Go Back' />
+      <BackButton value='Go Back' />
       <div className='flex w-full flex-col space-x-4 xl:flex-row xl:justify-center'>
         {blog && (
           <div className='w-full grow space-y-3'>

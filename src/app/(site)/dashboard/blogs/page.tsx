@@ -43,7 +43,7 @@ const BlogPage = async () => {
   return (
     <section className='container mx-auto px-4 py-12 md:px-6'>
       <div className='w-full'>
-        <BackButton text='Back' />
+        <BackButton value='Back' />
         <div className='flex flex-col items-center pb-2'>
           <h2 className='text-2xl font-bold tracking-tighter sm:text-3xl'>
             My Stories

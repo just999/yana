@@ -85,7 +85,7 @@ const EditBlogPage = async ({ params }: EditBlogPageProps) => {
 
   return (
     <>
-      <BackButton text='Back To Posts' link='/blogs' />
+      <BackButton value='Back To Posts' link='/blogs' />
       <HydrateBlog
         blog={blog}
         type='update'

@@ -183,7 +183,7 @@ const StepOneForm = () => {
 
   return (
     <form action={action} className='space-y-4'>
-      {/* <BackButton text='back' /> */}
+      {/* <BackButton value='back' /> */}
       <div className='grid w-[398px] grid-cols-2 gap-4'>
         <div className='w-[398px] space-y-2'>
           <Label htmlFor='name'>name</Label>
@@ -364,7 +364,7 @@ const StepOneForm = () => {
       )}
 
       {/* <SubmitButton
-        text='continue...'
+        value='continue...'
         submittingText='continue to user description...'
       /> */}
     </form>

@@ -149,7 +149,7 @@ const CommentShow = async ({
       {children && children?.length > 0 && (
         <>
           <CommentToggleButton
-            text='Replay'
+            value='Replay'
             startOpen={false}
             onDataSend={toggleComment}
             commentCount={children.length}

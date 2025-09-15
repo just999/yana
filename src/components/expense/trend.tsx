@@ -1,6 +1,6 @@
 'use client';
 
-import { cn } from '@/lib/utils';
+import { cn, ptSans } from '@/lib/utils';
 
 type TrendProps = {
   type: 'Income' | 'Expense' | 'Investment' | 'Saving';
@@ -70,13 +70,24 @@ const Trend = ({ type, amount, prevAmount }: TrendProps) => {
   const formatted = formatCurrency(amount || 0);
 
   // Split at the first digit to separate prefix (Rp) from value
-  const [prefix, value] = formatted.split(/(?=\d)/);
+  const match = formatted.match(/^(\D+)([\d.,]+)/);
+  const prefix = match?.[1] ?? '';
+  const value = match?.[2] ?? '';
+
+  console.log('Amount type:', typeof amount, 'Value:', amount);
 
   return (
     <div>
       <div className={cn('font-semibold', colorClasses[type])}>{type}</div>
       <div className='mb-2 text-2xl font-semibold text-black dark:text-amber-100'>
-        <span className='font-bold'>{prefix}</span>
+        <span
+          className={cn(
+            'font-mono font-normal text-emerald-100',
+            ptSans.className
+          )}
+        >
+          {prefix}
+        </span>
         <span>{value}</span>
       </div>
     </div>

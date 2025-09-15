@@ -8,7 +8,7 @@ import { ChevronDown, ChevronRight, Icon } from 'lucide-react';
 import { Button } from '../ui';
 
 type CommentToggleButtonProps = {
-  text: string;
+  value: string;
   startOpen: boolean;
   onDataSend: (data: boolean) => void;
   commentCount: number;
@@ -19,7 +19,7 @@ type CommentToggleButtonProps = {
 };
 
 const CommentToggleButton = ({
-  text,
+  value,
   startOpen,
   onDataSend,
   commentCount,

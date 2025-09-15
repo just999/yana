@@ -7,13 +7,13 @@ import Link from 'next/link';
 import { Button } from './ui';
 
 type BackButtonProps = {
-  text: string;
+  value: string;
   link?: string;
   size?: number;
   className?: string;
 };
 
-const BackButton = ({ text, link, size, className }: BackButtonProps) => {
+const BackButton = ({ value, link, size, className }: BackButtonProps) => {
   // const [mounted, setMounted] = useState(false);
 
   // useEffect(() => {
@@ -60,7 +60,7 @@ const BackButton = ({ text, link, size, className }: BackButtonProps) => {
       >
         <Link href='/'>
           <ArrowLeftCircle size={size} className='group-hover:underline' />
-          <span className='group-hover:underline'>{text}</span>
+          <span className='group-hover:underline'>{value}</span>
         </Link>
       </Button>
     </div>

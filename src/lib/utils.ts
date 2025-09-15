@@ -3,7 +3,7 @@ import { clsx, type ClassValue } from 'clsx';
 import { differenceInYears } from 'date-fns';
 import type { Root } from 'hast';
 import { toHtml } from 'hast-util-to-html';
-import { Ballet } from 'next/font/google';
+import { Ballet, PT_Sans } from 'next/font/google';
 // !Helper function (could be in a separate utils file)
 // export async function extractImageUrls(html: string): Promise<string[]> {
 //   if (!html) return [];
@@ -73,6 +73,12 @@ interface PrismaErrorType {
 export const ballet = Ballet({
   variable: '--font-ballet',
   subsets: ['latin'],
+});
+
+export const ptSans = PT_Sans({
+  subsets: ['latin', 'cyrillic'],
+  weight: ['400', '700'],
+  style: ['normal', 'italic'],
 });
 
 export function formatError(error: unknown): string {

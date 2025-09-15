@@ -67,7 +67,7 @@ const BlogsPage = async ({ searchParams }: BlogsPageProps) => {
     <div className='py-16'>
       <section className='container mx-auto px-2 py-4 lg:px-4'>
         <div className='w-full'>
-          <BackButton text='Go Back' link='/' size={18} />{' '}
+          <BackButton value='Go Back' link='/' size={18} />{' '}
           <div className='flex flex-col items-center pb-2'>
             <h2 className='text-2xl font-bold tracking-tighter sm:text-3xl'>
               All Blogs

@@ -299,7 +299,7 @@ const StepThreeForm = () => {
         </div>
       )}
       {/* <SubmitButton
-        text='continue...'
+        value='continue...'
         submittingText='continue to review data...'
       /> */}
     </form>
