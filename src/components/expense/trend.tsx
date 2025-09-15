@@ -2,8 +2,9 @@
 
 import { useMemo } from 'react';
 
+import { useFormatCurrency } from '@/hooks/use-format-currency';
 import { cn, ptSans } from '@/lib/utils';
-import { ArrowDownLeft, ArrowDownRight, ArrowUpRight } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight } from 'lucide-react';
 
 type TrendProps = {
   type: 'Income' | 'Expense' | 'Investment' | 'Saving';
@@ -34,21 +35,24 @@ const Trend = ({ type, amount, prevAmount }: TrendProps) => {
     return +calcPercentageChange(amount, prevAmount).toFixed(0);
   }, [amount, prevAmount]);
 
-  const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
+  // const formatCurrency = (amount: number) =>
+  //   new Intl.NumberFormat('id-ID', {
+  //     style: 'currency',
+  //     currency: 'IDR',
+  //     minimumFractionDigits: 0,
+  //     maximumFractionDigits: 0,
+  //   }).format(amount);
 
-  const formatted = formatCurrency(amount || 0);
+  // const formatted = formatCurrency(amount || 0);
 
-  const match = formatted.match(/^(\D+)([\d.,]+)/);
-  const prefix = match?.[1] ?? '';
-  const value = match?.[2] ?? '';
+  // const match = formatted.match(/^(\D+)([\d.,]+)/);
+  // const prefix = match?.[1] ?? '';
+  // const value = match?.[2] ?? '';
 
   console.log('Amount type:', typeof amount, 'Value:', amount);
+
+  const { prefix, value } = useFormatCurrency(amount as number);
+  console.log('🚀 ~ Trend ~ prefix, value:', prefix, value);
 
   return (
     <div>

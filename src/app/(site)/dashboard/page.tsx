@@ -1,4 +1,5 @@
 import { getAllBlogs, getBlogsByAuthUser } from '@/actions/blog-actions';
+import { getAllUsers } from '@/actions/user-actions';
 import { auth } from '@/auth';
 import PostTable from '@/components/blogs/post-table';
 import AnalyticsChart from '@/components/dashboard/analytics-chart';
@@ -50,7 +51,7 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
   const session = (await auth()) as Session;
   const userRole = session?.user.role;
   const newBlogs = userRole === 'USER' ? blogs : rawBlogs.data;
-
+  const users = await getAllUsers();
   // if (!session.user) {
   //   return redirect('/');
   // }
@@ -60,7 +61,7 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
       <div className='flex w-full flex-1 flex-col pb-18'>
         <div className='@container/main flex flex-1 flex-col gap-2'>
           <div className='flex flex-col gap-4 py-4 md:gap-6 md:py-6'>
-            <SectionCards />
+            <SectionCards blogs={rawBlogs.data} users={users.data} />
             {/* </div> */}
           </div>
           <AnalyticsChart />

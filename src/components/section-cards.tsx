@@ -1,5 +1,5 @@
-import { getAllBlogsData } from '@/actions/blog-actions';
-import { getAllUsers } from '@/actions/user-actions';
+'use client';
+
 import {
   Badge,
   Card,
@@ -8,11 +8,13 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui';
+import type { PostProps } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { LucideIcon, TrendingDown, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 
 import { CardAction } from './ui/card';
+import type { User } from '.prisma/client/client';
 
 interface OverviewCardData {
   id: string;
@@ -38,6 +40,8 @@ interface OverviewCardProps {
 }
 
 interface SectionCardsProps {
+  blogs?: PostProps[];
+  users?: User[];
   className?: string;
 }
 
@@ -89,9 +93,13 @@ const OverviewCard = ({ data, className = '' }: OverviewCardProps) => {
   return cardContent;
 };
 
-const SectionCards = async ({ className = 'h-48' }: SectionCardsProps) => {
-  const blogs = (await getAllBlogsData()).data;
-  const users = (await getAllUsers()).data;
+const SectionCards = ({
+  blogs,
+  users,
+  className = 'h-48',
+}: SectionCardsProps) => {
+  // const blogs = (await getAllBlogsData()).data;
+  // const users = (await getAllUsers()).data;
 
   const today = new Date();
   const isSameDay = (date: Date) =>
