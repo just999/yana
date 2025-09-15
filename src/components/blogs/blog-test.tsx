@@ -169,7 +169,7 @@ export default function BlogPage() {
   return (
     <div className='min-h-screen bg-gradient-to-br from-slate-50 to-blue-50'>
       {/* Header */}
-      <header className='border-b bg-white shadow-sm'>
+      <section className='border-b bg-white shadow-sm'>
         <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
           <div className='flex h-16 items-center justify-between'>
             <div className='flex items-center space-x-4'>
@@ -214,7 +214,7 @@ export default function BlogPage() {
             </Button>
           </div>
         </div>
-      </header>
+      </section>
 
       <main className='mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8'>
         <div className='grid grid-cols-1 gap-12 lg:grid-cols-4'>

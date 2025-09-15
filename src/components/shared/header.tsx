@@ -75,7 +75,7 @@ const Header = ({ className, user }: HeaderProps) => {
     if (href === pathname) return true;
 
     if (href === '/dashboard' && pathname.startsWith('/dashboard')) {
-      return !pathname.includes('/new-blog');
+      return !pathname.includes('/new-blog') && !pathname.includes('/expense');
     }
 
     if (href.includes('/new-blog') && pathname.includes('/new-blog')) {

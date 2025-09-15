@@ -66,7 +66,7 @@
 
 'use client';
 
-import { ComponentType, ReactNode, useState } from 'react';
+import { ReactNode } from 'react';
 
 import { createStore, Provider } from 'jotai';
 

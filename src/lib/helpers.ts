@@ -169,6 +169,7 @@ export const menuItems = [
   { href: '/dashboard/blogs/new-blog', label: 'new-blog' },
   { href: '/blogs', label: 'blogs' },
   { href: '/playground', label: 'Playground' },
+  { href: '/dashboard/expense', label: 'Expense' },
   { href: '/dashboard', label: 'Dashboard' },
   // { href: '/sign-in', label: 'sign-in-test' },
 ];

@@ -17,6 +17,10 @@
   @import 'highlight.js/styles/base16-windows-high-contrast.css';
 } */
 
+.expense {
+  @apply container mx-auto max-w-4xl bg-white text-black dark:bg-slate-950 dark:text-slate-100;
+}
+
 @property --border-angle {
   syntax: '<angle>';
   inherits: false;
