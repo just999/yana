@@ -43,25 +43,40 @@ import { Theme } from '../types';
 //   },
 // };
 
-const cookieStorage = createJSONStorage<Theme>(() => ({
-  getItem: (key: string) => {
-    if (typeof document === 'undefined') return null;
+const cookieStorage = {
+  getItem: (key: string, initialValue: Theme): Theme => {
+    if (typeof document === 'undefined') return initialValue;
 
-    const match = document.cookie.match(new RegExp('(^| )' + key + '=([^;]+)'));
-    return match ? decodeURIComponent(match[2]) : null;
+    try {
+      const match = document.cookie.match(
+        new RegExp('(^| )' + key + '=([^;]+)')
+      );
+      return match ? (decodeURIComponent(match[2]) as Theme) : initialValue;
+    } catch {
+      return initialValue;
+    }
   },
-  setItem: (key: string, value: string) => {
+  setItem: (key: string, value: Theme): void => {
     if (typeof document === 'undefined') return;
 
-    const expirationDate = new Date();
-    expirationDate.setFullYear(expirationDate.getFullYear() + 1);
-    document.cookie = `${key}=${value}; path=/; expires=${expirationDate.toUTCString()}; SameSite=Lax`;
+    try {
+      const expirationDate = new Date();
+      expirationDate.setFullYear(expirationDate.getFullYear() + 1);
+      document.cookie = `${key}=${value}; path=/; expires=${expirationDate.toUTCString()}; SameSite=Lax`;
+    } catch (error) {
+      console.warn('Failed to save theme:', error);
+    }
   },
-  removeItem: (key: string) => {
+  removeItem: (key: string): void => {
     if (typeof document === 'undefined') return;
-    document.cookie = `${key}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
+
+    try {
+      document.cookie = `${key}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
+    } catch (error) {
+      console.warn('Failed to remove theme:', error);
+    }
   },
-}));
+};
 
 const baseThemeAtom = atom<Theme>('dark');
 
@@ -105,19 +120,23 @@ export const resolvedThemeAtom = atom((get) => {
   const theme = get(themeAtom);
 
   if (theme === 'system' && typeof window !== 'undefined') {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? 'dark'
-      : 'light';
+    try {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light';
+    } catch {
+      return 'dark';
+    }
   }
 
   return theme === 'dark' ? 'dark' : 'light';
 });
 
 export const bgClassAtom = atom<string>('');
+export const mountedAtom = atom(false);
 
 if (process.env.NODE_ENV !== 'production') {
   themeAtom.debugLabel = 'theme';
-  isInitializedAtom.debugLabel = 'isInitialized';
   resolvedThemeAtom.debugLabel = 'resolvedTheme';
-  bgClassAtom.debugLabel = 'bgClass';
+  mountedAtom.debugLabel = 'mounted';
 }

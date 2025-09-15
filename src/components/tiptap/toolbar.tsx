@@ -1451,7 +1451,7 @@ const ToolbarButton = ({
   isActive,
   icon: Icon,
 }: ToolbarButtonProps) => {
-  const { resolvedTheme, isLoaded } = useTheme();
+  const { resolvedTheme } = useTheme();
 
   const isDark = resolvedTheme === 'dark';
 

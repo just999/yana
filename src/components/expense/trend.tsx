@@ -12,14 +12,14 @@ type TrendProps = {
   prevAmount?: number;
 };
 
-const Trend = ({ type, amount, prevAmount }: TrendProps) => {
-  const colorClasses = {
-    Income: 'text-green-700 dark:text-green-300',
-    Expense: 'text-red-700 dark:text-red-300',
-    Investment: 'text-indigo-700 dark:text-indigo-300',
-    Saving: 'text-amber-700 dark:text-amber-300',
-  };
+export const colorClasses = {
+  Income: 'text-green-700 dark:text-green-300',
+  Expense: 'text-red-700 dark:text-red-300',
+  Investment: 'text-indigo-700 dark:text-indigo-300',
+  Saving: 'text-amber-700 dark:text-amber-300',
+};
 
+const Trend = ({ type, amount, prevAmount }: TrendProps) => {
   const calcPercentageChange = (amount: number, prevAmount: number) => {
     if (!amount || !prevAmount) return 0;
 
