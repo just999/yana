@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 
 import { cn, ptSans } from '@/lib/utils';
+import { ArrowDownLeft, ArrowDownRight, ArrowUpRight } from 'lucide-react';
 
 type TrendProps = {
   type: 'Income' | 'Expense' | 'Investment' | 'Saving';
@@ -30,7 +31,7 @@ const Trend = ({ type, amount, prevAmount }: TrendProps) => {
 
   const percentageChange = useMemo(() => {
     if (!amount || !prevAmount) return 0;
-    return calcPercentageChange(amount, prevAmount);
+    return +calcPercentageChange(amount, prevAmount).toFixed(0);
   }, [amount, prevAmount]);
 
   const formatCurrency = (amount: number) =>
@@ -51,12 +52,12 @@ const Trend = ({ type, amount, prevAmount }: TrendProps) => {
 
   return (
     <div>
-      <div className={cn('text-sm font-semibold', colorClasses[type])}>
+      <div className={cn('text-xs font-semibold', colorClasses[type])}>
         {type}
       </div>
       <div
         className={cn(
-          'mb-2 text-xs font-normal text-black dark:text-amber-100',
+          'mb-2 text-sm font-normal text-black dark:text-amber-100',
           ptSans.className
         )}
       >
@@ -65,7 +66,19 @@ const Trend = ({ type, amount, prevAmount }: TrendProps) => {
         </span>
         <span>{value}</span>
       </div>
-      <div className='text-xs text-nowrap'>
+      <div className='flex items-center space-x-1 text-xs text-nowrap'>
+        {percentageChange <= 0 && (
+          <ArrowDownLeft
+            size={12}
+            className='stroke-2 text-red-700 dark:text-red-700'
+          />
+        )}
+        {percentageChange > 0 && (
+          <ArrowUpRight
+            size={12}
+            className='text-emerald-700 dark:text-emerald-700'
+          />
+        )}
         {percentageChange} % vs last period
       </div>
     </div>

@@ -23,7 +23,7 @@ import {
 } from '@/components/ui';
 import {
   useEditorExtensions,
-  useEditorPerformance,
+  // useEditorPerformance,
   useOptimizedEditor,
   useOptimizedUpdateContent,
 } from '@/hooks/use-editor-extensions';
@@ -611,7 +611,7 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
       }
     }, [editor, blog?.content]);
 
-    useEditorPerformance(editor);
+    // useEditorPerformance(editor);
     const handleContentChange = useCallback(
       (value: string) => {
         setPostData((prev) => ({

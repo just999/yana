@@ -465,26 +465,26 @@ export function useSimpleImagePaste(
 }
 
 // Performance monitoring utility
-export function useEditorPerformance(editor: Editor | null) {
-  useEffect(() => {
-    if (!editor) return;
+// export function useEditorPerformance(editor: Editor | null) {
+//   useEffect(() => {
+//     if (!editor) return;
 
-    let updateCount = 0;
-    const startTime = Date.now();
+//     let updateCount = 0;
+//     const startTime = Date.now();
 
-    const handleUpdate = () => {
-      updateCount++;
-      if (updateCount % 10 === 0) {
-        console.log(
-          `TipTap updates: ${updateCount} in ${Date.now() - startTime}ms`
-        );
-      }
-    };
+//     const handleUpdate = () => {
+//       updateCount++;
+//       if (updateCount % 10 === 0) {
+//         console.log(
+//           `TipTap updates: ${updateCount} in ${Date.now() - startTime}ms`
+//         );
+//       }
+//     };
 
-    editor.on('update', handleUpdate);
+//     editor.on('update', handleUpdate);
 
-    return () => {
-      editor.off('update', handleUpdate);
-    };
-  }, [editor]);
-}
+//     return () => {
+//       editor.off('update', handleUpdate);
+//     };
+//   }, [editor]);
+// }

@@ -111,10 +111,10 @@ const PgPage = () => {
             decorative
           />
           <div className='flex space-x-8'>
-            <Trend type='Income' amount={10000} />
-            <Trend type='Expense' amount={5000} />
-            <Trend type='Investment' amount={3000} />
-            <Trend type='Saving' amount={2000} />
+            <Trend type='Income' amount={10000} prevAmount={500} />
+            <Trend type='Expense' amount={5000} prevAmount={7000} />
+            <Trend type='Investment' amount={3000} prevAmount={500} />
+            <Trend type='Saving' amount={2000} prevAmount={5000} />
           </div>
         </div>
       </div>
