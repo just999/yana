@@ -39,6 +39,12 @@ export default async function RootLayout({
   const cookieTheme = cookieStore.get('theme');
   const theme = cookieTheme ? (cookieTheme.value as Theme) : 'dark';
   const user = (await getUserByAuthUserId()).data as User;
+
+  // In your index.js/main.tsx or similar
+  if (process.env.NODE_ENV !== 'production') {
+    // This will give you better error messages
+    console.log('Running in development mode');
+  }
   return (
     <html lang='en'>
       <body className={cn('antialiased', inter.className)}>

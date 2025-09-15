@@ -25,10 +25,6 @@ const Trend = ({ type, amount, prevAmount }: TrendProps) => {
 
     return ((amount - prevAmount) / prevAmount) * 100;
   };
-  console.log(
-    '🚀 ~ calcPercentageChange ~ calcPercentageChange:',
-    amount && prevAmount && calcPercentageChange(amount, prevAmount)
-  );
 
   const percentageChange = useMemo(() => {
     if (!amount || !prevAmount) return 0;
@@ -49,10 +45,9 @@ const Trend = ({ type, amount, prevAmount }: TrendProps) => {
   // const prefix = match?.[1] ?? '';
   // const value = match?.[2] ?? '';
 
-  console.log('Amount type:', typeof amount, 'Value:', amount);
+  // console.log('Amount type:', typeof amount, 'Value:', amount);
 
   const { prefix, value } = useFormatCurrency(amount as number);
-  console.log('🚀 ~ Trend ~ prefix, value:', prefix, value);
 
   return (
     <div>
