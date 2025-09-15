@@ -126,7 +126,10 @@ const BlogCard = ({ post, type, blogs, slug }: BlogCardProps) => {
               <p className='max-w-14 text-[10px] leading-none font-medium text-nowrap'>
                 {post.author?.name}
               </p>
-              <p className='text-muted-foreground text-[10px]'>
+              <p
+                className='text-muted-foreground text-[10px]'
+                suppressHydrationWarning
+              >
                 {formatDate.date(post.createdAt?.toISOString() ?? '')}
               </p>
             </div>

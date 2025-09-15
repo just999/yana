@@ -419,6 +419,11 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
           }));
         }
 
+        const getBoolean = (key: string) => {
+          const value = formData.get(key);
+          return value === 'true' || value === 'on';
+        };
+
         try {
           const blogData = {
             id: blog?.id as string,
@@ -430,16 +435,16 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
             // anonymous: formData.has('anonymous')
             //   ? formData.get('anonymous') === 'true'
             //   : undefined,
-            anonymous:
-              formData.get('anonymous') === 'true' ||
-              formData.get('anonymous') === 'on',
-            featured:
-              formData.get('featured') === 'true' ||
-              formData.get('featured') === 'on',
+            anonymous: getBoolean('anonymous'),
+
+            featured: getBoolean('featured'),
             // featured: formData.has('featured')
             //   ? formData.get('featured') === 'true'
             //   : undefined,
           };
+
+          console.log('Anonymous raw:', formData.get('anonymous'));
+          console.log('Featured raw:', formData.get('featured'));
 
           console.log(
             '🔍 Final JSON content sample:',
