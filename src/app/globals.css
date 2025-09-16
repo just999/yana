@@ -7,7 +7,7 @@
 /* @import 'highlight.js/styles/devibeans.css'; */
 @plugin "tailwind-scrollbar";
 @plugin "@tailwindcss/typography";
-
+@plugin '@tailwindcss/forms';
 @source "../node_modules/@uploadthing/react/dist";
 
 @custom-variant dark (&:is(.dark *));

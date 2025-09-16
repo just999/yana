@@ -254,3 +254,17 @@ export const reportComments = [
     title: 'Spam or misleading',
   },
 ];
+
+export const transactionType = [
+  { title: 'INCOME' },
+  { title: 'EXPENSE' },
+  { title: 'SAVING' },
+  { title: 'INVESTMENT' },
+];
+export const transactionCat = [
+  { title: 'Transport' },
+  { title: 'Health' },
+  { title: 'Food' },
+  { title: 'Education' },
+  { title: 'Others' },
+];

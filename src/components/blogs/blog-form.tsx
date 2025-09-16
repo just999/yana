@@ -97,10 +97,8 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
     },
     ref
   ) => {
-    console.log('🚀 ~ blog:', blog);
     const editorRef = useRef<HTMLDivElement>(null);
     const [postData, setPostData] = useAtom(blogAtom);
-    console.log('🚀 ~ postData:', postData);
     const [content, setContent] = useAtom(editorContentAtom);
     const [imageCount, setImageCount] = useAtom(imageCountAtoms);
     // const [mounted, setMounted] = useState(false);
@@ -119,17 +117,6 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
     const setEditor = useSetAtom(setEditorAtom);
     const { extensions, lowlight } = useEditorExtensions();
 
-    // Add timing logs to suspect areas
-    // console.time('expensive-operation');
-    // Your code here
-    // console.timeEnd('expensive-operation');
-
-    // Or use Performance API
-    // const start = performance.now();
-    // Your code here
-    // const end = performance.now();
-    // console.log(`Operation took ${end - start}ms`);
-
     const router = useRouter();
     const editor = useOptimizedEditor({
       value,
@@ -137,32 +124,6 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
       setHasUnsavedChanges,
       setEditor,
     });
-
-    // const { editor, scrollToEditorPosition, isScrolling } =
-    //   useOptimizedEditorWithScroll({
-    //     value,
-    //     setContent,
-    //     setHasUnsavedChanges,
-    //     setEditor,
-    //     clickScrollOptions: {
-    //       enabled: true,
-    //       scrollOffset: 100,
-    //       animationDuration: 600,
-    //       excludeSelectors: [
-    //         'button',
-    //         'input',
-    //         'textarea',
-    //         'select',
-    //         'a',
-    //         '.ProseMirror-menubar',
-    //         '.toolbar',
-    //         '[data-toolbar]',
-    //         '.floating-menu',
-    //         '.bubble-menu',
-    //         '.image-resize-handle',
-    //       ],
-    //     },
-    //   });
 
     useEffect(() => {
       if (blog && type === 'update') {
@@ -179,158 +140,6 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
     useEffect(() => {
       console.log('🔧 Extensions changed:', extensions);
     }, [extensions]);
-
-    // useEffect(() => {
-    //   setMounted(true);
-    // }, []);
-
-    // const [data, action, isPending] = useActionState(
-    //   async (prevState: unknown, formData: FormData) => {
-    //     console.log('🔍 FormData entries:');
-    //     for (const [key, value] of formData.entries()) {
-    //       console.log(`${key}:`, value);
-    //     }
-
-    //     const jsonContent = editor?.getJSON();
-    //     const jsonString = JSON.stringify(jsonContent);
-
-    //     let allImgUrls: ImageInfo[] = [];
-    //     let newlyUploadedImages: ImageInfo[] = [];
-
-    //     const urls = extractImageUrls(postData.content);
-
-    //     const existingImgUrls = urls
-    //       .filter((img) => img.src.startsWith('https://hz9t4nphtm.ufs.sh'))
-    //       .map((dat) => ({
-    //         src: dat.src,
-    //         id: dat.src.split('/').pop() || dat.id,
-    //         alt: dat.id,
-    //       }));
-    //     if (pendingImages.length > 0) {
-    //       const filesToUpload = pendingImages.map((img) => img.file);
-    //       const uploaded = await startUpload(filesToUpload);
-    //       uploaded?.forEach((file) => {
-    //         updateImageUrl(file.key, file.ufsUrl);
-    //       });
-    //       const newBlogImg = uploaded?.map((img) => img.ufsUrl) || [];
-    //       setImgUrl(newBlogImg);
-
-    //       newlyUploadedImages =
-    //         uploaded?.map((file) => ({
-    //           src: file.ufsUrl,
-    //           id: file.key,
-    //           alt: file.name,
-    //         })) ?? [];
-
-    //       allImgUrls = [...existingImgUrls, ...newlyUploadedImages];
-
-    //       setPostData((prev) => ({
-    //         ...prev,
-    //         images: allImgUrls.map((img) => img.src),
-    //       }));
-    //     }
-
-    //     const curImg = postData.images || [];
-
-    //     const contentImageUrls = extractImageUrlsFromContent(postData.content);
-
-    //     const stillUsedExistingImages = curImg.filter((imgUrl) =>
-    //       contentImageUrls.includes(imgUrl)
-    //     );
-
-    //     const allImages = [
-    //       ...stillUsedExistingImages,
-    //       ...allImgUrls.map((img) => img.src),
-    //     ];
-    //     const uniqueImages = [...new Set(allImages)];
-
-    //     const updatedContent = replaceImageSourcesInJSON(
-    //       jsonString,
-    //       allImgUrls
-    //     );
-
-    //     if (updatedContent) {
-    //       setPostData((prev) => ({
-    //         ...prev,
-    //         content: updatedContent,
-    //       }));
-    //     }
-
-    //     try {
-    //       // Extract data from FormData and convert to expected format
-    //       const blogData = {
-    //         id: blog?.id as string,
-    //         slug: formData.get('slug') as string,
-    //         title: formData.get('title') as string,
-    //         content: jsonString as string,
-    //         category: formData.get('category') as string,
-    //         anonymous: formData.has('anonymous')
-    //           ? formData.get('anonymous') === 'true'
-    //           : undefined,
-    //         featured: formData.has('featured')
-    //           ? formData.get('featured') === 'true'
-    //           : undefined,
-    //         // Add comments if needed
-    //         // comments: formData.has('comments') ? JSON.parse(formData.get('comments') as string) : undefined
-    //       };
-
-    //       console.log(
-    //         '🔍 Original content sample:',
-    //         postData.content.substring(0, 200)
-    //       );
-    //       console.log('🔍 Images to replace:', allImgUrls);
-    //       console.log(
-    //         '🔍 Updated content sample:',
-    //         updatedContent.substring(0, 200)
-    //       );
-    //       console.log('📦 FormData content:', formData.get('content'));
-
-    //       const newBlogData = {
-    //         ...blogData,
-    //         content: updatedContent,
-    //         images: allImgUrls.map((img) => img.src),
-    //       };
-
-    //       const updateBlogData = {
-    //         ...blogData,
-    //         content: updatedContent,
-    //         images: allImgUrls.map((img) => img.src),
-    //       };
-
-    //       const res =
-    //         type === 'create'
-    //           ? await newBlog(prevState, newBlogData)
-    //           : await updateBlog({ ...updateBlogData, slug: postData.slug });
-
-    //       if (!res.error) {
-    //         toast.success(res.message);
-    //         setImageFiles([]);
-    //         setImgUrl([]);
-    //         setPendingImages([]);
-
-    //         if (images) {
-    //           setImages([]);
-    //         }
-    //         router.push('/blogs');
-    //       } else {
-    //         toast.error(res.message);
-    //       }
-
-    //       return res;
-    //     } catch (err) {
-    //       console.error('Error creating blog:', err);
-    //       return {
-    //         error: true,
-    //         message:
-    //           err instanceof Error ? err.message : 'Error creating new blog',
-    //       };
-    //     }
-    //   },
-    //   {
-    //     error: false,
-    //     message: '',
-    //   }
-    // );
 
     const [data, action, isPending] = useActionState(
       async (prevState: unknown, formData: FormData) => {
@@ -651,32 +460,6 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
 
     useImagePaste(editor, editorRef);
 
-    // const SubmitButton = () => {
-    //   const { pending } = useFormStatus();
-
-    //   return (
-    //     <Button
-    //       disabled={pending}
-    //       size={'sm'}
-    //       className='rounded-md px-6 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-600/70'
-    //       variant='outline'
-    //       type='submit'
-    //     >
-    //       {pending ? (
-    //         <>
-    //           <Loader className='mr-2 h-4 w-4 animate-spin' />
-    //           Submitting...
-    //         </>
-    //       ) : (
-    //         <span className='flex items-center gap-1 text-xs'>
-    //           <BookPlusIcon className='svg size-4 text-gray-200' />{' '}
-    //           <span>Add Blog</span>
-    //         </span>
-    //       )}
-    //     </Button>
-    //   );
-    // };
-
     const handleFieldChange =
       (fieldName: keyof typeof postData) =>
       (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -732,67 +515,6 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
         </Button>
       );
     };
-
-    // const parsed = JSON.parse(postData.content);
-    // const codeNode = parsed.content.find(
-    //   (node: any) => node.type === 'codeBlock'
-    // );
-
-    // const htmlFragments = parsed.content.map((node: any, index: number) => {
-    //   try {
-    //     if (node.type === 'codeBlock') {
-    //       const code = node.content[0].text || '';
-    //       const language = node.attrs.language || 'plaintext';
-    //       const tree = lowlight?.highlight(language, code);
-    //       const htmlRes = tree && toHtml(tree);
-    //       return `<div class="hljs code-block-custom w-full m-auto" key="code-${index}">${htmlRes}</div>`;
-    //     }
-    //   } catch (error) {
-    //     console.error('Error highlighting code:', error);
-
-    //     return `<pre class="code-block-custom w-full m-auto"><code class="language-${language}">${code}</code></pre>`;
-    //   }
-
-    //   const htmlData = generateHTML(
-    //     { type: 'doc', content: [node] },
-    //     extensions
-    //   );
-
-    //   const hasTable = hasTag(htmlData, 'table');
-
-    //   const tableClass = hasTable ? 'tableWrapper' : '';
-
-    //   return `<div class="content-block-wrapper ${tableClass}" key="block-${index}">${htmlData}</div>`;
-    // });
-
-    // const code = codeNode ? codeNode.content[0].text : '';
-    // const language = codeNode ? codeNode.attrs.language : 'plaintext';
-
-    // const htmlCont = htmlFragments.join('');
-    // // Generate HTML when component mounts and content is available
-    // useEffect(() => {
-    //   const processContent = async () => {
-    //     if (mounted && content) {
-    //       setIsLoading(true);
-
-    //       try {
-    //         // Dynamic import to ensure client-side only
-    //         const { createLowlight, all } = await import('lowlight');
-    //         const { toHtml } = await import('hast-util-to-html');
-
-    //         const lowlight = createLowlight(all);
-    //         // Register languages...
-
-    //         // Process content...
-    //       } catch (error) {
-    //         console.error('Error processing content:', error);
-    //       } finally {
-    //         setIsLoading(false);
-    //       }
-    //     }
-    //   };
-    //   processContent();
-    // }, [mounted, content]);
 
     return (
       <div className='container mx-auto w-full min-w-2xl p-6'>
@@ -931,7 +653,6 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
                 <Select
                   name={'category'}
                   onValueChange={(value) => {
-                    console.log('🚀 ~ value:', value);
                     return setPostData((prev) => ({
                       ...prev,
                       category: value,

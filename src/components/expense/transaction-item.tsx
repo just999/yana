@@ -2,6 +2,7 @@
 
 import { useFormatCurrency } from '@/hooks/use-format-currency';
 import { cn } from '@/lib/utils';
+import type { TransType } from '@prisma/client';
 import {
   EllipsisIcon,
   HandCoins,
@@ -13,7 +14,7 @@ import {
 import { colorClasses } from './trend';
 
 type TransactionItemProps = {
-  type: 'Income' | 'Expense' | 'Investment' | 'Saving';
+  type: TransType;
   category?: string;
   description: string;
   amount: number;
@@ -26,24 +27,24 @@ const TransactionItem = ({
   amount,
 }: TransactionItemProps) => {
   const typeMap = {
-    Income: {
+    INCOME: {
       icon: HandCoins,
-      colors: colorClasses['Income'],
+      colors: colorClasses['INCOME'],
     },
-    Expense: {
+    EXPENSE: {
       icon: Wallet,
       // colors: 'text-red-500 dark:text-red-400',
-      colors: colorClasses['Expense'],
+      colors: colorClasses['EXPENSE'],
     },
-    Saving: {
+    SAVING: {
       icon: Landmark,
       // colors: 'text-indigo-500 dark:text-indigo-400',
-      colors: colorClasses['Saving'],
+      colors: colorClasses['SAVING'],
     },
-    Investment: {
+    INVESTMENT: {
       icon: PiggyBank,
       // colors: 'text-amber-500 dark:text-amber-400',
-      colors: colorClasses['Investment'],
+      colors: colorClasses['INVESTMENT'],
     },
   };
 
@@ -51,14 +52,14 @@ const TransactionItem = ({
   const colors = typeMap[type].colors;
   const formattedAmount = useFormatCurrency(amount);
   return (
-    <div className='flex w-full items-center'>
+    <div className='flex w-full items-center text-xs'>
       <div className='mr-4 flex grow items-center'>
         <IconComponent className={cn(colors, 'mr-2 hidden h-4 w-4 sm:block')} />
         <span>{description}</span>
       </div>
       <div className='hidden min-w-[150px] items-center md:flex'>
         {category && (
-          <div className='rounded-md border-b-2 border-gray-300 bg-gray-700 px-2 text-xs font-light'>
+          <div className='rounded-md border-b-2 border-gray-300 bg-gray-700 px-2 text-[10px] font-light'>
             {category}
           </div>
         )}

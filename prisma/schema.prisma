@@ -59,6 +59,7 @@ model User {
   sessions        Session[]
   accounts        Account[]
   reportComments  ReportComment[]
+  transactions    Transaction[]
 }
 
 enum Role {
@@ -172,4 +173,24 @@ model Like {
   post      Post    @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@unique([userId, commentId], name: "userId_commentId")
+}
+
+model Transaction {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  amount      Int?
+  type        TransType
+  description String
+  category    String?
+  userId      String    @db.ObjectId
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum TransType {
+  INCOME
+  EXPENSE
+  SAVING
+  INVESTMENT
 }

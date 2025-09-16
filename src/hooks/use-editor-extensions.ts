@@ -140,7 +140,7 @@ export const useEditorExtensions = () => {
     lowlightInstance.register('plaintext', plaintext);
 
     return lowlightInstance;
-  }, [createLowlight]);
+  }, []);
 
   const extensions = useMemo(
     () => [
@@ -265,8 +265,9 @@ export function useOptimizedEditor({
   setHasUnsavedChanges,
   // setEditor,
 }: UseOptimizedEditorProps): Editor | null {
+  const { setEditor } = useEditorStore();
   const { extensions } = useEditorExtensions();
-  const [formData, setFormData] = useAtom(blogAtom);
+  // const [formData, setFormData] = useAtom(blogAtom);
   // Debounced content update to prevent excessive re-renders
   const debouncedUpdateRef = useRef<NodeJS.Timeout>(null);
 
@@ -279,96 +280,89 @@ export function useOptimizedEditor({
       debouncedUpdateRef.current = setTimeout(() => {
         const newContent = JSON.stringify(editor.getJSON());
         setContent(newContent);
-        setEditor(editor);
-        setFormData((prev) => ({
-          ...prev,
-          content: newContent,
-        }));
+        // setEditor(editor);
+        // setFormData((prev) => ({
+        //   ...prev,
+        //   content: newContent,
+        // }));
         setHasUnsavedChanges(true);
       }, 150); // 150ms debounce
     },
-    [setContent, setFormData, setHasUnsavedChanges]
+    [setContent, setHasUnsavedChanges]
   );
 
-  const { setEditor } = useEditorStore();
+  const editorEventHandlers = useMemo(
+    () => ({
+      onCreate({ editor }: { editor: Editor }) {
+        setEditor(editor);
 
-  const editor = useEditor({
-    autofocus: true,
+        if (value) {
+          requestAnimationFrame(() => {
+            try {
+              // Handle both JSON objects and JSON strings
+              const contentToSet =
+                typeof value === 'string' ? JSON.parse(value) : value;
+              editor.commands.setContent(contentToSet);
+            } catch (error) {
+              console.error('Error parsing content:', error);
+              // Fallback to treating it as HTML
+              editor.commands.setContent(value);
+            }
+          });
+        }
+      },
 
-    // TipTap v3: Control re-rendering behavior
-    shouldRerenderOnTransaction: false,
+      onUpdate({ editor }: { editor: Editor }) {
+        debouncedUpdate(editor);
+      },
 
-    onCreate({ editor }) {
-      setEditor(editor);
-      if (value) {
-        requestAnimationFrame(() => {
-          try {
-            // Handle both JSON objects and JSON strings
-            const contentToSet =
-              typeof value === 'string' ? JSON.parse(value) : value;
-            editor.commands.setContent(contentToSet);
+      // Combine selection/transaction/focus/blur events to reduce setEditor calls
+      onSelectionUpdate({ editor }: { editor: Editor }) {
+        setEditor(editor);
+      },
 
-            setFormData((prev) => ({
-              ...prev,
-              content:
-                typeof value === 'string' ? value : JSON.stringify(value),
-            }));
-          } catch (error) {
-            console.error('Error parsing content:', error);
-            // Fallback to treating it as HTML
-            editor.commands.setContent(value);
-            setFormData((prev) => ({
-              ...prev,
-              content: JSON.stringify(editor.getJSON()),
-            }));
-          }
-        });
-      }
-    },
+      onTransaction({ editor }: { editor: Editor }) {
+        // Only update if necessary - avoid redundant calls
+        setEditor(editor);
+      },
 
-    // Use debounced update instead of immediate update
-    onUpdate({ editor }) {
-      debouncedUpdate(editor);
-    },
-    onSelectionUpdate({ editor }) {
-      setEditor(editor);
-    },
-    onTransaction({ editor }) {
-      setEditor(editor);
-    },
-    onFocus({ editor }) {
-      setEditor(editor);
-    },
-    onBlur({ editor }) {
-      setEditor(editor);
-    },
-    onContentError({ editor }) {
-      setEditor(editor);
-    },
-    onDestroy() {
-      setEditor(null);
-      setFormData((prev) => ({
-        ...prev,
-        content: '',
-      }));
+      onFocus({ editor }: { editor: Editor }) {
+        setEditor(editor);
+      },
 
-      // Clear any pending debounced updates
-      if (debouncedUpdateRef.current) {
-        clearTimeout(debouncedUpdateRef.current);
-      }
-    },
+      onBlur({ editor }: { editor: Editor }) {
+        setEditor(editor);
+      },
 
-    editorProps: {
+      onContentError({ editor }: { editor: Editor }) {
+        console.error('Content error in editor');
+        setEditor(editor);
+      },
+
+      onDestroy() {
+        setEditor(null);
+
+        // Clear any pending debounced updates
+        if (debouncedUpdateRef.current) {
+          clearTimeout(debouncedUpdateRef.current);
+          debouncedUpdateRef.current = null;
+        }
+      },
+    }),
+    [setEditor, debouncedUpdate, value]
+  );
+
+  // Memoize editor props for better performance
+  const editorProps = useMemo(
+    () => ({
       attributes: {
         class:
           'focus:outline-none print:border-0 dark:bg-accent/90 bg-white dark:text-gray-100 shadow-lg border-0 border-[#e8e8e8] flex flex-col min-h-[1054px] w-[816px] pt-10 pr-14 pb-10 cursor-text',
       },
 
       // Optimize paste handling
-      handlePaste: (view, event, slice) => {
-        // Let our custom image paste handler deal with images
+      handlePaste: (view: any, event: ClipboardEvent) => {
         const items = Array.from(event.clipboardData?.items || []);
-        console.log('🚀 ~ useOptimizedEditor ~ items:', items);
         const hasImages = items.some((item) => item.type.startsWith('image/'));
 
         if (hasImages) {
@@ -381,7 +375,7 @@ export function useOptimizedEditor({
       },
 
       // Optimize drag and drop
-      handleDrop: (view, event, slice, moved) => {
+      handleDrop: (view: any, event: DragEvent) => {
         // Prevent default file drops if you have custom handling
         if (event.dataTransfer?.files?.length) {
           event.preventDefault();
@@ -389,12 +383,134 @@ export function useOptimizedEditor({
         }
         return false;
       },
-    },
+    }),
+    []
+  );
 
-    extensions,
-    content: value || '', // ✅ Use the value prop, fallback to empty string
-    immediatelyRender: false,
-  });
+  const editor = useEditor(
+    {
+      autofocus: true,
+
+      // TipTap v3: Control re-rendering behavior
+      shouldRerenderOnTransaction: false,
+      immediatelyRender: false,
+
+      extensions,
+      content: value || '',
+      editorProps,
+
+      ...editorEventHandlers,
+
+      // onCreate({ editor }) {
+      //   setEditor(editor);
+      //   if (value) {
+      //     requestAnimationFrame(() => {
+      //       try {
+      //         // Handle both JSON objects and JSON strings
+      //         const contentToSet =
+      //           typeof value === 'string' ? JSON.parse(value) : value;
+      //         editor.commands.setContent(contentToSet);
+
+      //         // setFormData((prev) => ({
+      //         //   ...prev,
+      //         //   content:
+      //         //     typeof value === 'string' ? value : JSON.stringify(value),
+      //         // }));
+      //       } catch (error) {
+      //         console.error('Error parsing content:', error);
+      //         // Fallback to treating it as HTML
+      //         editor.commands.setContent(value);
+      //         // setFormData((prev) => ({
+      //         //   ...prev,
+      //         //   content: JSON.stringify(editor.getJSON()),
+      //         // }));
+      //       }
+      //     });
+      //   }
+      // },
+
+      // // Use debounced update instead of immediate update
+      // onUpdate({ editor }) {
+      //   debouncedUpdate(editor);
+      // },
+      // onSelectionUpdate({ editor }) {
+      //   setEditor(editor);
+      // },
+      // onTransaction({ editor }) {
+      //   setEditor(editor);
+      // },
+      // onFocus({ editor }) {
+      //   setEditor(editor);
+      // },
+      // onBlur({ editor }) {
+      //   setEditor(editor);
+      // },
+      // onContentError({ editor }) {
+      //   setEditor(editor);
+      // },
+      // onDestroy() {
+      //   setEditor(null);
+      //   // setFormData((prev) => ({
+      //   //   ...prev,
+      //   //   content: '',
+      //   // }));
+
+      //   // Clear any pending debounced updates
+      //   if (debouncedUpdateRef.current) {
+      //     clearTimeout(debouncedUpdateRef.current);
+      //   }
+      // },
+
+      // editorProps: {
+      //   attributes: {
+      //     class:
+      //       'focus:outline-none print:border-0 dark:bg-accent/90 bg-white dark:text-gray-100 shadow-lg border-0 border-[#e8e8e8] flex flex-col min-h-[1054px] w-[816px] pt-10 pr-14 pb-10 cursor-text',
+      //   },
+
+      //   // Optimize paste handling
+      //   handlePaste: (view, event, slice) => {
+      //     // Let our custom image paste handler deal with images
+      //     const items = Array.from(event.clipboardData?.items || []);
+      //     console.log('🚀 ~ useOptimizedEditor ~ items:', items);
+      //     const hasImages = items.some((item) =>
+      //       item.type.startsWith('image/')
+      //     );
+
+      //     if (hasImages) {
+      //       // Let the image paste extension handle this
+      //       return false;
+      //     }
+
+      //     // For non-image content, use default behavior
+      //     return false;
+      //   },
+
+      //   // Optimize drag and drop
+      //   handleDrop: (view, event, slice, moved) => {
+      //     // Prevent default file drops if you have custom handling
+      //     if (event.dataTransfer?.files?.length) {
+      //       event.preventDefault();
+      //       return true;
+      //     }
+      //     return false;
+      //   },
+      // },
+
+      // extensions,
+      // content: value || '',
+      // immediatelyRender: false,
+    },
+    [extensions, value, editorEventHandlers]
+  );
+
+  // Cleanup effect
+  useEffect(() => {
+    return () => {
+      if (debouncedUpdateRef.current) {
+        clearTimeout(debouncedUpdateRef.current);
+      }
+    };
+  }, []);
 
   return editor;
 }

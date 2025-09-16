@@ -4,19 +4,20 @@ import { useMemo } from 'react';
 
 import { useFormatCurrency } from '@/hooks/use-format-currency';
 import { cn, ptSans } from '@/lib/utils';
+import type { TransType } from '@prisma/client';
 import { ArrowDownLeft, ArrowUpRight } from 'lucide-react';
 
 type TrendProps = {
-  type: 'Income' | 'Expense' | 'Investment' | 'Saving';
+  type: TransType;
   amount?: number;
   prevAmount?: number;
 };
 
 export const colorClasses = {
-  Income: 'text-green-700 dark:text-green-300',
-  Expense: 'text-red-700 dark:text-red-300',
-  Investment: 'text-indigo-700 dark:text-indigo-300',
-  Saving: 'text-amber-700 dark:text-amber-300',
+  INCOME: 'text-green-700 dark:text-green-300',
+  EXPENSE: 'text-red-700 dark:text-red-300',
+  INVESTMENT: 'text-indigo-700 dark:text-indigo-300',
+  SAVING: 'text-amber-700 dark:text-amber-300',
 };
 
 const Trend = ({ type, amount, prevAmount }: TrendProps) => {
