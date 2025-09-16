@@ -10,11 +10,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui';
+import { useZodForm } from '@/hooks/use-zod-form';
 import { transactionCat, transactionType } from '@/lib/helpers';
+import { expenseSchema } from '@/lib/schemas/expense-schema';
 
 type ExpenseFormProps = unknown;
 
 const ExpenseForm = () => {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useZodForm({
+    schema: expenseSchema,
+    mode: 'onTouched',
+    defaultValues: {
+      type: '',
+      amount: 0,
+      category: '',
+      description: '',
+    },
+  });
   return (
     <form className='space-y-4'>
       <div className='grid grid-cols-1 gap-2'>
