@@ -1,8 +1,23 @@
 import {
+  BadgeDollarSign,
+  Banknote,
+  Bitcoin,
+  Car,
+  ChartCandlestick,
+  CircleDollarSign,
+  CircleEllipsis,
+  Coins,
   Flag,
+  Ham,
+  HandCoins,
+  HeartPulse,
   History,
+  Landmark,
+  LandPlot,
   LayoutDashboard,
   NewspaperIcon,
+  Receipt,
+  School,
   Search,
   Settings,
   SquareUserRound,
@@ -12,6 +27,8 @@ import {
   UserRoundPen,
 } from 'lucide-react';
 import { MdLockReset, MdSyncLock } from 'react-icons/md';
+
+import type { TranTypes } from './constants';
 
 export const getProfileLinks = (role?: string) => {
   return [
@@ -261,10 +278,80 @@ export const transactionType = [
   { title: 'SAVING' },
   { title: 'INVESTMENT' },
 ];
-export const transactionCat = [
-  { title: 'Transport' },
-  { title: 'Health' },
-  { title: 'Food' },
-  { title: 'Education' },
-  { title: 'Others' },
+export const expenseCat = [
+  { title: 'Transport', icon: Car },
+  { title: 'Health', icon: HeartPulse },
+  { title: 'Food', icon: Ham },
+  { title: 'Education', icon: School },
+  { title: 'Others', icon: CircleEllipsis },
 ];
+export const investmentCat = [
+  { title: 'Stocks', icon: ChartCandlestick },
+  { title: 'Bonds', icon: BadgeDollarSign },
+  { title: 'RealEstate/Gold', icon: LandPlot },
+  { title: 'BitCoin', icon: Bitcoin },
+  { title: 'Others', icon: CircleEllipsis },
+];
+export const savingCat = [
+  { title: 'Time Deposit', icon: ChartCandlestick },
+  { title: 'Saving', icon: Banknote },
+  { title: 'Government saving bonds', icon: BadgeDollarSign },
+  { title: 'Money market account', icon: Landmark },
+  { title: 'Others', icon: CircleEllipsis },
+];
+export const incomeCat = [
+  { title: 'Salary', icon: HandCoins },
+  { title: 'Bonus', icon: Coins },
+  { title: 'Passive income', icon: CircleDollarSign },
+  { title: 'Investment', icon: Receipt },
+  { title: 'Others', icon: CircleEllipsis },
+];
+
+export enum Trans {
+  INCOME = 'Income',
+  EXPENSE = 'Expense',
+  SAVING = 'Saving',
+  INVESTMENT = 'Investment',
+}
+// Combined approaches
+export const allCategories = [
+  ...expenseCat,
+  ...investmentCat,
+  ...savingCat,
+  ...incomeCat,
+];
+export const categoriesByType = {
+  EXPENSE: expenseCat,
+  INVESTMENT: investmentCat,
+  SAVING: savingCat,
+  INCOME: incomeCat,
+} as const;
+
+// For performance-critical operations
+export const categoryMap = new Map(
+  allCategories.map((cat) => [cat.title, cat])
+);
+
+// Utility functions
+export const getCategoriesByType = (type: TranTypes) => {
+  return categoriesByType[type] || [];
+};
+
+export const findCategoryByTitle = (title: string | null | undefined) => {
+  if (!title) return null;
+  return categoryMap.get(title) || null;
+};
+
+export const findCategoryIcon = (title: string | null | undefined) => {
+  return findCategoryByTitle(title)?.icon || null;
+};
+
+// Type definitions
+export type Category = {
+  title: string;
+  icon: any;
+};
+
+export type CategoryWithType = Category & {
+  type: TranTypes;
+};

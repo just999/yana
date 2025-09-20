@@ -249,15 +249,45 @@ export const useEditorImages = (
     }
   }, []);
 
-  const handleFileInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      e.preventDefault();
-      e.stopPropagation();
-      console.log('handleFileInputChange is triggered');
-      const files = e.target.files;
-      if (!files || files.length === 0) return;
+  // const handleFileInputChange = useCallback(
+  //   (e: React.ChangeEvent<HTMLInputElement>) => {
+  //     e.preventDefault();
+  //     e.stopPropagation();
+  //     console.log('handleFileInputChange is triggered');
+  //     const files = e.target.files;
+  //     if (!files || files.length === 0) return;
 
-      const newFiles = Array.from(files).filter(
+  //     const newFiles = Array.from(files).filter(
+  //       (file) =>
+  //         !imageFiles.some(
+  //           (existing) =>
+  //             existing.name === file.name &&
+  //             existing.size === file.size &&
+  //             existing.lastModified === file.lastModified
+  //         )
+  //     );
+  //     if (newFiles.length === 0) {
+  //       toast.warning('Files already exist', {
+  //         style: { backgroundColor: 'red', color: 'white' },
+  //       });
+  //       return;
+  //     }
+
+  //     setImageFiles((prev) => [...prev, ...newFiles]);
+
+  //     handleImageUpload(newFiles);
+  //     // handleImageUpload(newFiles, e as never);
+  //   },
+  //   [imageFiles, setImageFiles, handleImageUpload]
+  // );
+
+  const isInline = true;
+
+  const processFiles = useCallback(
+    (files: FileList | File[]) => {
+      const fileArray = Array.from(files);
+
+      const newFiles = fileArray.filter(
         (file) =>
           !imageFiles.some(
             (existing) =>
@@ -266,6 +296,7 @@ export const useEditorImages = (
               existing.lastModified === file.lastModified
           )
       );
+
       if (newFiles.length === 0) {
         toast.warning('Files already exist', {
           style: { backgroundColor: 'red', color: 'white' },
@@ -273,13 +304,78 @@ export const useEditorImages = (
         return;
       }
 
-      // setImageFiles((prev) => [...prev, ...newFiles]);
+      setImageFiles((prev) => [...prev, ...newFiles]);
 
-      // handleImageUpload(newFiles);
-      // handleImageUpload(newFiles, e as never);
+      newFiles.forEach((file) => {
+        const imageUrl = URL.createObjectURL(file);
+        const alt = file.name;
+        const title = file.name;
+
+        insertImage(file, imageUrl, isInline);
+        onChange(imageUrl);
+      });
     },
-    [imageFiles, setImageFiles, handleImageUpload]
+    [imageFiles, setImageFiles, insertImage, onChange, isInline]
   );
+
+  const handleFileInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('handleFileInputChange is triggered');
+
+      const files = e.target.files;
+      if (files && files.length > 0) {
+        processFiles(files);
+      }
+    },
+    [processFiles]
+  );
+
+  // const handleFileInputChange = useCallback(
+  //   (e: React.ChangeEvent<HTMLInputElement>) => {
+  //     e.preventDefault();
+  //     e.stopPropagation();
+  //     console.log('handleFileInputChange is triggered');
+
+  //     const files = e.target.files;
+  //     if (!files || files.length === 0) return;
+
+  //     const newFiles = Array.from(files).filter(
+  //       (file) =>
+  //         !imageFiles.some(
+  //           (existing) =>
+  //             existing.name === file.name &&
+  //             existing.size === file.size &&
+  //             existing.lastModified === file.lastModified
+  //         )
+  //     );
+
+  //     if (newFiles.length === 0) {
+  //       toast.warning('Files already exist', {
+  //         style: { backgroundColor: 'red', color: 'white' },
+  //       });
+  //       return;
+  //     }
+
+  //     // Update the state
+  //     setImageFiles((prev) => [...prev, ...newFiles]);
+
+  //     // Process each file
+  //     newFiles.forEach((file) => {
+  //       const imageUrl = URL.createObjectURL(file);
+  //       const alt = file.name;
+  //       const title = file.name;
+
+  //       // Insert into editor
+  //       insertImage(file, imageUrl, isInline);
+
+  //       // Call onChange for each file
+  //       onChange(imageUrl);
+  //     });
+  //   },
+  //   [imageFiles, setImageFiles, insertImage, onChange, isInline]
+  // );
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const newTotal = imageFiles.length + acceptedFiles.length;
@@ -751,9 +847,6 @@ export const useEditorImages = (
         return;
       }
 
-      // console.log('Starting image removal for:', imgFile.id);
-      // console.log('Image src:', imgFile.src);
-
       try {
         // STEP 1: Debug - Log the entire TipTap document structure
         console.log('=== TIPTAP DOCUMENT DEBUG ===');
@@ -776,7 +869,9 @@ export const useEditorImages = (
         console.log('All nodes in document:', allNodes);
 
         // STEP 3: Find specifically image nodes
-        const imageNodes = allNodes.filter((node) => node.type === 'image');
+        const imageNodes = allNodes.filter(
+          (node) => node.type === 'imageResize'
+        );
         console.log('Image nodes found:', imageNodes);
 
         // STEP 4: Try multiple removal strategies
@@ -785,7 +880,10 @@ export const useEditorImages = (
 
         // Strategy 1: Search by exact src match
         editor.state.doc.descendants((node, pos) => {
-          if (node.type.name === 'image' && node.attrs.src === imgFile.src) {
+          if (
+            node.type.name === 'imageResize' &&
+            node.attrs.src === imgFile.src
+          ) {
             console.log('✅ Found image by exact src match');
             editor.commands.deleteRange({ from: pos, to: pos + node.nodeSize });
             imageFound = true;
@@ -1045,6 +1143,7 @@ export const useEditorImages = (
       }
     },
     [
+      editor,
       editorRef,
       updateContent,
       setPendingImages,
@@ -1141,5 +1240,6 @@ export const useEditorImages = (
     updateImageUrl,
     pendingImages,
     setPendingImages,
+    processFiles,
   };
 };

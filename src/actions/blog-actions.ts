@@ -151,7 +151,6 @@ export async function newBlog(
         inputs: formData,
       };
     }
-    console.log('🚀 ~ newBlog ~ validated:', validated);
 
     const existingBlogSlug = await db.post.findUnique({
       where: {
@@ -204,7 +203,6 @@ export async function newBlog(
 
 // !UPDATE BLOG
 export async function updateBlog(data: UpdateBlogSchema & { slug: string }) {
-  console.log('🚀 ~ updateBlog ~ data:', data);
   // TODO: validate the data
   try {
     const session = await auth();
@@ -254,13 +252,6 @@ export async function updateBlog(data: UpdateBlogSchema & { slug: string }) {
     const imagesToSave = newImages;
     const { slug, comments, id, anonymous, category, ...updateData } =
       validated.data;
-    console.log('🚀 ~ updateBlog ~ slug, comments, id, anonymous, category:', {
-      slug,
-      comments,
-      id,
-      anonymous,
-      category,
-    });
 
     console.log('Anonymous value:', validated.data.anonymous);
 

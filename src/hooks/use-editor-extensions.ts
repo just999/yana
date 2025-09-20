@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
+import { CustomImageResize } from '@/components/tiptap/custom-image-resize';
 import { FontSizeExtension } from '@/components/tiptap/extensions/font-size';
 import { LineHeightExtension } from '@/components/tiptap/extensions/line-height';
 import { TableDeletionExtension } from '@/components/tiptap/extensions/table-deletion';
@@ -217,10 +218,10 @@ export const useEditorExtensions = () => {
       ImageResize.configure({
         inline: true,
         allowBase64: true,
+        HTMLAttributes: {
+          class: 'image-resize-container relative inline-block',
+        },
       }),
-      // TableKit.configure({
-      //   table: { resizable: true },
-      // }),
 
       CodeBlockLowlight.extend({
         addAttributes() {
@@ -471,7 +472,7 @@ export function useOptimizedEditor({
       //   handlePaste: (view, event, slice) => {
       //     // Let our custom image paste handler deal with images
       //     const items = Array.from(event.clipboardData?.items || []);
-      //     console.log('🚀 ~ useOptimizedEditor ~ items:', items);
+
       //     const hasImages = items.some((item) =>
       //       item.type.startsWith('image/')
       //     );

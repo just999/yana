@@ -18,7 +18,7 @@
 } */
 
 .expense {
-  @apply container mx-auto max-w-4xl bg-white text-black dark:bg-slate-950 dark:text-slate-100;
+  @apply container mx-auto max-w-xl bg-white text-black dark:bg-slate-950 dark:text-slate-100;
 }
 
 @property --border-angle {
@@ -438,17 +438,6 @@ html.dark .upload-field .text-white {
     border: 1px solid #30363d;
   }
 
-  ul,
-  ol {
-    padding: 0 1rem;
-    margin: 1.25rem 1rem 1.25rem 0.4rem;
-
-    li p {
-      margin-top: 0.25em;
-      margin-bottom: 0.25em;
-    }
-  }
-
   /* Heading styles */
   h1,
   h2,
@@ -580,9 +569,14 @@ html.dark .upload-field .text-white {
 
   .content-block-wrapper p {
     @apply w-full;
+    text-align: justify;
+    line-height: 0;
     a {
       @apply bg-accent w-full text-sky-300;
       text-decoration: none;
+    }
+    code {
+      @apply box-border rounded-md border-b-2 border-b-orange-800 bg-amber-600/20 text-emerald-100;
     }
   }
 
@@ -603,10 +597,13 @@ html.dark .upload-field .text-white {
   }
 
   img {
-    display: block;
+    display: inline-block;
     height: auto;
     margin: 0.5rem;
     max-width: 100%;
+    padding: 0px 64px;
+    shape-outside: circle(50%);
+    line-height: normal;
 
     &.ProseMirror-selectednode {
       outline: 3px solid var(--purple);
@@ -615,12 +612,52 @@ html.dark .upload-field .text-white {
 
   ul,
   ol {
-    padding: 0 1rem;
-    margin: 1.25rem 1rem 1.25rem 0.4rem;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem 1rem 0.5rem 0.4rem;
+  }
 
-    li p {
+  ul li {
+    list-style-type: disc;
+    p {
+      margin-top: 0.75em;
+      margin-bottom: 0.75em;
+    }
+  }
+
+  ol li {
+    list-style-type: decimal;
+    p {
       margin-top: 0.25em;
       margin-bottom: 0.25em;
+    }
+  }
+
+  ul[data-type='taskList'] {
+    list-style: none;
+    margin-left: 0;
+    padding: 0;
+
+    li {
+      align-items: center;
+      display: flex;
+
+      > label {
+        flex: 0 0 auto;
+        margin-right: 0.5rem;
+        user-select: none;
+      }
+
+      > div {
+        flex: 1 1 auto;
+      }
+    }
+
+    input[type='checkbox'] {
+      cursor: pointer;
+    }
+
+    ul[data-type='taskList'] {
+      margin: 0;
     }
   }
 
@@ -671,7 +708,7 @@ html.dark .upload-field .text-white {
     }
 
     .column-resize-handle {
-      background-color: var(--purple);
+      background-color: var(--color-neutral-900);
       bottom: -2px;
       pointer-events: none;
       position: absolute;
@@ -1093,6 +1130,19 @@ html.dark .upload-field .text-white {
     }
   }
 
+  p {
+    @apply w-full;
+    text-align: justify;
+    line-height: 0;
+    a {
+      @apply bg-accent w-full text-sky-300;
+      text-decoration: none;
+    }
+    code {
+      @apply box-border rounded-md border-b-2 border-b-orange-800 bg-amber-600/20 text-emerald-100;
+    }
+  }
+
   img {
     display: inline;
     height: auto;
@@ -1104,6 +1154,7 @@ html.dark .upload-field .text-white {
       outline: 3px solid var(--primary);
     }
   }
+
   /* Table-specific styling */
   table {
     border-collapse: collapse;

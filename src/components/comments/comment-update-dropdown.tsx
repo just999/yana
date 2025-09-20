@@ -192,9 +192,7 @@ const CommentUpdateDropdown = ({
       <DropdownMenuItem
         className='group cursor-pointer border text-gray-100 shadow-lg hover:focus:text-red-600'
         disabled={isEditing}
-        onSelect={(e) => {
-          e.preventDefault();
-        }}
+        onSelect={(e) => e.preventDefault()}
       >
         <Button
           variant='ghost'

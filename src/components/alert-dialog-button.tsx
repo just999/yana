@@ -146,7 +146,7 @@ const AlertDialogButton = ({
               iconClassName
             )}
           />{' '}
-          {/* <span className='dark:group-hover:text-stone-200'>{action}</span> */}
+          <span className='dark:group-hover:text-stone-200'>{action}</span>
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>

@@ -36,7 +36,7 @@
     ".next/types/**/*.ts",
     "next-image.d.ts",
     "src"
-, "public/theme.js"  ],
+ ],
   "exclude": [
     "node_modules"
   ]

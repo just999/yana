@@ -1,20 +1,19 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, UseFormProps } from 'react-hook-form';
-import * as z from 'zod';
+import { z } from 'zod';
 
-export function useZodForm<TSchema extends z.ZodTypeAny>(
+export function useZodForm<TSchema extends z.ZodType>(
   props: Omit<UseFormProps<TSchema['_input']>, 'resolver'> & { schema: TSchema }
 ) {
   const form = useForm<TSchema['_input']>({
     ...props,
     resolver: async (data, context, options) => {
-      const resolver = zodResolver(props.schema);
-      const result = await resolver(data, context, options);
-
       console.log('formData', data);
-      console.log('validation result', result);
-
-      return result;
+      console.log(
+        'validation result',
+        await zodResolver(props.schema as z.ZodTypeAny)(data, context, options)
+      );
+      return zodResolver(props.schema as z.ZodTypeAny)(data, context, options);
     },
   });
 

@@ -16,7 +16,10 @@ const transformBlogToPost = async (rawBlog: PostProps): Promise<PostProps> => {
   const extImg = extractImageUrlsServer(rawBlog.content);
   return {
     ...rawBlog,
-    images: extractImageUrlsServer(rawBlog.content).map((img) => img.src),
+    images:
+      JSON.stringify(extImg) === JSON.stringify(rawBlog.images)
+        ? extImg.map((img) => img.src)
+        : rawBlog.images,
   };
 };
 

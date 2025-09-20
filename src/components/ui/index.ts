@@ -168,7 +168,7 @@ export {
 //   InputOTPSeparator,
 // } from './input-otp';
 
-// export { Calendar } from './calendar';
+export { Calendar } from './calendar';
 
 export {
   Pagination,

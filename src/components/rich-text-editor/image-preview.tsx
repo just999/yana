@@ -479,13 +479,16 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 
+import { useEditorExtensions } from '@/hooks/use-editor-extensions';
 import {
+  blogAtom,
   fileAtoms,
   imageAtoms,
   ImageData,
   pendingImgAtoms,
 } from '@/lib/jotai/blog-atoms';
 import { extractImageUrls } from '@/lib/utils';
+import { generateHTML, generateJSON, type JSONContent } from '@tiptap/core';
 import { useAtom } from 'jotai';
 import { X } from 'lucide-react';
 
@@ -502,9 +505,12 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
   removeImageById,
 }) => {
   const [removingImages, setRemovingImages] = useState<Set<string>>(new Set());
+  const [postData, setPostData] = useAtom(blogAtom);
+  const [htmlData, setHtmlData] = useState('');
   const [pendingImages, setPendingImages] = useAtom(pendingImgAtoms);
   const [imageFiles, setImageFiles] = useAtom(fileAtoms);
   const [images, setImages] = useAtom(imageAtoms);
+  const { extensions, lowlight } = useEditorExtensions();
 
   useEffect(() => {
     if (!content) {
@@ -512,24 +518,106 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
       return;
     }
 
-    const imgData = extractImageUrls(content);
+    // const parsed: JSONContent = JSON.parse(content);
+    // const htmlContent = generateHTML(parsed, extensions);
+    // const imgData = extractImageUrls(htmlContent);
+    // const httpsImages = imgData.reduce((acc, img) => {
+    //   if (img.src.startsWith('http')) {
+    //     acc.push({
+    //       src: img.src,
+    //       id: img.id,
+    //       alt: img.alt,
+    //     });
+    //   }
+    //    else if (img.src.startsWith('blob:http')) {
+    //     const imgUrl = postData.images[0];
+    //     acc.push({
+    //       src: imgUrl || '',
+    //       id: imgUrl.split('/').pop() || '',
+    //       alt: img.alt,
+    //     });
+    //   }
+    //   return acc;
+    // }, [] as ImageData[]);
+
+    // if (htmlContent) setHtmlData(htmlContent);
+
+    // if (httpsImages) {
+    //   setImages(httpsImages);
+    // } else if (Array.from(httpsImages).length === 0) {
+    //   setImages([]);
+    // }
+
+    try {
+      // Check if content is already HTML
+      if (content.trim().startsWith('<')) {
+        console.log('Content is already HTML');
+        const imgData = extractImageUrls(content);
+
+        const httpsImages = imgData.reduce((acc, img) => {
+          if (img.src.startsWith('http')) {
+            acc.push({
+              src: img.src,
+              id: img.id,
+              alt: img.alt,
+            });
+          } else if (img.src.startsWith('blob:http')) {
+            // Add null checks here
+            const imgUrl = postData.images?.[0];
+            if (imgUrl) {
+              acc.push({
+                src: imgUrl,
+                id: imgUrl.split('/').pop() || '',
+                alt: img.alt,
+              });
+            }
+          }
+          return acc;
+        }, [] as ImageData[]);
+
+        if (content) setHtmlData(content);
+        setImages(httpsImages);
+        return;
+      }
+
+      // If it's not HTML, try JSON parsing
+      const parsed: JSONContent = JSON.parse(content);
+      const htmlContent = generateHTML(parsed, extensions);
+      const imgData = extractImageUrls(htmlContent);
+    } catch (error) {
+      console.error('Failed to parse content:', error);
+      console.log('Content type:', typeof content);
+      console.log('Content preview:', content.substring(0, 100));
+      setImages([]);
+    }
+  }, [content, setImages, generateHTML]);
+
+  // Helper function to avoid repetition
+  const processImages = (htmlContent: string, imgData: any[]) => {
     const httpsImages = imgData.reduce((acc, img) => {
-      if (img.src.startsWith('https')) {
+      if (img.src.startsWith('http')) {
         acc.push({
           src: img.src,
           id: img.id,
           alt: img.alt,
         });
+      } else if (img.src.startsWith('blob:http')) {
+        const imgUrl = postData.images?.[0];
+        if (imgUrl) {
+          acc.push({
+            src: imgUrl || '',
+            id: imgUrl.split('/').pop() || '',
+            alt: img.alt,
+          });
+        }
       }
       return acc;
     }, [] as ImageData[]);
 
-    if (httpsImages) {
-      setImages(httpsImages);
-    } else if (Array.from(httpsImages).length === 0) {
-      setImages([]);
-    }
-  }, [content]);
+    if (content) setHtmlData(content);
+    setImages(httpsImages);
+  };
+
   // const extractedImages = useMemo(() => {
   //   if (!content) return [];
 
@@ -564,19 +652,11 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
 
   const handleRemoveImage = useCallback(
     async (image: ImageData) => {
-      const filename = pendingImages[0].file.name;
-
-      if (image.alt === filename) {
-        setPendingImages((prev) => {
-          if (!Array.isArray(prev)) return [];
-          return prev.filter((img) => img.file.name !== filename);
-        });
-      }
+      // alert('Handle remove image called!');
 
       try {
         setRemovingImages((prev) => new Set([...prev, image.id]));
-
-        await removeImageById(image, slug, content);
+        await removeImageById(image, slug, htmlData);
       } catch (error) {
         console.error('Failed to remove image:', error);
       } finally {
@@ -587,8 +667,36 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
         });
       }
     },
-    [removeImageById, slug, content]
+    [removeImageById, slug, htmlData]
   );
+
+  // const handleRemoveImage = useCallback(
+  //   async (image: ImageData) => {
+  //     const filename = pendingImages[0].file.name;
+
+  //     if (image.alt === filename) {
+  //       setPendingImages((prev) => {
+  //         if (!Array.isArray(prev)) return [];
+  //         return prev.filter((img) => img.file.name !== filename);
+  //       });
+  //     }
+
+  //     try {
+  //       setRemovingImages((prev) => new Set([...prev, image.id]));
+
+  //       await removeImageById(image, slug, htmlData);
+  //     } catch (error) {
+  //       console.error('Failed to remove image:', error);
+  //     } finally {
+  //       setRemovingImages((prev) => {
+  //         const newSet = new Set(prev);
+  //         newSet.delete(image.id);
+  //         return newSet;
+  //       });
+  //     }
+  //   },
+  //   [removeImageById, slug, htmlData, setRemovingImages]
+  // );
 
   // if (extractedImages.length === 0) {
   //   return null;
@@ -646,7 +754,9 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({
                     <AlertDialogButton
                       icon={X}
                       action='remove'
-                      remove={() => !isRemoving && handleRemoveImage(image)}
+                      remove={() => {
+                        if (!isRemoving) handleRemoveImage(image);
+                      }}
                       disabled={isRemoving}
                       className={`absolute -top-2 -right-3 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 p-0 shadow-lg transition-opacity duration-200 hover:bg-red-600 ${
                         isRemoving

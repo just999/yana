@@ -19,6 +19,12 @@ export const colorClasses = {
   INVESTMENT: 'text-indigo-700 dark:text-indigo-300',
   SAVING: 'text-amber-700 dark:text-amber-300',
 };
+export const bgColorClasses = {
+  INCOME: 'bg-emerald-700/10 rounded-lg border border-emerald-800/5',
+  EXPENSE: 'bg-pink-700/10 rounded-lg border border-red-800/5',
+  INVESTMENT: 'bg-amber-700/10 rounded-lg border border-amber-800/5',
+  SAVING: 'bg-indigo-700/10 rounded-lg border border-indigo-800/5',
+};
 
 const Trend = ({ type, amount, prevAmount }: TrendProps) => {
   const calcPercentageChange = (amount: number, prevAmount: number) => {
@@ -32,32 +38,18 @@ const Trend = ({ type, amount, prevAmount }: TrendProps) => {
     return +calcPercentageChange(amount, prevAmount).toFixed(0);
   }, [amount, prevAmount]);
 
-  // const formatCurrency = (amount: number) =>
-  //   new Intl.NumberFormat('id-ID', {
-  //     style: 'currency',
-  //     currency: 'IDR',
-  //     minimumFractionDigits: 0,
-  //     maximumFractionDigits: 0,
-  //   }).format(amount);
-
-  // const formatted = formatCurrency(amount || 0);
-
-  // const match = formatted.match(/^(\D+)([\d.,]+)/);
-  // const prefix = match?.[1] ?? '';
-  // const value = match?.[2] ?? '';
-
-  // console.log('Amount type:', typeof amount, 'Value:', amount);
-
   const { prefix, value } = useFormatCurrency(amount as number);
 
   return (
-    <div>
-      <div className={cn('text-xs font-semibold', colorClasses[type])}>
+    <div className='w-full rounded-lg bg-purple-800/20 px-4 py-2 shadow-xl/30'>
+      <div
+        className={cn('text-xs font-semibold underline', colorClasses[type])}
+      >
         {type}
       </div>
       <div
         className={cn(
-          'mb-2 text-sm font-normal text-black dark:text-amber-100',
+          'my-2 text-sm font-normal text-black dark:text-amber-100',
           ptSans.className
         )}
       >
@@ -66,16 +58,16 @@ const Trend = ({ type, amount, prevAmount }: TrendProps) => {
         </span>
         <span>{value}</span>
       </div>
-      <div className='flex items-center space-x-1 text-xs text-nowrap'>
+      <div className='flex items-center justify-center space-x-1 text-xs text-nowrap'>
         {percentageChange <= 0 && (
           <ArrowDownLeft
-            size={12}
+            size={24}
             className='stroke-2 text-red-700 dark:text-red-700'
           />
         )}
         {percentageChange > 0 && (
           <ArrowUpRight
-            size={12}
+            size={24}
             className='text-emerald-700 dark:text-emerald-700'
           />
         )}

@@ -6,8 +6,6 @@ import { Button, InputCustom } from '@/components/ui';
 import { priceAtom, sLAtom } from '@/lib/jotai/atoms';
 import { useAtom } from 'jotai';
 
-type InputFormProps = unknown;
-
 const InputForm = () => {
   const [sl, setSl] = useAtom(sLAtom);
   const [price, setPrice] = useAtom(priceAtom);

@@ -131,7 +131,7 @@ const PgPage = () => {
             className='my-4 h-1 border-t-gray-300 border-b-gray-300'
             decorative
           />
-          <div className='flex flex-col space-y-4'>
+          {/* <div className='flex flex-col space-y-4'>
             <TransactionItem
               type='INCOME'
               amount={10000}
@@ -153,7 +153,7 @@ const PgPage = () => {
               amount={2000}
               description='For children'
             />
-          </div>
+          </div> */}
         </div>
         <div className='m-auto flex max-w-xl flex-col'>
           <h2 className='mb-4 font-mono text-lg'>Transaction Summary Item</h2>
@@ -161,7 +161,7 @@ const PgPage = () => {
             className='my-4 h-1 border-t-gray-300 border-b-gray-300'
             decorative
           />
-          <div className='flex flex-col space-y-4'>
+          {/* <div className='flex flex-col space-y-4'>
             <TransactionSummaryItem date='2024-05-01' amount={3500} />
             <Separator
               className='h-1 border-t-gray-300 border-b-gray-300 p-0'
@@ -188,7 +188,7 @@ const PgPage = () => {
               amount={2000}
               description='For children'
             />
-          </div>
+          </div> */}
         </div>
       </div>
     </>

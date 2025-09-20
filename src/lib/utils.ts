@@ -1,6 +1,24 @@
+import type { TransactionResult } from '@/actions/expense-actions';
+import type { RangeTime } from '@/app/(site)/dashboard/expense/components/range';
+import type { Transaction } from '@prisma/client';
 import type { JSONContent } from '@tiptap/core';
 import { clsx, type ClassValue } from 'clsx';
-import { differenceInYears } from 'date-fns';
+import {
+  differenceInDays,
+  differenceInYears,
+  endOfDay,
+  endOfToday,
+  format,
+  isWithinInterval,
+  startOfDay,
+  startOfMonth,
+  startOfToday,
+  startOfWeek,
+  startOfYear,
+  subDays,
+  subMonths,
+  subYears,
+} from 'date-fns';
 import type { Root } from 'hast';
 import { toHtml } from 'hast-util-to-html';
 import { Ballet, PT_Sans } from 'next/font/google';
@@ -278,6 +296,10 @@ export function replaceImageSourcesAndIdsDOMBased(
 
     if (currentDataId && imageMap.has(currentDataId)) {
       matchingImage = imageMap.get(currentDataId);
+      console.log(
+        '🚀 ~ replaceImageSourcesAndIdsDOMBased ~ matchingImage:',
+        matchingImage
+      );
     } else if (currentSrc) {
       // Extract ID from current src to find matching image
       const srcId = currentSrc.split('/').pop() || '';
@@ -491,7 +513,8 @@ export function extractImageUrls(
 
     const parser = new DOMParser();
     const doc = parser.parseFromString(content, 'text/html');
-    const images = doc.querySelectorAll('img[src^="https"]');
+
+    const images = doc.querySelectorAll('img');
 
     let result: { src: string; id: string; alt: string }[] = [];
 
@@ -499,6 +522,7 @@ export function extractImageUrls(
       try {
         const imgElement = img as HTMLImageElement;
         const src = imgElement.src?.trim() || '';
+        const imgAlt = imgElement.alt.trim() || '';
 
         if (!src) return; // Skip if no src
 
@@ -1150,3 +1174,193 @@ export function flattenLowlightTree(tree: RootNode, language?: string): string {
 //     return '';
 //   }
 // }
+
+// !Utility functions using date-fns
+export const dateUtils = {
+  formatRange: (start: Date, end: Date) =>
+    `${format(start, 'MMM dd, yyyy')} - ${format(end, 'MMM dd, yyyy')}`,
+
+  isToday: (date: Date) =>
+    format(date, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd'),
+
+  isInRange: (date: Date, start: Date, end: Date) =>
+    isWithinInterval(date, { start, end }),
+
+  getDaysInRange: (start: Date, end: Date) => differenceInDays(end, start) + 1,
+};
+
+export function getDateRangeForPeriod(range: RangeTime): {
+  start: Date;
+  end: Date;
+} {
+  const now = new Date();
+
+  switch (range) {
+    case 'today':
+      return { start: startOfToday(), end: endOfToday() };
+    case '7d':
+      return { start: subDays(now, 7), end: now };
+    case '1m':
+      return { start: subMonths(now, 1), end: now };
+    case '1y':
+      return { start: subYears(now, 1), end: now };
+    default:
+      return { start: startOfToday(), end: endOfToday() };
+  }
+}
+
+// SOLUTION 1: Using date-fns for cleaner date calculations
+export function getDateRangeForTimePeriod(range: RangeTime): {
+  start: Date;
+  end: Date;
+} {
+  const now = new Date();
+  let start: Date;
+  let end: Date;
+
+  switch (range) {
+    case 'today':
+      start = startOfToday(); // 00:00:00 today
+      end = endOfToday(); // 23:59:59 today
+      break;
+
+    case '7d':
+      start = subDays(now, 7); // 7 days ago from now
+      end = now;
+      break;
+
+    case '1m':
+      start = subMonths(now, 1); // 1 month ago from now (handles different month lengths)
+      end = now;
+      break;
+
+    case '1y':
+      start = subYears(now, 1); // 1 year ago from now (handles leap years)
+      end = now;
+      break;
+
+    default:
+      start = startOfToday();
+      end = endOfToday();
+  }
+
+  console.log(`📅 ${range} range:`, {
+    start: format(start, 'yyyy-MM-dd HH:mm:ss'),
+    end: format(end, 'yyyy-MM-dd HH:mm:ss'),
+    days: differenceInDays(end, start),
+  });
+
+  return { start, end };
+}
+
+// SOLUTION 2: More flexible date ranges with date-fns
+export function getFlexibleDateRange(range: RangeTime): {
+  start: Date;
+  end: Date;
+} {
+  const now = new Date();
+
+  switch (range) {
+    case 'today':
+      return {
+        start: startOfDay(now),
+        end: endOfDay(now),
+      };
+
+    case '7d':
+      return {
+        start: startOfDay(subDays(now, 6)), // Include today, so 6 days back + today = 7 days
+        end: endOfDay(now),
+      };
+
+    case '1m':
+      return {
+        start: startOfDay(subDays(now, 29)), // Last 30 days including today
+        end: endOfDay(now),
+      };
+
+    case '1y':
+      return {
+        start: startOfDay(subDays(now, 364)), // Last 365 days including today
+        end: endOfDay(now),
+      };
+
+    default:
+      return {
+        start: startOfDay(now),
+        end: endOfDay(now),
+      };
+  }
+}
+
+// SOLUTION 3: Calendar-based ranges (more intuitive for users)
+export function getCalendarBasedRange(range: RangeTime): {
+  start: Date;
+  end: Date;
+} {
+  const now = new Date();
+
+  switch (range) {
+    case 'today':
+      return {
+        start: startOfToday(),
+        end: endOfToday(),
+      };
+
+    case '7d':
+      // This week (Monday to Sunday) or last 7 days
+      return {
+        start: startOfWeek(subDays(now, 6)), // Can also use startOfWeek(now) for this week
+        end: endOfDay(now),
+      };
+
+    case '1m':
+      // This month or last 30 days
+      return {
+        start: startOfMonth(now), // For current month
+        // start: startOfDay(subDays(now, 29)), // For last 30 days
+        end: endOfDay(now),
+      };
+
+    case '1y':
+      // This year or last 365 days
+      return {
+        start: startOfYear(now), // For current year
+        // start: startOfDay(subDays(now, 364)), // For last 365 days
+        end: endOfDay(now),
+      };
+
+    default:
+      return {
+        start: startOfToday(),
+        end: endOfToday(),
+      };
+  }
+}
+
+interface GroupedTransactions {
+  [key: string]: {
+    transactions: Transaction[];
+    amount: number;
+  };
+}
+
+export const groupAndSumTransactionsByDate = (transactions: Transaction[]) => {
+  let grouped: GroupedTransactions = {};
+  for (const transaction of transactions) {
+    const date = transaction?.date.toISOString().split('T')[0];
+
+    if (!grouped[date]) {
+      grouped[date] = { transactions: [], amount: 0 };
+    }
+    grouped[date].transactions.push(transaction);
+
+    const transactionAmount = transaction.amount || 0;
+    const amount =
+      transaction?.type === ('Expense' as Transaction['type'])
+        ? -transactionAmount
+        : transactionAmount;
+    grouped[date].amount += amount;
+  }
+  return grouped;
+};

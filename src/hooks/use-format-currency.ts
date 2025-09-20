@@ -23,3 +23,42 @@ export const useFormatCurrency = (amount: number) => {
 
   return { prefix, value };
 };
+
+// Option 1: Just return the full formatted string
+export const formatCurrency = (amount: number | null | undefined) => {
+  return useMemo(() => {
+    const numericAmount = Number(amount) || 0;
+
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(numericAmount);
+  }, [amount]);
+};
+
+// Option 2: Create separate utility functions
+export const useEvenSimplerFormatCurrency = (
+  amount: number | null | undefined
+): string => {
+  const numericAmount = Number(amount) || 0;
+
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(numericAmount);
+};
+
+export const useFormatCurrencyParts = (amount: number | null | undefined) => {
+  const formatted = formatCurrency(amount);
+  const match = formatted.match(/^(\D+)([\d.,]+)/);
+
+  return {
+    prefix: match?.[1]?.trim() ?? 'Rp',
+    value: match?.[2] ?? '0',
+    full: formatted,
+  };
+};

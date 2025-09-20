@@ -50,7 +50,6 @@ const BlogCard = ({ post, type, blogs, slug }: BlogCardProps) => {
       <div className='relative h-40 overflow-hidden'>
         {postImg ? (
           // Array.from(postImg).map((img, i) => {
-          //   console.log('🚀 ~ BlogCard ~ img:', img);
           //   return (
           //     <Image
           //       src={img}

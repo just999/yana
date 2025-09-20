@@ -1,8 +1,6 @@
 import ExpenseForm from '@/components/expense/expense-form';
 import type { Metadata } from 'next';
 
-type AddExpensePageProps = unknown;
-
 export const metadata: Metadata = {
   title: 'add transaction',
   description: 'add transaction',
@@ -10,8 +8,8 @@ export const metadata: Metadata = {
 
 const AddExpensePage = () => {
   return (
-    <div className='mb-8 text-4xl font-semibold'>
-      <ExpenseForm />
+    <div className='bg-accent/50 mx-auto mb-8 max-w-md p-8 text-4xl font-semibold'>
+      <ExpenseForm formType='create' />
     </div>
   );
 };

@@ -14,9 +14,7 @@
   "editor.bracketPairColorization.enabled": false,
   "color-highlight.enable": true,
   "eslint.enable": true,
-  "color-highlight.languages": [
-    "*"
-  ],
+  "color-highlight.languages": ["*"],
   "editor.smoothScrolling": true,
   "editor.minimap.enabled": false,
   "editor.tabSize": 2,
@@ -50,6 +48,24 @@
     "HTML (Eex)",
     "plist"
   ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true,
+    "source.fixAll.eslint": true
+  },
+  // "prettier.documentSelectors": ["**/*.{js,jsx,ts,tsx,json,css,scss,md,html}"],
+  "[json]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
+  "[jsonc]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
   },
@@ -89,13 +105,7 @@
   "liveServer.settings.fullReload": true,
   "javascript.autoClosingTags": true,
   "html.autoClosingTags": true,
-  "[jsonc]": {
-    "editor.defaultFormatter": "vscode.json-language-features",
-  },
-  "cSpell.words": [
-    "dengan",
-    "sonner"
-  ],
+  "cSpell.words": ["dengan", "sonner"],
   "todo-tree.tree.showBadges": false,
   "better-comments.tags": [
     {
@@ -188,16 +198,16 @@
     "activityBar.inactiveForeground": "#0C5481",
     "activityBarBadge.foreground": "#270051",
     "activityBarBadge.background": "#C996FF",
-    "statusBar.foreground": "#9EF7FF",
-    "statusBar.background": "#157780",
-    "statusBarItem.hoverBackground": "#244C6D",
-    "statusBarItem.remoteForeground": "#E6EBFF",
-    "statusBarItem.remoteBackground": "#4157B0",
+    "statusBar.foreground": "#95FFEA",
+    "statusBar.background": "#0F7E68",
+    "statusBarItem.hoverBackground": "#1C5261",
+    "statusBarItem.remoteForeground": "#D6E8FF",
+    "statusBarItem.remoteBackground": "#2E63A4",
     "activityBar.activeBackground": "#6c782e11",
     "commandCenter.border": "#e7e7e799",
     "sash.hoverBorder": "#6c782e11",
-    "statusBar.debuggingForeground": "#000303",
-    "statusBar.debuggingBackground": "#4CADB6"
+    "statusBar.debuggingForeground": "#000000",
+    "statusBar.debuggingBackground": "#46B59F"
   },
   "editor.quickSuggestions": {
     "strings": "on"

@@ -48,8 +48,13 @@ import {
   cn,
   extractImageUrls,
   extractImageUrlsFromContent,
+  replaceImageSourcesAndIds,
+  replaceImageSourcesAndIdsDOMBased,
+  replaceImageSourcesAndIdsHybrid,
   replaceImageSourcesInJSON,
+  replaceImageSourcesJSONToHTML,
 } from '@/lib/utils';
+import { generateHTML, generateJSON, type JSONContent } from '@tiptap/core';
 import { EditorContent } from '@tiptap/react';
 import { useAtom, useSetAtom } from 'jotai';
 import { Loader, RotateCcw } from 'lucide-react';
@@ -141,6 +146,12 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
       console.log('🔧 Extensions changed:', extensions);
     }, [extensions]);
 
+    // const urls = extractImageUrls(postData.content);
+
+    // const parsed: JSONContent = JSON.parse(postData.content);
+
+    // const htmlContent = generateHTML(parsed, extensions);
+
     const [data, action, isPending] = useActionState(
       async (prevState: unknown, formData: FormData) => {
         // console.log('🔍 FormData entries:');
@@ -149,7 +160,17 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
         }
 
         // Get the raw JSON from editor
-        const jsonContent = editor?.getJSON();
+        // Get JSON content and ensure it's not undefined
+        const editorJson = editor?.getJSON();
+        if (!editorJson) {
+          return {
+            error: true,
+            message: 'No editor content found',
+          };
+        }
+        const jsonContent: JSONContent = editorJson;
+
+        const htmlCont = generateHTML(jsonContent, extensions);
 
         if (!jsonContent) {
           return {
@@ -164,7 +185,7 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
         const urls = extractImageUrls(postData.content);
 
         const existingImgUrls = urls
-          .filter((img) => img.src.startsWith('https://hz9t4nphtm.ufs.sh'))
+          .filter((img) => img.src.startsWith('http'))
           .map((dat) => ({
             src: dat.src,
             id: dat.src.split('/').pop() || dat.id,
@@ -210,21 +231,31 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
         // IMPORTANT: Update the JSON structure, not convert to HTML
         let updatedJsonContent = jsonContent;
 
-        if (allImgUrls.length > 0) {
-          // Function to update image URLs in JSON structure
-          updatedJsonContent = updateImageUrlsInJsonContent(
-            jsonContent,
-            allImgUrls
-          );
-        }
+        // if (allImgUrls.length > 0) {
+        //   // Function to update image URLs in JSON structure
+        //   const replacedContent = replaceImageSourcesAndIds(
+        //     jsonContent,
+        //     allImgUrls
+        //   );
+        //   // Parse the string back to JSON content if necessary
+        //   updatedJsonContent =
+        //     typeof replacedContent === 'string'
+        //       ? JSON.parse(replacedContent)
+        //       : replacedContent;
+
+        // }
+
+        const replacedContent = replaceImageSourcesAndIds(htmlCont, allImgUrls);
+
+        const finalContentString = generateJSON(replacedContent, extensions);
 
         // Convert the final JSON to string for storage
-        const finalContentString = JSON.stringify(updatedJsonContent);
+        // const finalContentString = JSON.stringify(updatedJsonContent);
 
         if (updatedJsonContent) {
           setPostData((prev) => ({
             ...prev,
-            content: finalContentString, // Keep it as JSON string
+            content: JSON.stringify(finalContentString),
           }));
         }
 
@@ -238,18 +269,11 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
             id: blog?.id as string,
             slug: formData.get('slug') as string,
             title: formData.get('title') as string,
-            content: finalContentString, // ← Always save as JSON string
+            content: JSON.stringify(finalContentString),
             category: formData.get('category') as string,
             excerpt: formData.get('excerpt') as string,
-            // anonymous: formData.has('anonymous')
-            //   ? formData.get('anonymous') === 'true'
-            //   : undefined,
             anonymous: getBoolean('anonymous'),
-
             featured: getBoolean('featured'),
-            // featured: formData.has('featured')
-            //   ? formData.get('featured') === 'true'
-            //   : undefined,
           };
 
           console.log('Anonymous raw:', formData.get('anonymous'));
@@ -257,13 +281,12 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
 
           console.log(
             '🔍 Final JSON content sample:',
-            finalContentString.substring(0, 200)
+            JSON.stringify(finalContentString).substring(0, 200)
           );
-          // console.log('🔍 Images to update:', allImgUrls);
 
           const finalBlogData = {
             ...blogData,
-            images: uniqueImages, // Use the deduplicated images array
+            images: allImgUrls.map((img) => img.src), // Convert ImageInfo[] to string[]
           };
 
           const res =
@@ -280,7 +303,8 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
             if (images) {
               setImages([]);
             }
-            router.push('/blogs');
+            // router.refresh();
+            // router.push('/blogs');
           } else {
             toast.error('something went wrong');
           }
@@ -308,6 +332,49 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
     }, [data.errors]);
 
     // Helper function to update image URLs in JSON content structure
+    // function updateImageUrlsInJsonContent(
+    //   jsonContent: any,
+    //   imageUrls: ImageInfo[]
+    // ): any {
+    //   if (!jsonContent || !jsonContent.content) return jsonContent;
+
+    //   const updateNode = (node: any): any => {
+    //     if (node.type === 'image' && node.attrs?.src) {
+    //       // Find matching image URL to replace
+    //       const matchingImage = imageUrls.find(
+    //         (img) =>
+    //           node.attrs.src.includes(img.id) || node.attrs.src === img.src
+    //       );
+
+    //       if (matchingImage) {
+    //         return {
+    //           ...node,
+    //           attrs: {
+    //             ...node.attrs,
+    //             src: matchingImage.src,
+    //             alt: matchingImage.alt,
+    //           },
+    //         };
+    //       }
+    //     }
+
+    //     // Recursively update child nodes
+    //     if (node.content && Array.isArray(node.content)) {
+    //       return {
+    //         ...node,
+    //         content: node.content.map(updateNode),
+    //       };
+    //     }
+
+    //     return node;
+    //   };
+
+    //   return {
+    //     ...jsonContent,
+    //     content: jsonContent.content.map(updateNode),
+    //   };
+    // }
+
     function updateImageUrlsInJsonContent(
       jsonContent: any,
       imageUrls: ImageInfo[]
@@ -315,12 +382,89 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
       if (!jsonContent || !jsonContent.content) return jsonContent;
 
       const updateNode = (node: any): any => {
-        if (node.type === 'image' && node.attrs?.src) {
+        // ✅ Check for both 'image' and 'imageResize' types
+        if (
+          (node.type === 'image' || node.type === 'imageResize') &&
+          node.attrs?.src
+        ) {
           // Find matching image URL to replace
-          const matchingImage = imageUrls.find(
-            (img) =>
-              node.attrs.src.includes(img.id) || node.attrs.src === img.src
-          );
+          const matchingImage = imageUrls.find((img) => {
+            const nodeSrc = node.attrs.src;
+            // ✅ Better matching logic for blob URLs and uploaded images
+            return (
+              nodeSrc.includes(img.id) ||
+              nodeSrc === img.src ||
+              // Handle blob URLs by checking if the filename matches
+              (nodeSrc.startsWith('blob:') && node.attrs.title === img.id) ||
+              (nodeSrc.startsWith('blob:') && node.attrs.alt?.includes(img.id))
+            );
+          });
+
+          if (matchingImage) {
+            console.log('🔄 Replacing image:', {
+              oldSrc: node.attrs.src,
+              newSrc: matchingImage.src,
+              nodeType: node.type,
+            });
+
+            return {
+              ...node,
+              attrs: {
+                ...node.attrs,
+                src: matchingImage.src,
+                alt: matchingImage.alt || node.attrs.alt,
+                title: matchingImage.alt || node.attrs.title,
+              },
+            };
+          }
+        }
+
+        // Recursively update child nodes
+        if (node.content && Array.isArray(node.content)) {
+          return {
+            ...node,
+            content: node.content.map(updateNode),
+          };
+        }
+
+        return node;
+      };
+
+      const updatedContent = {
+        ...jsonContent,
+        content: jsonContent.content.map(updateNode),
+      };
+
+      console.log(
+        '🚀 Updated JSON content:',
+        JSON.stringify(updatedContent, null, 2)
+      );
+      return updatedContent;
+    }
+
+    function updateImageUrlsInJsonContentFlexible(
+      jsonContent: any,
+      imageUrls: ImageInfo[]
+    ): any {
+      if (!jsonContent || !jsonContent.content) return jsonContent;
+
+      const updateNode = (node: any): any => {
+        // ✅ Check if node has image-like attributes (more flexible)
+        if (
+          node.attrs?.src &&
+          (node.type.includes('image') ||
+            node.type === 'imageResize' ||
+            node.attrs.src.startsWith('blob:') ||
+            node.attrs.src.startsWith('data:image'))
+        ) {
+          const matchingImage = imageUrls.find((img) => {
+            const nodeSrc = node.attrs.src;
+            return (
+              nodeSrc.includes(img.id) ||
+              nodeSrc === img.src ||
+              (nodeSrc.startsWith('blob:') && node.attrs.title === img.id)
+            );
+          });
 
           if (matchingImage) {
             return {
@@ -328,7 +472,8 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
               attrs: {
                 ...node.attrs,
                 src: matchingImage.src,
-                alt: matchingImage.alt,
+                alt: matchingImage.alt || node.attrs.alt,
+                title: matchingImage.alt || node.attrs.title,
               },
             };
           }
@@ -351,7 +496,6 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
       };
     }
 
-    const jsonData = editor?.getJSON();
     useEffect(() => {
       if (postData.title) {
         const autoSlug = slugify(postData.title).toLowerCase();

@@ -427,7 +427,6 @@ type BlogContentProps = {
 };
 
 const BlogContent = ({ content, blogs, slug }: BlogContentProps) => {
-  console.log('🚀 ~ BlogContent ~ slug:', slug);
   const [mounted, setMounted] = useState(false);
   const [htmlContent, setHtmlContent] = useState('');
   const [isLoading, setIsLoading] = useState(true);

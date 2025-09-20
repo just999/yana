@@ -29,6 +29,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui';
+import { useEditorImages } from '@/hooks/use-editor-images';
 import { useTheme } from '@/lib/contexts/theme-context';
 import { blogAtom, imageAtoms, pendingImgAtoms } from '@/lib/jotai/blog-atoms';
 import { cn } from '@/lib/utils';
@@ -82,6 +83,7 @@ import {
 import { BsFilePdf } from 'react-icons/bs';
 import { RiJavascriptLine, RiLineHeight } from 'react-icons/ri';
 import { SiGnubash, SiJson } from 'react-icons/si';
+import { toast } from 'sonner';
 
 import { Ruler } from './ruler';
 
@@ -961,9 +963,11 @@ const ImageButton = ({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [imgUrl, setImgUrl] = useState('');
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    setImageFiles(acceptedFiles);
-  }, []);
+  const { processFiles } = useEditorImages(editorRef, maxImages);
+
+  // const onDrop = useCallback((acceptedFiles: File[]) => {
+  //   setImageFiles(acceptedFiles);
+  // }, []);
 
   // const { startUpload, routeConfig } = useUploadThing('imageUploader');
 
@@ -978,59 +982,125 @@ const ImageButton = ({
     editor?.chain().focus().setImage({ src: imageUrl, alt, title }).run();
   };
 
+  // const onUpload = () => {
+  //   const input = document.createElement('input');
+  //   const inputProps = getInputProps();
+
+  //   input.type = 'file';
+  //   input.accept = 'image/*';
+  //   input.multiple = true;
+  //   input.style.display = 'none';
+
+  //   // Apply dropzone-specific properties
+  //   if (inputProps.accept) input.accept = inputProps.accept;
+  //   if (inputProps.multiple !== undefined) input.multiple = inputProps.multiple;
+
+  //   // Apply data attributes
+  //   Object.keys(inputProps).forEach((key) => {
+  //     if (key.startsWith('data-') || key.startsWith('aria-')) {
+  //       input.setAttribute(
+  //         key,
+  //         inputProps[key as keyof typeof inputProps] as string
+  //       );
+  //     }
+  //   });
+  //   input.onchange = (e) => {
+  //     e.preventDefault();
+  //     e.stopPropagation();
+
+  //     const files = (e.target as HTMLInputElement).files;
+  //     if (files && files.length > 0) {
+  //       const file = files?.[0];
+  //       const alt = file.name;
+  //       const imageUrl = URL.createObjectURL(file);
+  //       const title = imageUrl.split('/').pop() || file.name || 'image';
+  //       insertImage(file, imageUrl, isInline);
+  //       onChange(imageUrl, alt, title);
+
+  //       const syntheticEvent = {
+  //         target: { files: files },
+  //         currentTarget: { files: files },
+  //         type: 'change',
+  //         preventDefault: () => {},
+  //         stopPropagation: () => {},
+  //         nativeEvent: e,
+  //         isDefaultPrevented: () => false,
+  //         isPropagationStopped: () => false,
+  //         persist: () => {},
+  //       } as React.ChangeEvent<HTMLInputElement>;
+
+  //       handleFileInputChange(syntheticEvent);
+
+  //       // Call dropzone's original onChange
+  //       if (inputProps.onChange) {
+  //         inputProps.onChange(syntheticEvent);
+  //       }
+  //     }
+  //   };
+
+  //   input.click();
+  // };
+
   const onUpload = () => {
     const input = document.createElement('input');
     const inputProps = getInputProps();
+
+    // Set basic properties
+    input.type = 'file';
+    input.accept = inputProps.accept || 'image/*';
+    input.multiple = inputProps.multiple ?? true;
+    input.style.display = 'none';
+    input.className = 'image-custom';
+
+    // Apply data and aria attributes
+    Object.entries(inputProps).forEach(([key, value]) => {
+      if (key.startsWith('data-') || key.startsWith('aria-')) {
+        input.setAttribute(key, String(value));
+      }
+    });
+
+    // Handle file selection
+    // input.onchange = (e) => {
+    //   const files = (e.target as HTMLInputElement).files;
+    //   if (!files || files.length === 0) return;
+
+    //   // Create synthetic event with unknown cast
+    //   const syntheticEvent = {
+    //     ...e,
+    //     target: input,
+    //     currentTarget: input,
+    //     preventDefault: () => e.preventDefault?.(),
+    //     stopPropagation: () => e.stopPropagation?.(),
+    //     isDefaultPrevented: () => false,
+    //     isPropagationStopped: () => false,
+    //     persist: () => {},
+    //     nativeEvent: e,
+    //   } as unknown as React.ChangeEvent<HTMLInputElement>;
+
+    //   handleFileInputChange(syntheticEvent);
+    //   inputProps.onChange?.(syntheticEvent);
+    // };
+
+    input.onchange = (e) => {
+      const files = (e.target as HTMLInputElement).files;
+      if (files) processFiles(files);
+    };
+
+    input.click();
+  };
+
+  const onUploadSimple = () => {
+    const input = document.createElement('input');
 
     input.type = 'file';
     input.accept = 'image/*';
     input.multiple = true;
     input.style.display = 'none';
 
-    // Apply dropzone-specific properties
-    if (inputProps.accept) input.accept = inputProps.accept;
-    if (inputProps.multiple !== undefined) input.multiple = inputProps.multiple;
-
-    // Apply data attributes
-    Object.keys(inputProps).forEach((key) => {
-      if (key.startsWith('data-') || key.startsWith('aria-')) {
-        input.setAttribute(
-          key,
-          inputProps[key as keyof typeof inputProps] as string
-        );
-      }
-    });
     input.onchange = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-
       const files = (e.target as HTMLInputElement).files;
       if (files && files.length > 0) {
-        const file = files?.[0];
-        const alt = file.name;
-        const imageUrl = URL.createObjectURL(file);
-        const title = imageUrl.split('/').pop() || file.name || 'image';
-        insertImage(file, imageUrl, isInline);
-        onChange(imageUrl, alt, title);
-
-        const syntheticEvent = {
-          target: { files: files },
-          currentTarget: { files: files },
-          type: 'change',
-          preventDefault: () => {},
-          stopPropagation: () => {},
-          nativeEvent: e,
-          isDefaultPrevented: () => false,
-          isPropagationStopped: () => false,
-          persist: () => {},
-        } as React.ChangeEvent<HTMLInputElement>;
-
-        handleFileInputChange(syntheticEvent);
-
-        // Call dropzone's original onChange
-        if (inputProps.onChange) {
-          inputProps.onChange(syntheticEvent);
-        }
+        processFiles(files);
       }
     };
 

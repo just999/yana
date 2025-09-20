@@ -102,3 +102,16 @@ export const PAGE_SIZE = 8;
 
 export const PAGE_WIDTH = 816;
 export const MIN_SPACE = 100;
+
+export const tranTypes = ['INCOME', 'EXPENSE', 'SAVING', 'INVESTMENT'] as const;
+export type TranTypes = (typeof tranTypes)[number];
+export const tranCat = [
+  'Food',
+  'Transport',
+  'Entertainment',
+  'Health',
+  'Utilities',
+  'Education',
+  'Others',
+];
+export type TranCat = (typeof tranCat)[number];

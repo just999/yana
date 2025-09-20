@@ -1,0 +1,821 @@
+'use server';
+
+import type { RangeTime } from '@/app/(site)/dashboard/expense/components/range';
+import { auth } from '@/auth';
+import { db } from '@/lib/db';
+import {
+  expenseSchema,
+  updateExpenseSchema,
+  type ExpenseSchema,
+  type UpdateExpenseSchema,
+} from '@/lib/schemas/expense-schema';
+import { formatError, getDateRangeForPeriod } from '@/lib/utils';
+import type { Transaction, TransType } from '@prisma/client';
+import { differenceInDays, format, startOfWeek, subDays } from 'date-fns';
+
+export async function getTransactionByUserId() {
+  try {
+    const session = await auth();
+    if (!session) {
+      return {
+        error: false,
+        message: 'unauthorized',
+      };
+    }
+    const userId = session?.user.id;
+
+    const trans = await db.transaction.findMany({
+      where: { userId },
+    });
+
+    if (!trans) {
+      return {
+        error: true,
+        message: 'user no have any transaction',
+      };
+    }
+
+    return {
+      error: false,
+      message: 'Successfully fetch transaction',
+      data: trans,
+    };
+  } catch (err) {
+    return {
+      error: true,
+      message: formatError(err),
+    };
+  }
+}
+export async function getTransactionById(id: string) {
+  try {
+    const session = await auth();
+    if (!session) {
+      return {
+        error: false,
+        message: 'unauthorized',
+      };
+    }
+    const userId = session?.user.id;
+
+    const trans = await db.transaction.findFirst({
+      where: { id },
+    });
+
+    if (!trans) {
+      return {
+        error: true,
+        message: 'user no have any transaction',
+      };
+    }
+
+    return {
+      error: false,
+      message: 'Successfully fetch transaction',
+      data: trans,
+    };
+  } catch (err) {
+    return {
+      error: true,
+      message: formatError(err),
+    };
+  }
+}
+
+export async function addNewTransaction(data: ExpenseSchema) {
+  try {
+    const session = await auth();
+    if (!session) {
+      return {
+        error: false,
+        message: 'unauthorized',
+      };
+    }
+    const userId = session?.user.id;
+
+    const validated = expenseSchema.safeParse(data);
+
+    if (!validated.success) {
+      return {
+        error: true,
+        errors: validated.error.flatten().fieldErrors,
+        message: 'validated error',
+        inputs: data,
+      };
+    }
+
+    const trans = await db.transaction.create({
+      data: {
+        type: validated.data.type,
+        category: validated.data.category ? validated.data.category : undefined,
+        amount: validated.data.amount,
+        date: new Date(validated.data.date).toISOString(),
+        description: validated.data.description
+          ? validated.data.description
+          : '',
+        userId,
+      },
+    });
+
+    return {
+      error: false,
+      message: 'Successfully fetch transaction',
+      data: trans,
+    };
+  } catch (err) {
+    return {
+      error: true,
+      message: formatError(err),
+    };
+  }
+}
+export async function editTransaction(data: UpdateExpenseSchema) {
+  try {
+    const session = await auth();
+    if (!session) {
+      return {
+        error: false,
+        message: 'unauthorized',
+      };
+    }
+    const userId = session?.user.id;
+
+    const validated = updateExpenseSchema.safeParse(data);
+
+    if (!validated.success) {
+      return {
+        error: true,
+        errors: validated.error.flatten().fieldErrors,
+        message: 'validated error',
+        inputs: data,
+      };
+    }
+
+    const trans = await db.transaction.update({
+      where: {
+        id: validated.data.id,
+      },
+      data: {
+        type: validated.data.type,
+        category: validated.data.category ? validated.data.category : undefined,
+        amount: validated.data.amount,
+        date: new Date(validated.data.date).toISOString(),
+        description: validated.data.description
+          ? validated.data.description
+          : '',
+        userId,
+      },
+    });
+
+    return {
+      error: false,
+      message: 'Successfully update transaction',
+      data: trans,
+    };
+  } catch (err) {
+    return {
+      error: true,
+      message: formatError(err),
+    };
+  }
+}
+
+export async function removeExpense(id: string) {
+  try {
+    const session = await auth();
+    if (!session) {
+      return {
+        error: false,
+        message: 'unauthorized',
+      };
+    }
+    const userId = session?.user.id;
+
+    const trans = await db.transaction.findFirst({
+      where: {
+        id,
+        userId,
+      },
+    });
+
+    if (!trans) {
+      return {
+        error: true,
+        message: 'something went wrong',
+      };
+    }
+
+    await db.transaction.delete({
+      where: {
+        id: trans.id,
+      },
+    });
+
+    return {
+      error: false,
+      message: 'successfully remove transactions',
+    };
+  } catch (err) {
+    return {
+      error: true,
+      message: formatError(err),
+    };
+  }
+}
+
+export type RangeType = 'today' | '7d' | '1m' | '1y';
+type TransactionType = 'INCOME' | 'EXPENSE' | 'SAVING' | 'INVESTMENT' | null;
+
+interface CalculateTotalResult {
+  currentAmount: number;
+  previousAmount: number;
+  currentStart: Date;
+  currentEnd: Date;
+  previousStart: Date;
+  previousEnd: Date;
+}
+
+interface DateRange {
+  start: Date;
+  end: Date;
+}
+
+// Helper function to calculate date ranges
+function getDateRanges(range: RangeType): {
+  current: DateRange;
+  previous: DateRange;
+} {
+  const now = new Date();
+  let currentStart: Date;
+  let currentEnd: Date;
+
+  // Calculate current period start based on range
+  // Calculate current period based on range
+  switch (range) {
+    case 'today':
+      // Today: from start of today to now
+      currentStart = new Date(now);
+      currentStart.setHours(0, 0, 0, 0); // Start of today
+      currentEnd = new Date(now);
+      break;
+
+    case '7d':
+      // Last 7 days: from 7 days ago to now
+      currentStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      currentEnd = new Date(now);
+      break;
+
+    case '1m':
+      // Last 30 days: from 30 days ago to now
+      currentStart = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      currentEnd = new Date(now);
+      break;
+
+    case '1y':
+      // Last 365 days: from 365 days ago to now
+      currentStart = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+      currentEnd = new Date(now);
+      break;
+
+    default:
+      currentStart = new Date(now);
+      currentStart.setHours(0, 0, 0, 0);
+      currentEnd = new Date(now);
+  }
+
+  // Calculate previous period
+  const periodDuration = currentEnd.getTime() - currentStart.getTime();
+  const previousEnd = new Date(currentStart.getTime() - 1); // 1ms before current start
+  const previousStart = new Date(currentStart.getTime() - periodDuration);
+
+  return {
+    current: { start: currentStart, end: currentEnd },
+    previous: { start: previousStart, end: previousEnd },
+  };
+}
+// FIXED: Main server action with better error handling and logging
+export async function calculateTotal(
+  rangeArg: RangeType = 'today',
+  typeArg: TransactionType = null,
+  userId?: string
+): Promise<CalculateTotalResult> {
+  try {
+    const { current, previous } = getDateRanges(rangeArg);
+
+    // Build the base where condition
+    const baseWhereCondition: any = {};
+
+    if (typeArg) {
+      baseWhereCondition.type = typeArg;
+    }
+
+    if (userId) {
+      baseWhereCondition.userId = userId;
+    }
+
+    // FIXED: Check if your date field is actually called 'createdAt'
+    // It might be 'date' instead based on your schema
+    const currentWhereCondition = {
+      ...baseWhereCondition,
+      // Try both field names - use the one that matches your Prisma schema
+      date: {
+        // or 'date' if that's your field name
+        gte: current.start,
+        lte: current.end,
+      },
+    };
+
+    const previousWhereCondition = {
+      ...baseWhereCondition,
+      date: {
+        // or 'date' if that's your field name
+        gte: previous.start,
+        lte: previous.end,
+      },
+    };
+
+    // Get current period sum
+    const currentResult = await db.transaction.aggregate({
+      where: currentWhereCondition,
+      _sum: {
+        amount: true,
+      },
+    });
+
+    // Get previous period sum
+    const previousResult = await db.transaction.aggregate({
+      where: previousWhereCondition,
+      _sum: {
+        amount: true,
+      },
+    });
+
+    // FIXED: Convert Decimal/BigInt to number properly
+    const currentAmount = Number(currentResult._sum.amount || 0);
+    const previousAmount = Number(previousResult._sum.amount || 0);
+
+    // DEBUGGING: Let's also count the records to see if date filtering works
+    const currentCount = await db.transaction.count({
+      where: currentWhereCondition,
+    });
+
+    const previousCount = await db.transaction.count({
+      where: previousWhereCondition,
+    });
+
+    // Let's also get some sample records to debug
+    const sampleCurrentRecords = await db.transaction.findMany({
+      where: currentWhereCondition,
+      take: 3,
+      select: {
+        id: true,
+        amount: true,
+        createdAt: true, // or 'date'
+        type: true,
+      },
+    });
+
+    const samplePreviousRecords = await db.transaction.findMany({
+      where: previousWhereCondition,
+      take: 3,
+      select: {
+        id: true,
+        amount: true,
+        createdAt: true, // or 'date'
+        type: true,
+      },
+    });
+
+    return {
+      currentAmount,
+      previousAmount,
+      currentStart: current.start,
+      currentEnd: current.end,
+      previousStart: previous.start,
+      previousEnd: previous.end,
+    };
+  } catch (error) {
+    console.error('❌ Error calculating totals:', error);
+    throw new Error('Failed to calculate totals: ' + (error as Error).message);
+  }
+}
+
+// Alternative version with more detailed breakdown
+export async function calculateTotalDetailed(
+  rangeArg: RangeType = 'today',
+  typeArg: TransactionType = null,
+  userId?: string
+) {
+  try {
+    const { current, previous } = getDateRanges(rangeArg);
+
+    const baseWhereCondition = {
+      ...(typeArg && { type: typeArg }),
+      ...(userId && { userId }),
+    };
+
+    // Get current period data with grouping
+    const currentData = await db.transaction.groupBy({
+      by: ['type'],
+      where: {
+        ...baseWhereCondition,
+        createdAt: {
+          gte: current.start,
+          lte: current.end,
+        },
+      },
+      _sum: {
+        amount: true,
+      },
+      _count: {
+        _all: true,
+      },
+    });
+
+    // Get previous period data with grouping
+    const previousData = await db.transaction.groupBy({
+      by: ['type'],
+      where: {
+        ...baseWhereCondition,
+        createdAt: {
+          gte: previous.start,
+          lte: previous.end,
+        },
+      },
+      _sum: {
+        amount: true,
+      },
+      _count: {
+        _all: true,
+      },
+    });
+
+    // Calculate totals
+    const currentAmount = currentData.reduce(
+      (sum, item) => sum + (item._sum.amount ?? 0),
+      0
+    );
+
+    const previousAmount = previousData.reduce(
+      (sum, item) => sum + (item._sum.amount ?? 0),
+      0
+    );
+
+    // Calculate percentage change
+    const percentageChange =
+      previousAmount !== 0
+        ? ((currentAmount - previousAmount) / previousAmount) * 100
+        : currentAmount > 0
+          ? 100
+          : 0;
+
+    return {
+      currentAmount,
+      previousAmount,
+      percentageChange,
+      currentData,
+      previousData,
+      currentStart: current.start,
+      currentEnd: current.end,
+      previousStart: previous.start,
+      previousEnd: previous.end,
+    };
+  } catch (error) {
+    console.error('Error calculating detailed totals:', error);
+    throw new Error('Failed to calculate detailed totals');
+  }
+}
+
+// Version for specific user with authentication
+export async function calculateUserTotal(
+  userId: string,
+  rangeArg: RangeType = 'today',
+  typeArg: TransactionType = null
+) {
+  if (!userId) {
+    throw new Error('User ID is required');
+  }
+
+  return calculateTotal(rangeArg, typeArg, userId);
+}
+
+// Usage in a React Server Component or API route
+export async function getTotalsByRange(
+  range: RangeType,
+  type?: TransactionType,
+  userId?: string
+) {
+  try {
+    const result = await calculateTotal(range, type, userId);
+
+    return {
+      success: true,
+      data: result,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+export interface TransactionResult {
+  success: boolean;
+  data?: Transaction[];
+  totalCount?: number;
+  totalAmount?: number;
+  dateRange?: { start: Date; end: Date };
+  pagination?: {
+    offset: number;
+    limit: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+    totalPages: number;
+    currentPage: number;
+    returnedCount: number;
+  };
+  message?: string;
+  error?: string;
+}
+
+export async function getTransactionByRange(
+  range: RangeTime,
+  offset?: number,
+  limit?: number
+): Promise<TransactionResult> {
+  try {
+    const session = await auth();
+    if (!session) {
+      return {
+        success: false,
+        error: 'Unauthorized',
+        message: 'Please log in to view transactions',
+      };
+    }
+
+    const userId = session.user.id;
+    const { start, end } = getDateRangeForPeriod(range);
+
+    const pageOffset = offset ?? 0;
+    const pageLimit = limit ?? 4;
+
+    const whereClause = {
+      userId: userId,
+      date: {
+        gte: start,
+        lte: end,
+      },
+    };
+
+    // Query transactions in the date range
+    // const transactions = await db.transaction.findMany({
+    //   where: {
+    //     userId: userId,
+    //     date: {
+    //       // or 'date' - check your schema
+    //       gte: start,
+    //       lte: end,
+    //     },
+    //   },
+    //   orderBy: {
+    //     createdAt: 'desc',
+    //   },
+    // });
+
+    // Use Promise.all to run queries in parallel
+    const [transactions, totalCount, aggregation] = await Promise.all([
+      // Get paginated transactions
+      db.transaction.findMany({
+        where: whereClause,
+        orderBy: {
+          createdAt: 'desc',
+        },
+        skip: pageOffset,
+        take: pageLimit,
+      }),
+
+      // Get total count
+      db.transaction.count({
+        where: whereClause,
+      }),
+
+      // Get total amount using aggregation (more efficient)
+      db.transaction.aggregate({
+        where: whereClause,
+        _sum: {
+          amount: true,
+        },
+      }),
+    ]);
+
+    const totalAmount = Number(aggregation._sum.amount) || 0;
+
+    // Calculate pagination metadata
+    const hasNextPage = pageOffset + pageLimit < totalCount;
+    const hasPreviousPage = pageOffset > 0;
+    const totalPages = Math.ceil(totalCount / pageLimit);
+    const currentPage = Math.floor(pageOffset / pageLimit) + 1;
+    return {
+      success: true,
+      data: transactions,
+      totalCount,
+      totalAmount,
+      dateRange: { start, end },
+      pagination: {
+        offset: pageOffset,
+        limit: pageLimit,
+        hasNextPage,
+        hasPreviousPage,
+        totalPages,
+        currentPage,
+        returnedCount: transactions.length,
+      },
+      message: `Found ${totalCount} transactions for ${range} (${format(start, 'MMM dd')} - ${format(end, 'MMM dd')}). Showing ${transactions.length} results (page ${currentPage} of ${totalPages})`,
+    };
+  } catch (err) {
+    console.error('Error fetching transactions by range:', err);
+    return {
+      success: false,
+      error: formatError(err),
+    };
+  }
+}
+
+// SOLUTION 5: Advanced filtering with date-fns helpers
+export async function getTransactionByRangeAdvanced(
+  range: RangeTime,
+  options?: {
+    includeWeekends?: boolean;
+    timezone?: string;
+    groupBy?: 'day' | 'week' | 'month';
+  }
+): Promise<TransactionResult & { groupedData?: any[] }> {
+  try {
+    const session = await auth();
+    if (!session) {
+      return {
+        success: false,
+        error: 'Unauthorized',
+      };
+    }
+
+    const userId = session.user.id;
+    const { start, end } = getDateRangeForPeriod(range);
+
+    const transactions = await db.transaction.findMany({
+      where: {
+        userId: userId,
+        createdAt: {
+          gte: start,
+          lte: end,
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    const totalAmount = transactions.reduce((sum, transaction) => {
+      return sum + (Number(transaction.amount) || 0);
+    }, 0);
+
+    // Group data by specified period using date-fns
+    let groupedData: any[] = [];
+
+    if (options?.groupBy) {
+      const groups = new Map();
+
+      transactions.forEach((transaction) => {
+        let groupKey: string;
+        const transactionDate = new Date(transaction.createdAt);
+
+        switch (options.groupBy) {
+          case 'day':
+            groupKey = format(transactionDate, 'yyyy-MM-dd');
+            break;
+          case 'week':
+            groupKey = format(startOfWeek(transactionDate), 'yyyy-MM-dd');
+            break;
+          case 'month':
+            groupKey = format(transactionDate, 'yyyy-MM');
+            break;
+          default:
+            groupKey = format(transactionDate, 'yyyy-MM-dd');
+        }
+
+        if (!groups.has(groupKey)) {
+          groups.set(groupKey, {
+            date: groupKey,
+            transactions: [],
+            totalAmount: 0,
+            count: 0,
+          });
+        }
+
+        const group = groups.get(groupKey);
+        group.transactions.push(transaction);
+        group.totalAmount += Number(transaction.amount) || 0;
+        group.count++;
+      });
+
+      groupedData = Array.from(groups.values()).sort(
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      );
+    }
+
+    return {
+      success: true,
+      data: transactions,
+      totalCount: transactions.length,
+      totalAmount,
+      dateRange: { start, end },
+      groupedData,
+      message: `${transactions.length} transactions from ${format(start, 'PPP')} to ${format(end, 'PPP')}`,
+    };
+  } catch (err) {
+    console.error('Error fetching advanced transactions:', err);
+    return {
+      success: false,
+      error: formatError(err),
+    };
+  }
+}
+
+// SOLUTION 6: Comparison with previous period using date-fns
+export async function getTransactionComparisonByRange(range: RangeTime) {
+  try {
+    const session = await auth();
+    if (!session) {
+      return { success: false, error: 'Unauthorized' };
+    }
+
+    const userId = session.user.id;
+    const { start: currentStart, end: currentEnd } =
+      getDateRangeForPeriod(range);
+
+    // Calculate previous period using date-fns
+    const periodLength = differenceInDays(currentEnd, currentStart);
+    const previousEnd = subDays(currentStart, 1); // 1 day before current period
+    const previousStart = subDays(previousEnd, periodLength);
+
+    console.log('📊 Comparison periods:', {
+      current: `${format(currentStart, 'MMM dd')} - ${format(currentEnd, 'MMM dd')}`,
+      previous: `${format(previousStart, 'MMM dd')} - ${format(previousEnd, 'MMM dd')}`,
+    });
+
+    // Get current period data
+    const currentTransactions = await db.transaction.findMany({
+      where: {
+        userId,
+        createdAt: { gte: currentStart, lte: currentEnd },
+      },
+    });
+
+    // Get previous period data
+    const previousTransactions = await db.transaction.findMany({
+      where: {
+        userId,
+        createdAt: { gte: previousStart, lte: previousEnd },
+      },
+    });
+
+    const currentAmount = currentTransactions.reduce(
+      (sum, t) => sum + Number(t.amount || 0),
+      0
+    );
+    const previousAmount = previousTransactions.reduce(
+      (sum, t) => sum + Number(t.amount || 0),
+      0
+    );
+
+    const percentageChange =
+      previousAmount !== 0
+        ? ((currentAmount - previousAmount) / previousAmount) * 100
+        : currentAmount > 0
+          ? 100
+          : 0;
+
+    return {
+      success: true,
+      current: {
+        amount: currentAmount,
+        count: currentTransactions.length,
+        period: `${format(currentStart, 'MMM dd')} - ${format(currentEnd, 'MMM dd')}`,
+      },
+      previous: {
+        amount: previousAmount,
+        count: previousTransactions.length,
+        period: `${format(previousStart, 'MMM dd')} - ${format(previousEnd, 'MMM dd')}`,
+      },
+      change: {
+        amount: currentAmount - previousAmount,
+        percentage: percentageChange,
+        trend:
+          percentageChange > 0 ? 'up' : percentageChange < 0 ? 'down' : 'same',
+      },
+    };
+  } catch (err) {
+    return { success: false, error: formatError(err) };
+  }
+}
