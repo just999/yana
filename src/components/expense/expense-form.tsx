@@ -407,7 +407,7 @@ const ExpenseForm = ({ formType, expenseId, trans }: ExpenseProps) => {
                     <FormControl>
                       <SelectTrigger className='px-2 py-1 text-[10px] text-sky-100 data-[size=default]:h-6'>
                         <SelectValue
-                          placeholder={`Select ${type?.toLowerCase()} category`}
+                          placeholder={`Select type ${type?.toLowerCase()} `}
                         />
                       </SelectTrigger>
                     </FormControl>
@@ -475,7 +475,14 @@ const ExpenseForm = ({ formType, expenseId, trans }: ExpenseProps) => {
                               : field.value
                             : undefined
                         }
-                        onSelect={field.onChange}
+                        onSelect={(value) => {
+                          console.log(
+                            'LOG: ~ value.toISOString():',
+                            value?.toISOString()
+                          );
+                          field.onChange(value);
+                          if (value) setValue('date', value.toISOString());
+                        }}
                         disabled={(date) =>
                           date > new Date() || date < new Date('1900-01-01')
                         }
