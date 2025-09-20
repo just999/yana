@@ -1,15 +1,16 @@
 import { Suspense } from 'react';
 
-import { getTransactionByRange } from '@/actions/expense-actions';
 import { Button, Separator } from '@/components/ui';
-import { PAGE_SIZE, tranTypes, type TranTypes } from '@/lib/constants';
+import { PAGE_SIZE, tranTypes } from '@/lib/constants';
 import { PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 
 import { type RangeTime } from './components/range';
 import { RangeButton } from './components/range-button';
+import TransactionListFallback from './components/transaction-list-fallback';
 import TransactionListWrapper from './components/transaction-list-wrapper';
 import Trend from './components/trend';
+import TrendFallback from './components/trend-fallback';
 
 type ExpensePageProps = {
   searchParams: Promise<{ range: string }>;
@@ -38,7 +39,7 @@ const ExpensePage = async ({ searchParams }: ExpensePageProps) => {
         />
         <div className='xs:grid-cols-2 mb-4 grid grid-cols-1 gap-2 space-x-8 rounded-xl bg-fuchsia-700/20 p-2'>
           {tranTypes.map((type) => (
-            <Suspense key={type}>
+            <Suspense key={type} fallback={<TrendFallback />}>
               <Trend type={type} range={range} />
             </Suspense>
           ))}
@@ -58,7 +59,7 @@ const ExpensePage = async ({ searchParams }: ExpensePageProps) => {
         </Button>
       </section>
 
-      <Suspense>
+      <Suspense fallback={<TransactionListFallback />}>
         <TransactionListWrapper range={range} offset={0} limit={PAGE_SIZE} />
       </Suspense>
     </div>

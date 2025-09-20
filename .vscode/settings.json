@@ -27,6 +27,7 @@
   "prettier.trailingComma": "es5",
   "prettier.arrowParens": "always",
   "editor.autoClosingBrackets": "always",
+  "turboConsoleLog.logMessagePrefix": "🥑",
   "auto-close-tag.activationOnLanguage": [
     "xml",
     "php",
@@ -49,8 +50,8 @@
     "plist"
   ],
   "editor.codeActionsOnSave": {
-    "source.fixAll": true,
-    "source.fixAll.eslint": true
+    "source.fixAll": "explicit",
+    "source.fixAll.eslint": "explicit"
   },
   // "prettier.documentSelectors": ["**/*.{js,jsx,ts,tsx,json,css,scss,md,html}"],
   "[json]": {
@@ -198,16 +199,16 @@
     "activityBar.inactiveForeground": "#0C5481",
     "activityBarBadge.foreground": "#270051",
     "activityBarBadge.background": "#C996FF",
-    "statusBar.foreground": "#B3FF91",
-    "statusBar.background": "#307F0C",
-    "statusBarItem.hoverBackground": "#1C5E22",
-    "statusBarItem.remoteForeground": "#9AFFC8",
-    "statusBarItem.remoteBackground": "#0F8545",
+    "statusBar.foreground": "#FFCFBA",
+    "statusBar.background": "#974724",
+    "statusBarItem.hoverBackground": "#5B4113",
+    "statusBarItem.remoteForeground": "#E6EA82",
+    "statusBarItem.remoteBackground": "#646700",
     "activityBar.activeBackground": "#6c782e11",
     "commandCenter.border": "#e7e7e799",
     "sash.hoverBorder": "#6c782e11",
     "statusBar.debuggingForeground": "#000000",
-    "statusBar.debuggingBackground": "#67B643"
+    "statusBar.debuggingBackground": "#CD7D5A"
   },
   "editor.quickSuggestions": {
     "strings": "on"

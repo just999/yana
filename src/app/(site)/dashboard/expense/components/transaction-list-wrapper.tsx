@@ -16,8 +16,8 @@ const TransactionListWrapper = async ({
 }: TransactionListWrapperProps) => {
   const trans = await getTransactionByRange(range, offset, limit);
   return (
-    <div className='flex h-full flex-col'>
-      <div className='flex-1 overflow-hidden'>
+    <div className='flex flex-col'>
+      <div className='flex min-h-[200vh] flex-col overflow-y-auto'>
         <TransactionList
           initTrans={trans.data || []}
           key={range}

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   getTransactionByRange,
   removeExpense,
+  type TransactionResult,
 } from '@/actions/expense-actions';
 import TransactionItem from '@/components/expense/transaction-item';
 import TransactionSummaryItem from '@/components/expense/transaction-summary-item';
@@ -25,7 +26,10 @@ type TransactionListProps = {
 
 const TransactionList = ({ range, initTrans }: TransactionListProps) => {
   const [transactions, setTransactions] = useState<Transaction[]>(initTrans);
+  console.log('🥑 ~ TransactionList ~ transactions:', transactions.length);
+
   const [loading, setLoading] = useState(false);
+  const [buttonHidden, setButtonHidden] = useState(initTrans.length === 0);
   const [hasMore, setHasMore] = useState(true);
   const [autoLoadEnabled, setAutoLoadEnabled] = useState(true);
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -33,79 +37,79 @@ const TransactionList = ({ range, initTrans }: TransactionListProps) => {
   const router = useRouter();
   const grouped = groupAndSumTransactionsByDate(transactions);
 
-  useEffect(() => {
-    setTransactions(initTrans);
-    setHasMore(true);
-    setAutoLoadEnabled(true);
-    isLoadingRef.current = false;
-  }, [range, initTrans]);
+  // useEffect(() => {
+  //   setTransactions(initTrans);
+  //   setHasMore(true);
+  //   setAutoLoadEnabled(true);
+  //   isLoadingRef.current = false;
+  // }, [range, initTrans]);
 
-  const loadMoreTransactions = useCallback(async () => {
-    if (isLoadingRef.current || !hasMore) return;
+  // const loadMoreTransactions = useCallback(async () => {
+  //   if (isLoadingRef.current || !hasMore) return;
 
-    isLoadingRef.current = true;
-    setLoading(true);
+  //   isLoadingRef.current = true;
+  //   setLoading(true);
 
-    try {
-      const nextTransactions = await getTransactionByRange(
-        range,
-        transactions.length,
-        10 // Load more items per request
-      );
+  //   try {
+  //     const nextTransactions = await getTransactionByRange(
+  //       range,
+  //       transactions.length,
+  //       10 // Load more items per request
+  //     );
 
-      if (nextTransactions?.success && nextTransactions?.data) {
-        const newTransactions = nextTransactions.data;
+  //     if (nextTransactions?.success && nextTransactions?.data) {
+  //       const newTransactions = nextTransactions.data;
 
-        if (newTransactions.length === 0) {
-          setHasMore(false);
-        } else {
-          setTransactions((prev) => [...prev, ...newTransactions]);
+  //       if (newTransactions.length === 0) {
+  //         setHasMore(false);
+  //       } else {
+  //         setTransactions((prev) => [...prev, ...newTransactions]);
 
-          if (nextTransactions.pagination) {
-            setHasMore(nextTransactions.pagination.hasNextPage);
-          } else {
-            setHasMore(newTransactions.length >= 10);
-          }
-        }
-      } else {
-        setHasMore(false);
-      }
-    } catch (error) {
-      console.error('Error loading more transactions:', error);
-      setHasMore(false);
-    } finally {
-      setLoading(false);
-      isLoadingRef.current = false;
-    }
-  }, [range, transactions.length, hasMore]);
+  //         if (nextTransactions.pagination) {
+  //           setHasMore(nextTransactions.pagination.hasNextPage);
+  //         } else {
+  //           setHasMore(newTransactions.length >= 10);
+  //         }
+  //       }
+  //     } else {
+  //       setHasMore(false);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error loading more transactions:', error);
+  //     setHasMore(false);
+  //   } finally {
+  //     setLoading(false);
+  //     isLoadingRef.current = false;
+  //   }
+  // }, [range, transactions.length, hasMore]);
 
-  useEffect(() => {
-    if (!autoLoadEnabled || !hasMore) return;
+  // useEffect(() => {
+  //   if (!autoLoadEnabled || !hasMore) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const target = entries[0];
-        if (target.isIntersecting && !isLoadingRef.current) {
-          loadMoreTransactions();
-        }
-      },
-      {
-        threshold: 0.1,
-        rootMargin: '100px 0px', // Start loading 100px before the element is visible
-      }
-    );
+  //   const observer = new IntersectionObserver(
+  //     (entries) => {
+  //       const target = entries[0];
+  //       if (target.isIntersecting && !isLoadingRef.current) {
+  //         loadMoreTransactions();
+  //       }
+  //     },
+  //     {
+  //       threshold: 0.1,
+  //       rootMargin: '100px 0px',
+  //     }
+  //   );
 
-    const currentRef = loadMoreRef.current;
-    if (currentRef) {
-      observer.observe(currentRef);
-    }
+  //   const currentRef = loadMoreRef.current;
+  //   if (currentRef) {
+  //     observer.observe(currentRef);
+  //   }
 
-    return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
-      }
-    };
-  }, [loadMoreTransactions, autoLoadEnabled, hasMore]);
+  //   return () => {
+  //     if (currentRef) {
+  //       observer.unobserve(currentRef);
+  //     }
+  //   };
+  // }, [loadMoreTransactions, autoLoadEnabled, hasMore]);
 
   // const handleClick = async () => {
   //   setLoading(true);
@@ -159,6 +163,25 @@ const TransactionList = ({ range, initTrans }: TransactionListProps) => {
   //   }
   // };
 
+  const handleClick = async () => {
+    setLoading(true);
+    let nextTransactions: TransactionResult | null = null;
+    try {
+      nextTransactions = await getTransactionByRange(
+        range,
+        transactions.length,
+        PAGE_SIZE
+      );
+      setButtonHidden(nextTransactions.data?.length === 0);
+      setTransactions((prevTransactions) => [
+        ...prevTransactions,
+        ...(nextTransactions?.data || []),
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleRemoved = async (id: string) => {
     setTransactions((prev) => [...prev].filter((t) => t.id !== id));
 
@@ -172,68 +195,102 @@ const TransactionList = ({ range, initTrans }: TransactionListProps) => {
     }
   };
 
-  const handleManualLoad = async () => {
-    setAutoLoadEnabled(false); // Disable auto-loading after manual click
-    await loadMoreTransactions();
-  };
+  // const handleManualLoad = async () => {
+  //   setAutoLoadEnabled(false); // Disable auto-loading after manual click
+  //   await loadMoreTransactions();
+  // };
 
   return (
-    <div className='mx-auto min-h-screen max-w-xl space-y-8'>
-      {Object.entries(grouped).map(([date, { transactions, amount }]) => (
-        <div key={date}>
-          <TransactionSummaryItem date={date} amount={amount} />
-          <Separator />
+    // <div className='mx-auto min-h-screen max-w-xl space-y-8'>
+    //   {Object.entries(grouped).map(([date, { transactions, amount }]) => (
+    //     <div key={date}>
+    //       <TransactionSummaryItem date={date} amount={amount} />
+    //       <Separator />
 
-          <section className='space-y-4'>
-            {transactions.map((tr: Transaction) => (
-              <TransactionItem
-                key={tr.id}
-                {...tr}
-                onRemoved={() => handleRemoved(tr.id)}
-              />
+    //       <section className='space-y-4'>
+    //         {transactions.map((tr: Transaction) => (
+    //           <TransactionItem
+    //             key={tr.id}
+    //             {...tr}
+    //             onRemoved={() => handleRemoved(tr.id)}
+    //           />
+    //         ))}
+    //       </section>
+    //     </div>
+    //   ))}
+
+    //   {transactions.length === 0 && (
+    //     <div className='text-center text-gray-400 dark:text-gray-500'>
+    //       No Transaction
+    //     </div>
+    //   )}
+    //   {hasMore && (
+    //     <div ref={loadMoreRef} className='flex justify-center py-4'>
+    //       {autoLoadEnabled ? (
+    //         <div className='flex items-center space-x-2 text-gray-500'>
+    //           {loading && <Loader className='animate-spin' size={16} />}
+    //           <div>{loading ? 'Loading more...' : 'Scroll to load more'}</div>
+    //         </div>
+    //       ) : (
+    //         <Button
+    //           variant='ghost'
+    //           onClick={handleManualLoad}
+    //           disabled={loading}
+    //           className='min-w-[120px]'
+    //         >
+    //           <div className='flex items-center space-x-1'>
+    //             {loading && <Loader className='animate-spin' size={16} />}
+    //             <div>Load More</div>
+    //           </div>
+    //         </Button>
+    //       )}
+
+    //       {/* <Button variant='ghost' onClick={handleClick} disabled={loading}>
+    //         <div className='flex items-center space-x-1'>
+    //           {loading && <Loader className='animate-spin' />}
+    //           <div>Load More</div>
+    //         </div>
+    //       </Button> */}
+    //     </div>
+    //   )}
+
+    //   {!hasMore && transactions.length > 0 && (
+    //     <div className='py-8 text-center text-gray-400 dark:text-gray-500'>
+    //       No more transactions to load
+    //     </div>
+    //   )}
+    // </div>
+
+    <div className='mx-auto w-xl space-y-8'>
+      {Object.entries(grouped).map(([date, { transactions, amount }]) => (
+        <div key={date} className=' '>
+          <TransactionSummaryItem date={date} amount={amount} />
+          {/* <Separator className=' '  /> */}
+          <section className='bg-accent/40 space-y-4 rounded-lg border py-1 backdrop-blur-2xl'>
+            {transactions.map((transaction) => (
+              <div key={transaction.id} className=''>
+                <TransactionItem
+                  {...transaction}
+                  onRemoved={() => handleRemoved(transaction.id)}
+                />
+              </div>
             ))}
           </section>
         </div>
       ))}
-
       {transactions.length === 0 && (
         <div className='text-center text-gray-400 dark:text-gray-500'>
-          No Transaction
+          No transactions found
         </div>
       )}
-      {hasMore && (
-        <div ref={loadMoreRef} className='flex justify-center py-4'>
-          {autoLoadEnabled ? (
-            <div className='flex items-center space-x-2 text-gray-500'>
-              {loading && <Loader className='animate-spin' size={16} />}
-              <div>{loading ? 'Loading more...' : 'Scroll to load more'}</div>
-            </div>
-          ) : (
-            <Button
-              variant='ghost'
-              onClick={handleManualLoad}
-              disabled={loading}
-              className='min-w-[120px]'
-            >
-              <div className='flex items-center space-x-1'>
-                {loading && <Loader className='animate-spin' size={16} />}
-                <div>Load More</div>
-              </div>
-            </Button>
-          )}
-
-          {/* <Button variant='ghost' onClick={handleClick} disabled={loading}>
+      {!buttonHidden && (
+        <div className='flex justify-center'>
+          <Button variant='ghost' onClick={handleClick} disabled={loading}>
             <div className='flex items-center space-x-1'>
               {loading && <Loader className='animate-spin' />}
               <div>Load More</div>
             </div>
-          </Button> */}
-        </div>
-      )}
-
-      {!hasMore && transactions.length > 0 && (
-        <div className='py-8 text-center text-gray-400 dark:text-gray-500'>
-          No more transactions to load
+          </Button>
         </div>
       )}
     </div>

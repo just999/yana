@@ -401,12 +401,114 @@ export async function calculateTotal(
 }
 
 // Alternative version with more detailed breakdown
+// export async function calculateTotalDetailed(
+//   rangeArg: RangeType = 'today',
+//   typeArg: TransactionType = null,
+//   userId?: string
+// ) {
+//   console.log('🔍 calculateTotalDetailed started:', {
+//     rangeArg,
+//     typeArg,
+//     userId,
+//   });
+//   const startTime = performance.now();
+//   try {
+//     const { current, previous } = getDateRanges(rangeArg);
+
+//     const baseWhereCondition = {
+//       ...(typeArg && { type: typeArg }),
+//       ...(userId && { userId }),
+//     };
+//     console.log('⏳ Starting current data query...');
+//     // Get current period data with grouping
+//     const currentData = await db.transaction.groupBy({
+//       by: ['type'],
+//       where: {
+//         ...baseWhereCondition,
+//         createdAt: {
+//           gte: current.start,
+//           lte: current.end,
+//         },
+//       },
+//       _sum: {
+//         amount: true,
+//       },
+//       _count: {
+//         _all: true,
+//       },
+//     });
+//     console.log('✅ Current data loaded:', currentData);
+
+//     console.log('⏳ Starting previous data query...');
+//     // Get previous period data with grouping
+//     const previousData = await db.transaction.groupBy({
+//       by: ['type'],
+//       where: {
+//         ...baseWhereCondition,
+//         createdAt: {
+//           gte: previous.start,
+//           lte: previous.end,
+//         },
+//       },
+//       _sum: {
+//         amount: true,
+//       },
+//       _count: {
+//         _all: true,
+//       },
+//     });
+//     console.log('✅ Previous data loaded:', previousData);
+//     // Calculate totals
+//     const currentAmount = currentData.reduce(
+//       (sum, item) => sum + (item._sum.amount ?? 0),
+//       0
+//     );
+
+//     const previousAmount = previousData.reduce(
+//       (sum, item) => sum + (item._sum.amount ?? 0),
+//       0
+//     );
+
+//     // Calculate percentage change
+//     const percentageChange =
+//       previousAmount !== 0
+//         ? ((currentAmount - previousAmount) / previousAmount) * 100
+//         : currentAmount > 0
+//           ? 100
+//           : 0;
+//     const endTime = performance.now();
+//     console.log(`⚡ Query completed in ${endTime - startTime}ms`);
+//     return {
+//       currentAmount,
+//       previousAmount,
+//       percentageChange,
+//       currentData,
+//       previousData,
+//       currentStart: current.start,
+//       currentEnd: current.end,
+//       previousStart: previous.start,
+//       previousEnd: previous.end,
+//     };
+//   } catch (error) {
+//     console.error('Error calculating detailed totals:', error);
+//     throw new Error('Failed to calculate detailed totals');
+//   }
+// }
+
 export async function calculateTotalDetailed(
   rangeArg: RangeType = 'today',
   typeArg: TransactionType = null,
   userId?: string
 ) {
+  console.log('🔍 calculateTotalDetailed started:', {
+    rangeArg,
+    typeArg,
+    userId,
+  });
+  const startTime = performance.now();
+
   try {
+    // Your existing code...
     const { current, previous } = getDateRanges(rangeArg);
 
     const baseWhereCondition = {
@@ -414,43 +516,54 @@ export async function calculateTotalDetailed(
       ...(userId && { userId }),
     };
 
-    // Get current period data with grouping
-    const currentData = await db.transaction.groupBy({
-      by: ['type'],
-      where: {
-        ...baseWhereCondition,
-        createdAt: {
-          gte: current.start,
-          lte: current.end,
+    // Execute queries in parallel
+    const [currentData, previousData] = await Promise.all([
+      db.transaction.groupBy({
+        by: ['type'],
+        where: {
+          ...baseWhereCondition,
+          createdAt: {
+            gte: current.start,
+            lte: current.end,
+          },
         },
-      },
-      _sum: {
-        amount: true,
-      },
-      _count: {
-        _all: true,
-      },
-    });
-
-    // Get previous period data with grouping
-    const previousData = await db.transaction.groupBy({
-      by: ['type'],
-      where: {
-        ...baseWhereCondition,
-        createdAt: {
-          gte: previous.start,
-          lte: previous.end,
+        _sum: {
+          amount: true,
         },
-      },
-      _sum: {
-        amount: true,
-      },
-      _count: {
-        _all: true,
-      },
-    });
+        _count: {
+          _all: true,
+        },
+      }),
+      db.transaction.groupBy({
+        by: ['type'],
+        where: {
+          ...baseWhereCondition,
+          createdAt: {
+            gte: previous.start,
+            lte: previous.end,
+          },
+        },
+        _sum: {
+          amount: true,
+        },
+        _count: {
+          _all: true,
+        },
+      }),
+    ]);
 
-    // Calculate totals
+    // Ensure minimum loading time for skeleton visibility
+    const elapsed = performance.now() - startTime;
+    const minLoadingTime = 300; // 300ms minimum
+
+    if (elapsed < minLoadingTime) {
+      await new Promise((resolve) =>
+        setTimeout(resolve, minLoadingTime - elapsed)
+      );
+      console.log(`⏰ Added ${minLoadingTime - elapsed}ms delay for UX`);
+    }
+
+    // Rest of your calculation logic...
     const currentAmount = currentData.reduce(
       (sum, item) => sum + (item._sum.amount ?? 0),
       0
@@ -461,13 +574,15 @@ export async function calculateTotalDetailed(
       0
     );
 
-    // Calculate percentage change
     const percentageChange =
       previousAmount !== 0
         ? ((currentAmount - previousAmount) / previousAmount) * 100
         : currentAmount > 0
           ? 100
           : 0;
+
+    const endTime = performance.now();
+    console.log(`⚡ Total time with delay: ${endTime - startTime}ms`);
 
     return {
       currentAmount,
