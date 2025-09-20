@@ -1,15 +1,11 @@
 import {
   calculateTotal,
   calculateTotalDetailed,
-  calculateUserTotal,
   type RangeType,
 } from '@/actions/expense-actions';
 import { auth } from '@/auth';
 import BaseTrend from '@/components/expense/trend';
 import type { TranTypes } from '@/lib/constants';
-import { TransType } from '@prisma/client';
-
-import type { RangeTime } from './range-button';
 
 type TrendProps = {
   type: TranTypes;
@@ -20,7 +16,7 @@ const Trend = async ({ type, range }: TrendProps) => {
   const session = await auth();
 
   const userId = session?.user.id;
-  const data = await calculateTotal(
+  const data = await calculateTotalDetailed(
     range as RangeType,
     type as TranTypes,
     userId as string

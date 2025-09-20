@@ -476,12 +476,24 @@ const ExpenseForm = ({ formType, expenseId, trans }: ExpenseProps) => {
                             : undefined
                         }
                         onSelect={(value) => {
-                          console.log(
-                            'LOG: ~ value.toISOString():',
-                            value?.toISOString()
-                          );
-                          field.onChange(value);
-                          if (value) setValue('date', value.toISOString());
+                          if (value) {
+                            // Adjust for GMT+7 (add 7 hours offset)
+                            const adjustedDate = new Date(
+                              value.getTime() + 7 * 60 * 60 * 1000
+                            );
+
+                            console.log('Original date:', value);
+                            console.log('Adjusted for GMT+7:', adjustedDate);
+                            console.log(
+                              'ISO String:',
+                              adjustedDate.toISOString()
+                            );
+
+                            field.onChange(adjustedDate);
+                            setValue('date', adjustedDate.toISOString());
+                          } else {
+                            field.onChange(value);
+                          }
                         }}
                         disabled={(date) =>
                           date > new Date() || date < new Date('1900-01-01')

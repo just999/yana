@@ -1357,7 +1357,7 @@ export const groupAndSumTransactionsByDate = (transactions: Transaction[]) => {
 
     const transactionAmount = transaction.amount || 0;
     const amount =
-      transaction?.type === ('Expense' as Transaction['type'])
+      transaction?.type === ('EXPENSE' as Transaction['type'])
         ? -transactionAmount
         : transactionAmount;
     grouped[date].amount += amount;
