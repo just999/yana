@@ -30,7 +30,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui';
 import { useEditorImages } from '@/hooks/use-editor-images';
-import { useTheme } from '@/lib/contexts/theme-context';
+// import { useTheme } from '@/lib/contexts/theme-context';
 import { blogAtom, imageAtoms, pendingImgAtoms } from '@/lib/jotai/blog-atoms';
 import { cn } from '@/lib/utils';
 import { useEditorStore } from '@/store/use-editor-store';
@@ -69,6 +69,7 @@ import {
   Undo2Icon,
   UploadIcon,
 } from 'lucide-react';
+import { useTheme } from 'next-themes';
 import { SketchPicker, type ColorResult } from 'react-color';
 import {
   BiLogoCss3,
@@ -1521,14 +1522,14 @@ const ToolbarButton = ({
   isActive,
   icon: Icon,
 }: ToolbarButtonProps) => {
-  const { resolvedTheme } = useTheme();
+  const { theme } = useTheme();
 
-  const isDark = resolvedTheme === 'dark';
+  const isDark = theme === 'dark';
 
   const getActiveStyle = () => {
     if (!isActive) return {};
 
-    if (resolvedTheme === 'dark') {
+    if (theme === 'dark') {
       return {
         boxShadow: 'inset 5px 4px 15px 5px #000000',
       };

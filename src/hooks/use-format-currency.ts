@@ -25,7 +25,6 @@ import { useMemo, useState } from 'react';
 // };
 
 export const useFormatCurrency = (amount: number) => {
-  console.log('LOG: ~ useFormatCurrency ~ amount:', amount);
   const [prefix, setPrefix] = useState('');
   const [value, setValue] = useState('');
 

@@ -1,7 +1,10 @@
 'use client';
 
 import { useFormatCurrency } from '@/hooks/use-format-currency';
-import { cn } from '@/lib/utils';
+import { cn, inter } from '@/lib/utils';
+import { Calendar, ScaleIcon } from 'lucide-react';
+
+import { Badge } from '../ui';
 
 type TransactionSummaryItemProps = {
   date: string;
@@ -14,20 +17,33 @@ const TransactionSummaryItem = ({
 }: TransactionSummaryItemProps) => {
   const { prefix, value } = useFormatCurrency(amount);
   return (
-    <div className='flex pb-2 text-xs font-semibold text-gray-500 dark:text-gray-400'>
-      <div className='ml-2 grow'>{date}</div>
+    <div className={cn('flex w-full items-center px-2 text-[10px]')}>
+      <Calendar className={cn('mr-2 hidden h-4 w-4 sm:block')} />{' '}
+      <div className='ml-2 flex grow'>{date}</div>
+      <div className='hidden min-w-[150px] items-center md:flex'>
+        <Badge
+          variant='outline'
+          className={cn(
+            'border-b-4 border-indigo-400/30 bg-indigo-800/10 text-[10px] font-light text-indigo-100 transition-colors hover:bg-indigo-900/20',
+            inter.className
+          )}
+        >
+          <ScaleIcon className='mr-1 inline size-4 h-3 w-3' />
+          Daily Balance
+        </Badge>
+      </div>
+      <div className='min-w-[50px]'></div>
       <div
         className={cn(
           'min-w-[70px] rounded-xl bg-amber-800/20 px-2 text-center font-semibold',
           amount < 0
-            ? 'border-b-2 border-red-800 bg-pink-700/20 text-xs text-red-400'
+            ? 'border-b-2 border-red-800 bg-pink-700/20 text-xs text-fuchsia-300'
             : 'border-b-2 border-lime-800 bg-emerald-700/20 text-lime-400'
         )}
       >
         <span className='text-[10px]'>{prefix} </span>
-        <span>{value}</span>
+        <span className='text-[10px]'>{value}</span>
       </div>
-      <div className='min-w-[50px]'></div>
     </div>
   );
 };

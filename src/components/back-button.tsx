@@ -58,7 +58,7 @@ const BackButton = ({ value, link, size, className }: BackButtonProps) => {
           className
         )}
       >
-        <Link href='/'>
+        <Link href={link || '/'}>
           <ArrowLeftCircle size={size} className='group-hover:underline' />
           <span className='group-hover:underline'>{value}</span>
         </Link>

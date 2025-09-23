@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils'; // Assuming you have this utility
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { z } from 'zod';
 
-export const rangeTime = ['today', '7d', '1m', '1y'] as const;
+export const rangeTime = ['today', 'w', 'm', 'y'] as const;
 export type RangeTime = (typeof rangeTime)[number];
 
 export const rangeSchema = z.object({
@@ -33,9 +33,9 @@ type RangeProps = {
 const getRangeLabel = (range: RangeTime): string => {
   const labels: Record<RangeTime, string> = {
     today: 'Today',
-    '7d': '7d',
-    '1m': '1m',
-    '1y': '1y',
+    w: 'w',
+    m: 'm',
+    y: 'y',
   };
   return labels[range];
 };

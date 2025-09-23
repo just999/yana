@@ -35,14 +35,14 @@ const ExpenseUpdateDropdown = ({
 
   useEffect(() => {
     if (transaction.id) setEditingExpenseId(transaction.id);
-  }, [setEditingExpenseId]);
+  }, [setEditingExpenseId, transaction]);
 
   const renderedContent =
     session?.user.id === transaction.userId ? (
       <>
         <DropdownMenuItem
           className='group cursor-pointer border text-gray-100 shadow-lg hover:focus:text-red-600'
-          disabled={isEditing}
+          // disabled={isEditing}
           onSelect={(e) => {
             e.preventDefault();
           }}
@@ -53,11 +53,11 @@ const ExpenseUpdateDropdown = ({
             type='button'
             size='sm'
             className={cn(
-              'flex h-6 w-full cursor-pointer items-center justify-start gap-4 overflow-hidden font-normal',
-              isEditing && 'cursor-not-allowed opacity-50'
+              'flex h-6 w-full cursor-pointer items-center justify-start gap-4 overflow-hidden font-normal'
+              // isEditing && 'cursor-not-allowed opacity-50'
             )}
             aria-label='edit'
-            disabled={isEditing}
+            // disabled={isEditing}
             // onClick={handleEdit}
           >
             <Link href={`/dashboard/expense/${transaction.id}`}>

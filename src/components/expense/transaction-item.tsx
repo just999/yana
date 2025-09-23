@@ -102,7 +102,7 @@ const TransactionItem = ({ onRemoved, ...tr }: TransactionItemProps) => {
   };
 
   return (
-    <div className={cn('flex w-full items-center px-2 text-xs', bgColors)}>
+    <div className={cn('flex w-full items-center px-2 text-[10px]', bgColors)}>
       <div className='mr-4 flex grow items-center'>
         <IconComponent className={cn(colors, 'mr-2 hidden h-4 w-4 sm:block')} />
         <span>{tr.description}</span>

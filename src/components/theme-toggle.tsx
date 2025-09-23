@@ -1,7 +1,8 @@
 'use client';
 
-import { useTheme } from '@/lib/contexts/theme-context';
+// import { useTheme } from '@/lib/contexts/theme-context';
 import { Laptop, Moon, Sun } from 'lucide-react';
+import { useTheme } from 'next-themes';
 
 import { Button } from './ui/button';
 import {
@@ -12,6 +13,7 @@ import {
 } from './ui/dropdown-menu';
 
 const ThemeToggle = () => {
+  // const { setTheme } = useTheme();
   const { setTheme } = useTheme();
   return (
     <DropdownMenu>

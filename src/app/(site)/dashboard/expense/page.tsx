@@ -1,5 +1,6 @@
 import { Suspense } from 'react';
 
+import { getTransactionByRange } from '@/actions/expense-actions';
 import { Button, Separator } from '@/components/ui';
 import { PAGE_SIZE, tranTypes } from '@/lib/constants';
 import { PlusCircle } from 'lucide-react';
@@ -19,6 +20,16 @@ type ExpensePageProps = {
 const ExpensePage = async ({ searchParams }: ExpensePageProps) => {
   const range = ((await searchParams).range as RangeTime) || 'today';
 
+  // const SimpleFallback = () => (
+  //   <div className='rounded bg-gray-500 p-4 text-white'>
+  //     <div>LOADING...</div>
+  //     <div className='mt-2 h-4 w-full animate-pulse bg-white/20'></div>
+  //   </div>
+  // );
+
+  const transactions = await getTransactionByRange(range);
+  // delay(5000);
+
   return (
     <div className='expense max-w-xl space-y-8 pt-0'>
       <section className='xs:grid-cols-2 mx-auto mb-8 grid w-full max-w-xl grid-cols-1 gap-8'>
@@ -33,6 +44,7 @@ const ExpensePage = async ({ searchParams }: ExpensePageProps) => {
             <RangeButton defaultRange={range} />
           </span>
         </span>
+
         <Separator
           className='my-2 h-1 border-t-gray-300 border-b-gray-300'
           decorative
@@ -46,7 +58,7 @@ const ExpensePage = async ({ searchParams }: ExpensePageProps) => {
         </div>
       </section>
 
-      <section className='mx-auto mb-8 flex max-w-xl items-center justify-between'>
+      <section className='mx-auto mb-2 flex max-w-xl items-center justify-between'>
         <h1 className='text-2xl font-semibold'>Transactions</h1>
 
         <Button asChild variant={'ghost'} size='sm' className='shadow-xl/30'>

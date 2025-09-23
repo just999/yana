@@ -74,6 +74,7 @@ const Menu = () => {
       {/* Desktop Navigation */}
       <div className='hidden w-full max-w-xs items-center gap-2 md:flex'>
         <ThemeToggle />
+
         <UserButton />
       </div>
 

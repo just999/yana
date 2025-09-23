@@ -2,6 +2,7 @@
 
 import type { RangeTime } from '@/app/(site)/dashboard/expense/components/range';
 import { auth } from '@/auth';
+import { PAGE_SIZE } from '@/lib/constants';
 import { db } from '@/lib/db';
 import {
   expenseSchema,
@@ -11,7 +12,23 @@ import {
 } from '@/lib/schemas/expense-schema';
 import { formatError, getDateRangeForPeriod } from '@/lib/utils';
 import type { Transaction, TransType } from '@prisma/client';
-import { differenceInDays, format, startOfWeek, subDays } from 'date-fns';
+import {
+  addDays,
+  differenceInDays,
+  endOfDay,
+  endOfMonth,
+  endOfWeek,
+  endOfYear,
+  format,
+  startOfDay,
+  startOfMonth,
+  startOfWeek,
+  startOfYear,
+  subDays,
+  subMonths,
+  subWeeks,
+  subYears,
+} from 'date-fns';
 
 export async function getTransactionByUserId() {
   try {
@@ -25,7 +42,16 @@ export async function getTransactionByUserId() {
     const userId = session?.user.id;
 
     const trans = await db.transaction.findMany({
-      where: { userId },
+      where: {
+        userId,
+        date: {
+          gte: new Date('2025-09-15'),
+          lte: new Date('2025-09-22'),
+        },
+      },
+      orderBy: {
+        date: 'desc',
+      },
     });
 
     if (!trans) {
@@ -223,7 +249,7 @@ export async function removeExpense(id: string) {
   }
 }
 
-export type RangeType = 'today' | '7d' | '1m' | '1y';
+export type RangeType = 'today' | 'w' | 'm' | 'y';
 type TransactionType = 'INCOME' | 'EXPENSE' | 'SAVING' | 'INVESTMENT' | null;
 
 interface CalculateTotalResult {
@@ -241,6 +267,111 @@ interface DateRange {
 }
 
 // Helper function to calculate date ranges
+// function getDateRanges(range: RangeType): {
+//   current: DateRange;
+//   previous: DateRange;
+// } {
+//   const now = new Date();
+//   let currentStart: Date;
+//   let currentEnd: Date;
+
+//   // Calculate current period start based on range
+//   // Calculate current period based on range
+//   switch (range) {
+//     case 'today':
+//       // Today: from start of today to now
+//       currentStart = new Date(now);
+//       currentStart.setHours(0, 0, 0, 0); // Start of today
+//       currentEnd = new Date(now);
+//       break;
+
+//     case 'w':
+//       // Last 7 days: from 7 days ago to now
+//       // currentStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+//       // currentStart.setHours(0, 0, 0, 0);
+
+//       // currentEnd = new Date(now);
+//       // currentEnd.setHours(23, 59, 59, 999);
+
+//       currentStart = startOfDay(subDays(now, 7));
+//       currentEnd = endOfDay(now);
+//       break;
+
+//     case 'm':
+//       // Last 30 days: from 30 days ago to now
+//       currentStart = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+//       currentEnd = new Date(now);
+//       break;
+
+//     case 'y':
+//       // Last 365 days: from 365 days ago to now
+//       currentStart = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+//       currentEnd = new Date(now);
+//       break;
+
+//     default:
+//       currentStart = new Date(now);
+//       currentStart.setHours(0, 0, 0, 0);
+//       currentEnd = new Date(now);
+//   }
+
+//   // Calculate previous period
+//   const periodDuration = currentEnd.getTime() - currentStart.getTime();
+//   const previousEnd = new Date(currentStart.getTime() - 1); // 1ms before current start
+//   const previousStart = new Date(currentStart.getTime() - periodDuration);
+
+//   return {
+//     current: { start: currentStart, end: currentEnd },
+//     previous: { start: previousStart, end: previousEnd },
+//   };
+// }
+
+// function getDateRanges(range: RangeType): {
+//   current: DateRange;
+//   previous: DateRange;
+// } {
+//   const now = new Date();
+//   let currentStart: Date;
+//   let currentEnd: Date;
+
+//   switch (range) {
+//     case 'today':
+//       currentStart = startOfDay(now);
+//       currentEnd = startOfDay(now); // Since DB dates are midnight, end is also midnight
+//       break;
+
+//     case 'w':
+//       currentStart = startOfDay(startOfWeek(now, { weekStartsOn: 1 }));
+//       // currentEnd = startOfDay(endOfWeek(now, { weekStartsOn: 0 }));
+//       currentEnd = endOfWeek(now, { weekStartsOn: 1 });
+//       break;
+
+//     case 'm':
+//       currentStart = startOfDay(startOfMonth(now));
+//       currentEnd = startOfDay(endOfMonth(now));
+//       break;
+
+//     case 'y':
+//       currentStart = startOfDay(startOfYear(now));
+//       currentEnd = startOfDay(endOfYear(now));
+//       break;
+
+//     default:
+//       currentStart = startOfDay(now);
+//       currentEnd = startOfDay(now);
+//   }
+
+//   // Calculate previous period
+//   const periodDuration = currentEnd.getTime() - currentStart.getTime();
+//   const previousEnd = new Date(currentStart.getTime() - 86400000); // 1 day before current start
+//   const previousStart = new Date(currentStart.getTime() - periodDuration);
+
+//   return {
+//     current: { start: currentStart, end: currentEnd },
+//     previous: { start: previousStart, end: previousEnd },
+//   };
+// }
+
 function getDateRanges(range: RangeType): {
   current: DateRange;
   previous: DateRange;
@@ -248,51 +379,90 @@ function getDateRanges(range: RangeType): {
   const now = new Date();
   let currentStart: Date;
   let currentEnd: Date;
+  let previousStart: Date;
+  let previousEnd: Date;
 
-  // Calculate current period start based on range
-  // Calculate current period based on range
+  // console.log('🥑 Input date (now):', now.toString());
+
   switch (range) {
-    case 'today':
-      // Today: from start of today to now
-      currentStart = new Date(now);
-      currentStart.setHours(0, 0, 0, 0); // Start of today
-      currentEnd = new Date(now);
-      break;
+    case 'today': {
+      // Current: today (start and end of today)
+      currentStart = startOfDay(now);
+      currentEnd = endOfDay(now);
 
-    case '7d':
-      // Last 7 days: from 7 days ago to now
-      currentStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      currentEnd = new Date(now);
+      // Previous: yesterday
+      previousStart = startOfDay(subDays(now, 1));
+      previousEnd = endOfDay(subDays(now, 1));
       break;
+    }
 
-    case '1m':
-      // Last 30 days: from 30 days ago to now
-      currentStart = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-      currentEnd = new Date(now);
+    case 'w': {
+      // Current: this week (Monday to Sunday)
+      currentStart = startOfDay(startOfWeek(now, { weekStartsOn: 0 }));
+      currentEnd = startOfDay(endOfWeek(now, { weekStartsOn: 0 }));
+
+      // Previous: last week
+      const lastWeek = subWeeks(now, 1);
+      previousStart = startOfDay(startOfWeek(lastWeek, { weekStartsOn: 1 }));
+      previousEnd = startOfDay(endOfWeek(lastWeek, { weekStartsOn: 1 }));
       break;
+    }
 
-    case '1y':
-      // Last 365 days: from 365 days ago to now
-      currentStart = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
-      currentEnd = new Date(now);
+    case 'm': {
+      // Current: this month
+      currentStart = startOfDay(startOfMonth(now));
+      currentEnd = startOfDay(endOfMonth(now));
+
+      // Previous: last month
+      const lastMonth = subMonths(now, 1);
+      previousStart = startOfDay(startOfMonth(lastMonth));
+      previousEnd = startOfDay(endOfMonth(lastMonth));
       break;
+    }
 
-    default:
-      currentStart = new Date(now);
-      currentStart.setHours(0, 0, 0, 0);
-      currentEnd = new Date(now);
+    case 'y': {
+      // Current: this year
+      currentStart = startOfDay(startOfYear(now));
+      currentEnd = startOfDay(endOfYear(now));
+
+      // Previous: last year
+      const lastYear = subYears(now, 1);
+      previousStart = startOfDay(startOfYear(lastYear));
+      previousEnd = startOfDay(endOfYear(lastYear));
+      break;
+    }
+
+    default: {
+      currentStart = startOfDay(now);
+      currentEnd = startOfDay(now);
+      previousStart = startOfDay(subDays(now, 1));
+      previousEnd = startOfDay(subDays(now, 1));
+    }
   }
 
-  // Calculate previous period
-  const periodDuration = currentEnd.getTime() - currentStart.getTime();
-  const previousEnd = new Date(currentStart.getTime() - 1); // 1ms before current start
-  const previousStart = new Date(currentStart.getTime() - periodDuration);
-
-  return {
+  const result = {
     current: { start: currentStart, end: currentEnd },
     previous: { start: previousStart, end: previousEnd },
   };
+
+  // console.log(`🥑 Date ranges for ${range}:`, {
+  //   current: {
+  //     start: currentStart.toISOString(),
+  //     end: currentEnd.toISOString(),
+  //     startLocal: currentStart.toString(),
+  //     endLocal: currentEnd.toString(),
+  //   },
+  //   previous: {
+  //     start: previousStart.toISOString(),
+  //     end: previousEnd.toISOString(),
+  //     startLocal: previousStart.toString(),
+  //     endLocal: previousEnd.toString(),
+  //   },
+  // });
+
+  return result;
 }
+
 // FIXED: Main server action with better error handling and logging
 export async function calculateTotal(
   rangeArg: RangeType = 'today',
@@ -321,7 +491,7 @@ export async function calculateTotal(
       date: {
         // or 'date' if that's your field name
         gte: current.start,
-        lte: current.end,
+        lt: addDays(current.end, 1),
       },
     };
 
@@ -330,7 +500,7 @@ export async function calculateTotal(
       date: {
         // or 'date' if that's your field name
         gte: previous.start,
-        lte: previous.end,
+        lt: addDays(current.end, 1),
       },
     };
 
@@ -370,7 +540,7 @@ export async function calculateTotal(
       select: {
         id: true,
         amount: true,
-        createdAt: true, // or 'date'
+        date: true, // or 'date'
         type: true,
       },
     });
@@ -381,7 +551,7 @@ export async function calculateTotal(
       select: {
         id: true,
         amount: true,
-        createdAt: true, // or 'date'
+        date: true, // or 'date'
         type: true,
       },
     });
@@ -495,34 +665,145 @@ export async function calculateTotal(
 //   }
 // }
 
+// export async function calculateTotalDetailed(
+//   rangeArg: RangeType = 'today',
+//   typeArg: TransactionType = null,
+//   userId?: string
+// ) {
+//   // console.log('🔍 calculateTotalDetailed started:', {
+//   //   rangeArg,
+//   //   typeArg,
+//   //   userId,
+//   // });
+//   const startTime = performance.now();
+
+//   try {
+//     // Your existing code...
+//     const { current, previous } = getDateRanges(rangeArg);
+
+//     const baseWhereCondition = {
+//       ...(typeArg && { type: typeArg }),
+//       ...(userId && { userId }),
+//     };
+
+//     // Execute queries in parallel
+//     const [currentData, previousData] = await Promise.all([
+//       db.transaction.groupBy({
+//         by: ['type'],
+//         where: {
+//           ...baseWhereCondition,
+//           date: {
+//             gte: current.start,
+//             lt: addDays(current.end, 1),
+//           },
+//         },
+//         _sum: {
+//           amount: true,
+//         },
+//         _count: {
+//           _all: true,
+//         },
+//       }),
+//       db.transaction.groupBy({
+//         by: ['type'],
+//         where: {
+//           ...baseWhereCondition,
+//           date: {
+//             gte: previous.start,
+//             lt: addDays(current.end, 1),
+//           },
+//         },
+//         _sum: {
+//           amount: true,
+//         },
+//         _count: {
+//           _all: true,
+//         },
+//       }),
+//     ]);
+
+//     // Ensure minimum loading time for skeleton visibility
+//     const elapsed = performance.now() - startTime;
+//     const minLoadingTime = 300; // 300ms minimum
+
+//     if (elapsed < minLoadingTime) {
+//       await new Promise((resolve) =>
+//         setTimeout(resolve, minLoadingTime - elapsed)
+//       );
+//       // console.log(`⏰ Added ${minLoadingTime - elapsed}ms delay for UX`);
+//     }
+
+//     // Rest of your calculation logic...
+//     const currentAmount = currentData.reduce(
+//       (sum, item) => sum + (item._sum.amount ?? 0),
+//       0
+//     );
+
+//     const previousAmount = previousData.reduce(
+//       (sum, item) => sum + (item._sum.amount ?? 0),
+//       0
+//     );
+
+//     const percentageChange =
+//       previousAmount !== 0
+//         ? ((currentAmount - previousAmount) / previousAmount) * 100
+//         : currentAmount > 0
+//           ? 100
+//           : 0;
+
+//     const endTime = performance.now();
+//     console.log(`⚡ Total time with delay: ${endTime - startTime}ms`);
+
+//     return {
+//       currentAmount,
+//       previousAmount,
+//       percentageChange,
+//       currentData,
+//       previousData,
+//       currentStart: current.start,
+//       currentEnd: current.end,
+//       previousStart: previous.start,
+//       previousEnd: previous.end,
+//     };
+//   } catch (error) {
+//     console.error('Error calculating detailed totals:', error);
+//     throw new Error('Failed to calculate detailed totals');
+//   }
+// }
+
 export async function calculateTotalDetailed(
   rangeArg: RangeType = 'today',
   typeArg: TransactionType = null,
   userId?: string
 ) {
-  console.log('🔍 calculateTotalDetailed started:', {
-    rangeArg,
-    typeArg,
-    userId,
-  });
   const startTime = performance.now();
 
   try {
-    // Your existing code...
     const { current, previous } = getDateRanges(rangeArg);
+
+    // console.log('🥑 Date ranges for midnight DB dates:', {
+    //   current: {
+    //     start: current.start,
+    //     end: current.end,
+    //   },
+    //   previous: {
+    //     start: previous.start,
+    //     end: previous.end,
+    //   },
+    // });
 
     const baseWhereCondition = {
       ...(typeArg && { type: typeArg }),
       ...(userId && { userId }),
     };
 
-    // Execute queries in parallel
+    // FIXED: Proper handling for midnight dates
     const [currentData, previousData] = await Promise.all([
       db.transaction.groupBy({
         by: ['type'],
         where: {
           ...baseWhereCondition,
-          createdAt: {
+          date: {
             gte: current.start,
             lte: current.end,
           },
@@ -538,7 +819,7 @@ export async function calculateTotalDetailed(
         by: ['type'],
         where: {
           ...baseWhereCondition,
-          createdAt: {
+          date: {
             gte: previous.start,
             lte: previous.end,
           },
@@ -552,18 +833,7 @@ export async function calculateTotalDetailed(
       }),
     ]);
 
-    // Ensure minimum loading time for skeleton visibility
-    const elapsed = performance.now() - startTime;
-    const minLoadingTime = 300; // 300ms minimum
-
-    if (elapsed < minLoadingTime) {
-      await new Promise((resolve) =>
-        setTimeout(resolve, minLoadingTime - elapsed)
-      );
-      console.log(`⏰ Added ${minLoadingTime - elapsed}ms delay for UX`);
-    }
-
-    // Rest of your calculation logic...
+    // Rest of your existing code...
     const currentAmount = currentData.reduce(
       (sum, item) => sum + (item._sum.amount ?? 0),
       0
@@ -581,8 +851,18 @@ export async function calculateTotalDetailed(
           ? 100
           : 0;
 
-    const endTime = performance.now();
-    console.log(`⚡ Total time with delay: ${endTime - startTime}ms`);
+    // Ensure minimum loading time for skeleton visibility
+    const elapsed = performance.now() - startTime;
+    const minLoadingTime = 300;
+
+    if (elapsed < minLoadingTime) {
+      await new Promise((resolve) =>
+        setTimeout(resolve, minLoadingTime - elapsed)
+      );
+    }
+
+    // const endTime = performance.now();
+    // console.log(`⚡ Total time with delay: ${endTime - startTime}ms`);
 
     return {
       currentAmount,
@@ -659,6 +939,10 @@ export async function getTransactionByRange(
   offset?: number,
   limit?: number
 ): Promise<TransactionResult> {
+  // if (process.env.NODE_ENV === 'development') {
+  //   await new Promise((resolve) => setTimeout(resolve, 10000));
+  // }
+
   try {
     const session = await auth();
     if (!session) {
@@ -704,7 +988,7 @@ export async function getTransactionByRange(
       db.transaction.findMany({
         where: whereClause,
         orderBy: {
-          createdAt: 'desc',
+          date: 'desc',
         },
         skip: pageOffset,
         take: pageLimit,
@@ -781,13 +1065,13 @@ export async function getTransactionByRangeAdvanced(
     const transactions = await db.transaction.findMany({
       where: {
         userId: userId,
-        createdAt: {
+        date: {
           gte: start,
           lte: end,
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        date: 'desc',
       },
     });
 
@@ -803,7 +1087,7 @@ export async function getTransactionByRangeAdvanced(
 
       transactions.forEach((transaction) => {
         let groupKey: string;
-        const transactionDate = new Date(transaction.createdAt);
+        const transactionDate = new Date(transaction.date);
 
         switch (options.groupBy) {
           case 'day':
@@ -883,7 +1167,7 @@ export async function getTransactionComparisonByRange(range: RangeTime) {
     const currentTransactions = await db.transaction.findMany({
       where: {
         userId,
-        createdAt: { gte: currentStart, lte: currentEnd },
+        date: { gte: currentStart, lte: currentEnd },
       },
     });
 
@@ -891,7 +1175,7 @@ export async function getTransactionComparisonByRange(range: RangeTime) {
     const previousTransactions = await db.transaction.findMany({
       where: {
         userId,
-        createdAt: { gte: previousStart, lte: previousEnd },
+        date: { gte: previousStart, lte: previousEnd },
       },
     });
 

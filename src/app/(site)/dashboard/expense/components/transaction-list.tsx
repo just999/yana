@@ -9,6 +9,7 @@ import {
 } from '@/actions/expense-actions';
 import TransactionItem from '@/components/expense/transaction-item';
 import TransactionSummaryItem from '@/components/expense/transaction-summary-item';
+import TransactionTotal from '@/components/expense/transaction-total';
 import { Button, Separator } from '@/components/ui';
 import { PAGE_SIZE } from '@/lib/constants';
 import { groupAndSumTransactionsByDate } from '@/lib/utils';
@@ -26,7 +27,6 @@ type TransactionListProps = {
 
 const TransactionList = ({ range, initTrans }: TransactionListProps) => {
   const [transactions, setTransactions] = useState<Transaction[]>(initTrans);
-  console.log('🥑 ~ TransactionList ~ transactions:', transactions.length);
 
   const [loading, setLoading] = useState(false);
   const [buttonHidden, setButtonHidden] = useState(initTrans.length === 0);
@@ -35,7 +35,7 @@ const TransactionList = ({ range, initTrans }: TransactionListProps) => {
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const isLoadingRef = useRef(false);
   const router = useRouter();
-  const grouped = groupAndSumTransactionsByDate(transactions);
+  const grouped = groupAndSumTransactionsByDate(transactions, range);
 
   // useEffect(() => {
   //   setTransactions(initTrans);
@@ -173,10 +173,18 @@ const TransactionList = ({ range, initTrans }: TransactionListProps) => {
         PAGE_SIZE
       );
       setButtonHidden(nextTransactions.data?.length === 0);
-      setTransactions((prevTransactions) => [
-        ...prevTransactions,
-        ...(nextTransactions?.data || []),
-      ]);
+
+      // setTransactions((prevTransactions) => [
+      //   ...prevTransactions,
+      //   ...(nextTransactions?.data || []),
+      // ]);
+      setTransactions((prevTransactions) => {
+        const all = [...prevTransactions, ...(nextTransactions?.data || [])];
+        const unique = Array.from(
+          new Map(all.map((tx) => [tx.id, tx])).values()
+        );
+        return unique;
+      });
     } finally {
       setLoading(false);
     }
@@ -262,20 +270,31 @@ const TransactionList = ({ range, initTrans }: TransactionListProps) => {
     // </div>
 
     <div className='mx-auto w-xl space-y-8'>
-      {Object.entries(grouped).map(([date, { transactions, amount }]) => (
-        <div key={date} className=' '>
-          <TransactionSummaryItem date={date} amount={amount} />
-          {/* <Separator className=' '  /> */}
-          <section className='bg-accent/40 space-y-4 rounded-lg border py-1 backdrop-blur-2xl'>
-            {transactions.map((transaction) => (
-              <div key={transaction.id} className=''>
-                <TransactionItem
-                  {...transaction}
-                  onRemoved={() => handleRemoved(transaction.id)}
+      {Object.entries(grouped).map(([date, { total, days }]) => (
+        <div key={date} className='flex flex-col gap-3'>
+          <TransactionTotal date={date} amount={total} range={range} />
+          <Separator className='data-[orientation=vertical]:h-0 data-[orientation=vertical]:w-0' />
+          {Object.entries(days).map(([day, { transactions, amount }]) => (
+            <div key={day} className='bg-accent/50 space-y-2 rounded-md pt-2'>
+              <div className='text-muted-foreground text-xs font-semibold'>
+                {/* {day}-${amount.toFixed(0)} */}
+                <TransactionSummaryItem
+                  date={day}
+                  amount={+amount.toFixed(0)}
                 />
               </div>
-            ))}
-          </section>
+              <section className='bg-accent/40 space-y-4 rounded-lg border py-1 backdrop-blur-2xl'>
+                {transactions.map((transaction) => (
+                  <div key={transaction.id} className=''>
+                    <TransactionItem
+                      {...transaction}
+                      onRemoved={() => handleRemoved(transaction.id)}
+                    />
+                  </div>
+                ))}
+              </section>
+            </div>
+          ))}
         </div>
       ))}
       {transactions.length === 0 && (

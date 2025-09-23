@@ -1,4 +1,3 @@
-import type { TransactionResult } from '@/actions/expense-actions';
 import type { RangeTime } from '@/app/(site)/dashboard/expense/components/range';
 import type { Transaction } from '@prisma/client';
 import type { JSONContent } from '@tiptap/core';
@@ -19,9 +18,8 @@ import {
   subMonths,
   subYears,
 } from 'date-fns';
-import type { Root } from 'hast';
-import { toHtml } from 'hast-util-to-html';
-import { Ballet, PT_Sans } from 'next/font/google';
+import { id } from 'date-fns/locale';
+import { Ballet, Inter, PT_Sans } from 'next/font/google';
 // !Helper function (could be in a separate utils file)
 // export async function extractImageUrls(html: string): Promise<string[]> {
 //   if (!html) return [];
@@ -97,6 +95,10 @@ export const ptSans = PT_Sans({
   subsets: ['latin', 'cyrillic'],
   weight: ['400', '700'],
   style: ['normal', 'italic'],
+});
+
+export const inter = Inter({
+  subsets: ['latin'],
 });
 
 export function formatError(error: unknown): string {
@@ -1198,12 +1200,12 @@ export function getDateRangeForPeriod(range: RangeTime): {
   switch (range) {
     case 'today':
       return { start: startOfToday(), end: endOfToday() };
-    case '7d':
-      return { start: subDays(now, 7), end: now };
-    case '1m':
-      return { start: subMonths(now, 1), end: now };
-    case '1y':
-      return { start: subYears(now, 1), end: now };
+    case 'w':
+      return { start: startOfDay(subDays(now, 7)), end: endOfToday() };
+    case 'm':
+      return { start: subMonths(now, 1), end: endOfToday() };
+    case 'y':
+      return { start: subYears(now, 1), end: endOfToday() };
     default:
       return { start: startOfToday(), end: endOfToday() };
   }
@@ -1224,17 +1226,17 @@ export function getDateRangeForTimePeriod(range: RangeTime): {
       end = endOfToday(); // 23:59:59 today
       break;
 
-    case '7d':
+    case 'w':
       start = subDays(now, 7); // 7 days ago from now
       end = now;
       break;
 
-    case '1m':
+    case 'm':
       start = subMonths(now, 1); // 1 month ago from now (handles different month lengths)
       end = now;
       break;
 
-    case '1y':
+    case 'y':
       start = subYears(now, 1); // 1 year ago from now (handles leap years)
       end = now;
       break;
@@ -1267,19 +1269,19 @@ export function getFlexibleDateRange(range: RangeTime): {
         end: endOfDay(now),
       };
 
-    case '7d':
+    case 'w':
       return {
         start: startOfDay(subDays(now, 6)), // Include today, so 6 days back + today = 7 days
         end: endOfDay(now),
       };
 
-    case '1m':
+    case 'm':
       return {
         start: startOfDay(subDays(now, 29)), // Last 30 days including today
         end: endOfDay(now),
       };
 
-    case '1y':
+    case 'y':
       return {
         start: startOfDay(subDays(now, 364)), // Last 365 days including today
         end: endOfDay(now),
@@ -1307,14 +1309,14 @@ export function getCalendarBasedRange(range: RangeTime): {
         end: endOfToday(),
       };
 
-    case '7d':
+    case 'w':
       // This week (Monday to Sunday) or last 7 days
       return {
         start: startOfWeek(subDays(now, 6)), // Can also use startOfWeek(now) for this week
         end: endOfDay(now),
       };
 
-    case '1m':
+    case 'm':
       // This month or last 30 days
       return {
         start: startOfMonth(now), // For current month
@@ -1322,7 +1324,7 @@ export function getCalendarBasedRange(range: RangeTime): {
         end: endOfDay(now),
       };
 
-    case '1y':
+    case 'y':
       // This year or last 365 days
       return {
         start: startOfYear(now), // For current year
@@ -1345,22 +1347,112 @@ interface GroupedTransactions {
   };
 }
 
-export const groupAndSumTransactionsByDate = (transactions: Transaction[]) => {
-  let grouped: GroupedTransactions = {};
-  for (const transaction of transactions) {
-    const date = transaction?.date.toISOString().split('T')[0];
+export const getGroupingKey = (date: Date, range: RangeTime): string => {
+  switch (range) {
+    case 'today':
+      return format(date, 'yyyy-MM-dd');
+    case 'w':
+      return format(
+        startOfDay(subDays(new Date(), 7)),
+        // startOfWeek(new Date(new Date()), { weekStartsOn: 0 }),
+        'yyyy-MM-dd'
+      );
+    case 'm':
+      return format(startOfMonth(date), 'yyyy-MM');
+    case 'y':
+      return format(startOfYear(date), 'yyyy');
+    default:
+      return 'unknown';
+  }
+};
 
-    if (!grouped[date]) {
-      grouped[date] = { transactions: [], amount: 0 };
+export const groupAndSumTransactionsByDate = (
+  transactions: Transaction[],
+  range: RangeTime
+) => {
+  // let grouped: GroupedTransactions = {};
+
+  const grouped: Record<
+    string,
+    {
+      total: number;
+      days: Record<string, { transactions: Transaction[]; amount: number }>;
     }
-    grouped[date].transactions.push(transaction);
+  > = {};
+
+  const seen = new Set();
+  transactions.forEach((tx) => {
+    if (seen.has(tx.id)) {
+      console.warn('Duplicate transaction detected:', tx.id);
+    }
+    seen.add(tx.id);
+  });
+
+  // for (const transaction of transactions) {
+  //   const date = transaction?.date.toISOString().split('T')[0];
+
+  //   if (!grouped[date]) {
+  //     grouped[date] = { transactions: [], amount: 0 };
+  //   }
+  //   grouped[date].transactions.push(transaction);
+
+  //   const transactionAmount = transaction.amount || 0;
+  //   const amount =
+  //     transaction?.type === ('EXPENSE' as Transaction['type'])
+  //       ? -transactionAmount
+  //       : transactionAmount;
+  //   grouped[date].amount += amount;
+
+  // }
+  // for (const transaction of transactions) {
+  //   const key = getGroupingKey(new Date(transaction.date), range);
+
+  //   if (!grouped[key]) {
+  //     grouped[key] = { transactions: [], amount: 0 };
+  //   }
+
+  //   // grouped[key].transactions.push(transaction);
+
+  //   const date = transaction?.date.toISOString().split('T')[0];
+
+  //   if (!grouped[date]) {
+  //     grouped[date] = { transactions: [], amount: 0 };
+  //   }
+  //   grouped[date].transactions.push(transaction);
+
+  //   const transactionAmount = transaction.amount || 0;
+  //   const amount =
+  //     transaction?.type === 'EXPENSE' ? -transactionAmount : transactionAmount;
+  //   grouped[date].amount += amount;
+  //   // grouped[key].amount += amount;
+
+  // }
+
+  for (const transaction of transactions) {
+    const date = new Date(transaction.date);
+    const rangeKey = getGroupingKey(date, range);
+    const dayKey = new Date(date).toLocaleDateString().split('T')[0];
+    if (!grouped[rangeKey]) {
+      grouped[rangeKey] = { total: 0, days: {} };
+    }
+
+    if (!grouped[rangeKey].days[dayKey]) {
+      grouped[rangeKey].days[dayKey] = { transactions: [], amount: 0 };
+    }
 
     const transactionAmount = transaction.amount || 0;
     const amount =
-      transaction?.type === ('EXPENSE' as Transaction['type'])
-        ? -transactionAmount
-        : transactionAmount;
-    grouped[date].amount += amount;
+      transaction.type === 'EXPENSE' ? -transactionAmount : transactionAmount;
+
+    grouped[rangeKey].days[dayKey].transactions.push(transaction);
+    grouped[rangeKey].days[dayKey].amount += amount;
+    grouped[rangeKey].total += amount;
+
+    // console.debug(`🥑 [${range}] ${rangeKey} → ${dayKey}: ${amount}`);
   }
+
   return grouped;
 };
+
+export const delay = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));

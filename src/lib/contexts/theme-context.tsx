@@ -1,104 +1,216 @@
-'use client';
+// 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+// import { createContext, useContext, useEffect, useState } from 'react';
 
-import { useAtom } from 'jotai';
+// import { useAtom } from 'jotai';
 
-import {
-  isInitializedAtom,
-  resolvedThemeAtom,
-  themeAtom,
-} from '../jotai/theme-atom';
-import { Theme } from '../types';
+// import {
+//   isInitializedAtom,
+//   resolvedThemeAtom,
+//   themeAtom,
+// } from '../jotai/theme-atom';
+// import { Theme } from '../types';
 
-type ThemeContextType = {
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
-  resolvedTheme: 'light' | 'dark';
-};
+// type ThemeContextType = {
+//   theme: Theme;
+//   setTheme: (theme: Theme) => void;
+//   resolvedTheme: 'light' | 'dark';
+// };
 
-type ThemeContextProps = {
-  children: React.ReactNode;
-  defaultTheme?: Theme;
-};
+// type ThemeContextProps = {
+//   children: React.ReactNode;
+//   defaultTheme?: Theme;
+// };
 
-const ThemeContext = createContext<ThemeContextType>({
-  theme: 'system',
-  setTheme: () => {},
-  resolvedTheme: 'dark',
-});
+// const ThemeContext = createContext<ThemeContextType>({
+//   theme: 'system',
+//   setTheme: () => {},
+//   resolvedTheme: 'dark',
+// });
 
-export function ThemeProvider({
-  children,
-  defaultTheme = 'dark',
-}: ThemeContextProps) {
-  const [theme, setTheme] = useAtom(themeAtom);
-  const [resolvedTheme] = useAtom(resolvedThemeAtom);
-  const [isInitialized, setIsInitialized] = useAtom(isInitializedAtom);
-  const [mounted, setMounted] = useState(false);
+// export function ThemeProvider({
+//   children,
+//   defaultTheme = 'dark',
+// }: ThemeContextProps) {
+//   const [theme, setTheme] = useAtom(themeAtom);
+//   const [resolvedTheme] = useAtom(resolvedThemeAtom);
+//   const [isInitialized, setIsInitialized] = useAtom(isInitializedAtom);
+//   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
+//   useEffect(() => {
+//     setMounted(true);
 
-    if (!isInitialized) {
-      const storedTheme = localStorage.getItem('theme') as Theme;
-      const initialTheme = storedTheme || defaultTheme;
+//     if (!isInitialized) {
+//       const storedTheme = localStorage.getItem('theme') as Theme;
+//       const initialTheme = storedTheme || defaultTheme;
 
-      if (initialTheme !== theme) {
-        setTheme(initialTheme);
-      }
+//       if (initialTheme !== theme) {
+//         setTheme(initialTheme);
+//       }
 
-      setIsInitialized(true);
-    }
-  }, [defaultTheme, isInitialized, setIsInitialized, setTheme, theme]);
+//       setIsInitialized(true);
+//     }
+//   }, [defaultTheme, isInitialized, setIsInitialized, setTheme, theme]);
 
-  // Apply theme to document
-  useEffect(() => {
-    if (!mounted || !isInitialized) return;
+//   // Apply theme to document
+//   useEffect(() => {
+//     if (!mounted || !isInitialized) return;
 
-    const root = document.documentElement;
-    root.className = resolvedTheme;
-    root.style.colorScheme = resolvedTheme;
+//     const root = document.documentElement;
+//     root.className = resolvedTheme;
+//     root.style.colorScheme = resolvedTheme;
 
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = () => {
-      if (theme === 'system') {
-        const newResolvedTheme = mediaQuery.matches ? 'dark' : 'light';
-        root.className = newResolvedTheme;
-        root.style.colorScheme = newResolvedTheme;
-      }
-    };
+//     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+//     const handleChange = () => {
+//       if (theme === 'system') {
+//         const newResolvedTheme = mediaQuery.matches ? 'dark' : 'light';
+//         root.className = newResolvedTheme;
+//         root.style.colorScheme = newResolvedTheme;
+//       }
+//     };
 
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [mounted, isInitialized, resolvedTheme, theme]);
+//     mediaQuery.addEventListener('change', handleChange);
+//     return () => mediaQuery.removeEventListener('change', handleChange);
+//   }, [mounted, isInitialized, resolvedTheme, theme]);
 
-  const handleSetTheme = (newTheme: Theme) => {
-    if (theme !== newTheme) {
-      setTheme(newTheme);
-      localStorage.setItem('theme', newTheme);
-    }
-  };
+//   const handleSetTheme = (newTheme: Theme) => {
+//     if (theme !== newTheme) {
+//       setTheme(newTheme);
+//       localStorage.setItem('theme', newTheme);
+//     }
+//   };
 
-  // Prevent flash by not rendering until mounted and initialized
-  if (!mounted || !isInitialized) {
-    return null; // Or a loading placeholder
-  }
+//   // Prevent flash by not rendering until mounted and initialized
+//   if (!mounted || !isInitialized) {
+//     return null; // Or a loading placeholder
+//   }
 
-  return (
-    <ThemeContext.Provider
-      value={{
-        theme,
-        setTheme: handleSetTheme,
-        resolvedTheme,
-      }}
-    >
-      {children}
-    </ThemeContext.Provider>
-  );
-}
+//   return (
+//     <ThemeContext.Provider
+//       value={{
+//         theme,
+//         setTheme: handleSetTheme,
+//         resolvedTheme,
+//       }}
+//     >
+//       {children}
+//     </ThemeContext.Provider>
+//   );
+// }
 
-export const useTheme = () => useContext(ThemeContext);
+// export const useTheme = () => useContext(ThemeContext);
+
+// 'use client';
+
+// import { createContext, useContext, useEffect, useState } from 'react';
+
+// import { useAtom } from 'jotai';
+
+// import {
+//   isInitializedAtom,
+//   resolvedThemeAtom,
+//   themeAtom,
+// } from '../jotai/theme-atom';
+// import { Theme } from '../types';
+
+// type ThemeContextType = {
+//   theme: Theme;
+//   setTheme: (theme: Theme) => void;
+//   resolvedTheme: 'light' | 'dark';
+// };
+
+// type ThemeContextProps = {
+//   children: React.ReactNode;
+//   defaultTheme?: Theme;
+// };
+
+// const ThemeContext = createContext<ThemeContextType>({
+//   theme: 'system',
+//   setTheme: () => {},
+//   resolvedTheme: 'dark',
+// });
+
+// export function ThemeProvider({
+//   children,
+//   defaultTheme = 'dark',
+// }: ThemeContextProps) {
+//   const [theme, setTheme] = useAtom(themeAtom);
+//   const [resolvedTheme] = useAtom(resolvedThemeAtom);
+//   const [isInitialized, setIsInitialized] = useAtom(isInitializedAtom);
+//   const [mounted, setMounted] = useState(false);
+
+//   // Initialize theme synchronously on first render
+//   useEffect(() => {
+//     setMounted(true);
+
+//     if (!isInitialized) {
+//       const storedTheme = localStorage.getItem('theme') as Theme;
+//       const initialTheme = storedTheme || defaultTheme;
+
+//       // Apply theme immediately to prevent flash
+//       const root = document.documentElement;
+//       const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
+//         .matches
+//         ? 'dark'
+//         : 'light';
+//       const currentResolvedTheme =
+//         initialTheme === 'system' ? systemTheme : initialTheme;
+
+//       root.className = currentResolvedTheme;
+//       root.style.colorScheme = currentResolvedTheme;
+
+//       if (initialTheme !== theme) {
+//         setTheme(initialTheme);
+//       }
+
+//       setIsInitialized(true);
+//     }
+//   }, [defaultTheme, isInitialized, setIsInitialized, setTheme, theme]);
+
+//   // Apply theme to document
+//   useEffect(() => {
+//     if (!mounted) return;
+
+//     const root = document.documentElement;
+//     root.className = resolvedTheme;
+//     root.style.colorScheme = resolvedTheme;
+
+//     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+//     const handleChange = () => {
+//       if (theme === 'system') {
+//         const newResolvedTheme = mediaQuery.matches ? 'dark' : 'light';
+//         root.className = newResolvedTheme;
+//         root.style.colorScheme = newResolvedTheme;
+//       }
+//     };
+
+//     mediaQuery.addEventListener('change', handleChange);
+//     return () => mediaQuery.removeEventListener('change', handleChange);
+//   }, [mounted, resolvedTheme, theme]);
+
+//   const handleSetTheme = (newTheme: Theme) => {
+//     if (theme !== newTheme) {
+//       setTheme(newTheme);
+//       localStorage.setItem('theme', newTheme);
+//     }
+//   };
+
+//   // Always render children, but with proper theme applied
+//   return (
+//     <ThemeContext.Provider
+//       value={{
+//         theme,
+//         setTheme: handleSetTheme,
+//         resolvedTheme,
+//       }}
+//     >
+//       {children}
+//     </ThemeContext.Provider>
+//   );
+// }
+
+// export const useTheme = () => useContext(ThemeContext);
+
 // 'use client';
 
 // import { createContext, useContext, useEffect, useState } from 'react';
@@ -323,3 +435,70 @@ export const useTheme = () => useContext(ThemeContext);
 // }
 
 // export const useTheme = () => useContext(ThemeContext);
+
+// context/theme-context.tsx
+
+'use client';
+
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
+
+type Theme = 'light' | 'dark' | 'system';
+
+interface ThemeContextType {
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
+}
+
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+export const ThemeProvider = ({ children }: { children: ReactNode }) => {
+  const [theme, setThemeState] = useState<Theme>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('theme') as Theme) || 'system';
+    }
+    return 'system';
+  });
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove('light', 'dark');
+
+    if (theme === 'system') {
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
+        .matches
+        ? 'dark'
+        : 'light';
+      root.classList.add(systemTheme);
+    } else {
+      root.classList.add(theme);
+    }
+
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('theme', theme);
+    }
+  }, [theme]);
+
+  const setTheme = (newTheme: Theme) => {
+    setThemeState(newTheme);
+  };
+
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+
+export const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
+};

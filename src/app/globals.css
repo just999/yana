@@ -10,7 +10,7 @@
 @plugin '@tailwindcss/forms';
 @source "../node_modules/@uploadthing/react/dist";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:where(.dark, .dark *));
 
 /* 
 @layer base {

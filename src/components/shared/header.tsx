@@ -13,6 +13,7 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
+import HeaderSkeleton from './header-skeleton';
 import Menu from './menu';
 
 type HeaderProps = {
@@ -30,10 +31,8 @@ const Header = ({ className, user }: HeaderProps) => {
   //   return <div>Loading...</div>;
   // }
 
-  // const [isClient, setIsClient] = useState(false);
-
   // const [mounted, setMounted] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(true);
   const currentPathname = usePathname(); // Remove try/catch
   const [curUser, setCurUser] = useAtom(userAtom);
   const router = useRouter();
@@ -44,7 +43,6 @@ const Header = ({ className, user }: HeaderProps) => {
   const pathname = currentPathname;
 
   // useEffect(() => {
-  //   setIsClient(true);
   //   setMounted(true);
   // }, []);
 
@@ -69,6 +67,13 @@ const Header = ({ className, user }: HeaderProps) => {
     } else {
       setCurUser(null);
     }
+
+    setIsLoading(false);
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, [setCurUser, user]);
 
   const isActive = (href: string) => {
@@ -106,9 +111,14 @@ const Header = ({ className, user }: HeaderProps) => {
     setIsSearchOpen(false);
   }, [pathname]);
 
-  // if (!isClient || !mounted) {
+  // if (!mounted) {
   //   return null;
   // }
+
+  // Show skeleton while loading
+  if (isLoading) {
+    return <HeaderSkeleton />;
+  }
 
   return (
     <>

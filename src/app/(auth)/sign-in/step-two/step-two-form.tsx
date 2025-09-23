@@ -9,7 +9,6 @@ import {
 } from 'react';
 
 import { stepTwoFormAction } from '@/actions/auth-actions';
-import LoadingPage from '@/app/loading';
 import SubmitButton from '@/components/submit-button';
 import { Button, Checkbox, InputCustom, Label } from '@/components/ui';
 import { maxAvatarImages, registerDefaultValues } from '@/lib/constants';
@@ -28,6 +27,8 @@ import {
   generateClientDropzoneAccept,
   generatePermittedFileTypes,
 } from 'uploadthing/client';
+
+import RegisterFormSkeleton from '../../loading';
 
 type StepTwoFormProps = unknown;
 
@@ -391,7 +392,7 @@ const StepTwoForm = () => {
   };
 
   if (!dataLoaded) {
-    return <LoadingPage />;
+    return <RegisterFormSkeleton />;
   }
 
   return (

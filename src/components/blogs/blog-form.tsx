@@ -906,6 +906,7 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
               <div className='mx-auto flex justify-center py-0.5 text-gray-700 print:py-0'>
                 <EditorContent
                   editor={editor}
+                  spellCheck={false}
                   ref={editorRef}
                   className='editor-wrapper editor-paper w-full max-w-[816px] shadow-2xl/30'
                 />
@@ -975,7 +976,7 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
         </form>
 
         {/* Content Preview */}
-        {postData && (
+        {/* {postData && (
           <div className='mt-8 rounded-lg bg-gray-50 p-6'>
             <h6 className='mb-4 text-sm font-semibold text-gray-900'>
               Content Preview
@@ -983,28 +984,8 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
                 {JSON.stringify(editor?.getJSON(), null, 2)}
               </pre>
             </h6>
-
-            {/* <BlogContent content={formData.content} /> */}
           </div>
-
-          // <div className='dark:bg-accent/90 flex flex-col items-center justify-center py-8'>
-          //   <div className='not-prose'>
-          //     <div
-          //       className={cn(
-          //         'prose prose-sm max-w-none px-8 py-2 text-justify whitespace-pre-wrap dark:bg-black/20 dark:text-stone-100',
-          //         `language-${language}`
-          //       )}
-          //       dangerouslySetInnerHTML={{
-          //         __html: htmlCont,
-          //       }}
-          //     />
-          //   </div>
-          //   <span className='mx-auto flex w-full justify-center text-center'>
-          //     <Ellipsis size={24} className='text-black' />
-          //   </span>
-          //   <pre>{JSON.stringify(htmlCont, null, 2)}</pre>
-          // </div>
-        )}
+        )} */}
 
         {/* HTML Output (for debugging) */}
         {/* {process.env.NODE_ENV === 'development' && contentValue && (

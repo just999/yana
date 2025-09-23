@@ -19,7 +19,7 @@ import { useZodForm } from '@/hooks/use-zod-form';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { z } from 'zod';
 
-export const rangeTime = ['today', '7d', '1m', '1y'] as const;
+export const rangeTime = ['today', 'w', 'm', 'y'] as const;
 export type RangeTime = (typeof rangeTime)[number];
 
 export const rangeSchema = z.object({

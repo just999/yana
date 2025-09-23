@@ -628,6 +628,7 @@ const CustomTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(
 
         <div
           ref={editorRef}
+          spellCheck={false}
           contentEditable
           className='max-h-[512px] overflow-auto rounded-b border border-t-0 p-4 focus:ring-2 focus:ring-blue-500 focus:outline-none'
           onInput={handleEditorInput}

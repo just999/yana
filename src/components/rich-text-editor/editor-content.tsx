@@ -71,6 +71,7 @@ export const EditorContent = forwardRef<HTMLDivElement, EditorContentProps>(
           onBlur={onBlur}
           onMouseDown={onMouseDown}
           suppressContentEditableWarning={true}
+          spellCheck={false}
           data-name={name}
           role='textbox'
           aria-label='Rich text editor'

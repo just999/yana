@@ -3,7 +3,6 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 
 import { stepThreeFormAction } from '@/actions/auth-actions';
-import LoadingPage from '@/app/loading';
 import SubmitButton from '@/components/submit-button';
 import { InputCustom, Label } from '@/components/ui';
 import { registerDefaultValues } from '@/lib/constants';
@@ -14,6 +13,8 @@ import { cn } from '@/lib/utils';
 import { useAtom } from 'jotai';
 import { AlertCircle, Mail } from 'lucide-react';
 import Link from 'next/link';
+
+import RegisterFormSkeleton from '../../loading';
 
 type StepThreeFormProps = unknown;
 
@@ -163,7 +164,7 @@ const StepThreeForm = () => {
   if (!dataLoaded) {
     return (
       <div>
-        <LoadingPage />
+        <RegisterFormSkeleton />
       </div>
     );
   }

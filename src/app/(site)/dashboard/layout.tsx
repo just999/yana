@@ -29,7 +29,7 @@ const DashboardLayout = async ({ children }: DashboardPageProps) => {
       }
     >
       <DashboardSidebar className='max-w-56' />
-      <div className='w-full pt-[70px]'>
+      <div className='w-full pt-16 md:pt-[72px]'>
         <SidebarInset className='rounded-xl'>
           <header className='sticky top-16 z-50 flex h-(--header-height) w-full shrink-0 items-center gap-2 rounded-t-xl border-b backdrop-blur-sm transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height) dark:bg-gray-900/70'>
             <div className='flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6'>
@@ -42,7 +42,9 @@ const DashboardLayout = async ({ children }: DashboardPageProps) => {
               <SidebarBreadcrumb />
             </div>
           </header>
-          <main className='mx-auto w-6xl p-4'>{children}</main>
+          <main className='mx-auto w-6xl p-4'>
+            <div className='px-4 sm:px-6 lg:px-8'>{children}</div>
+          </main>
         </SidebarInset>
       </div>
     </SidebarProvider>

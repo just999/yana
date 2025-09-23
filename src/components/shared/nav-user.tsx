@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 
 import {
   Avatar,
@@ -28,7 +28,7 @@ import {
   User,
 } from 'lucide-react';
 import { Session } from 'next-auth';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 type NavUserProps = {
   user: {
@@ -42,10 +42,14 @@ type NavUserProps = {
 };
 
 export function NavUser({ user, session }: NavUserProps): ReactNode {
-  const { isMobile } = useSidebar();
-
+  const { setOpenMobile, isMobile } = useSidebar();
+  const pathname = usePathname();
   const firstInitial = session?.user.name?.charAt(0).toUpperCase() ?? 'U';
   const router = useRouter();
+
+  useEffect(() => {
+    setOpenMobile(false);
+  }, [pathname, setOpenMobile]);
 
   // if (!data) {
   //   return router.push('/');

@@ -38,6 +38,8 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
+import BackButton from '../back-button';
+
 // Solution 1: Make type field optional in your schema and interfaces
 // interface ExpenseSchema {
 //   type?: TranTypes;
@@ -296,6 +298,11 @@ const ExpenseForm = ({ formType, expenseId, trans }: ExpenseProps) => {
 
   return (
     <Form {...form}>
+      <BackButton
+        value='back'
+        className='w-1/2 text-center'
+        link='/dashboard/expense'
+      />
       <form
         className='mx-auto max-w-xl space-y-4 text-xs'
         onSubmit={handleSubmit(onSubmit)}
@@ -325,10 +332,10 @@ const ExpenseForm = ({ formType, expenseId, trans }: ExpenseProps) => {
                     value={field.value || ''}
                   >
                     <FormControl>
-                      <SelectTrigger className='px-2 py-1 text-[10px] text-sky-100 data-[size=default]:h-6'>
+                      <SelectTrigger className='px-2 py-1 text-[12px] text-sky-100 data-[size=default]:h-9'>
                         <SelectValue
                           className='text-xs'
-                          placeholder='type expense'
+                          placeholder='type of transaction'
                         />
                       </SelectTrigger>
                     </FormControl>
@@ -405,9 +412,9 @@ const ExpenseForm = ({ formType, expenseId, trans }: ExpenseProps) => {
                     disabled={!type}
                   >
                     <FormControl>
-                      <SelectTrigger className='px-2 py-1 text-[10px] text-sky-100 data-[size=default]:h-6'>
+                      <SelectTrigger className='px-2 py-1 text-[12px] text-sky-100 data-[size=default]:h-9'>
                         <SelectValue
-                          placeholder={`Select type ${type?.toLowerCase()} `}
+                          placeholder={`Select type ${type ? type?.toLowerCase() : ''} `}
                         />
                       </SelectTrigger>
                     </FormControl>
@@ -419,7 +426,7 @@ const ExpenseForm = ({ formType, expenseId, trans }: ExpenseProps) => {
                           <SelectItem
                             key={cat.title}
                             value={cat.title}
-                            className='text-[12px]'
+                            className='text-[12px] text-amber-100'
                           >
                             <div className='flex items-center gap-2'>
                               <cat.icon className='h-4 w-4' />
@@ -480,13 +487,6 @@ const ExpenseForm = ({ formType, expenseId, trans }: ExpenseProps) => {
                             // Adjust for GMT+7 (add 7 hours offset)
                             const adjustedDate = new Date(
                               value.getTime() + 7 * 60 * 60 * 1000
-                            );
-
-                            console.log('Original date:', value);
-                            console.log('Adjusted for GMT+7:', adjustedDate);
-                            console.log(
-                              'ISO String:',
-                              adjustedDate.toISOString()
                             );
 
                             field.onChange(adjustedDate);
