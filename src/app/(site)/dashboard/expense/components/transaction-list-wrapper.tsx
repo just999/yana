@@ -27,16 +27,12 @@ const TransactionListWrapper = async ({
   //   await new Promise((resolve) => setTimeout(resolve, 2000));
   // }
   const trans = await getTransactionByRange(range, offset, limit);
-  // console.log('🧪 trans:', JSON.stringify(trans.data?.length, null, 2));
+  console.log('🧪 trans:', JSON.stringify(trans, null, 2));
 
   return (
     <div className='flex flex-col'>
-      <div className='flex min-h-[200vh] flex-col overflow-y-auto'>
-        <TransactionList
-          initTrans={trans.data || []}
-          key={range}
-          range={range}
-        />
+      <div className='flex flex-col overflow-y-auto'>
+        <TransactionList initTrans={trans} key={range} range={range} />
       </div>
     </div>
   );

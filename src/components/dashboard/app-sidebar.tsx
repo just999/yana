@@ -19,7 +19,7 @@ import { ArrowLeft } from 'lucide-react';
 import { Session } from 'next-auth';
 import Link from 'next/link';
 
-export default async function DashboardSidebar({
+export default async function AppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
   const session = (await auth()) as Session;
@@ -28,7 +28,7 @@ export default async function DashboardSidebar({
     <Sidebar
       collapsible='icon'
       variant='inset'
-      className='max-w-56 pt-16'
+      // className='max-w-56 pt-16'
       {...props}
     >
       <SidebarHeader>
@@ -83,7 +83,16 @@ export default async function DashboardSidebar({
           }
         />
       </SidebarFooter>
-      <SidebarRail />
+      {/* <SidebarRail /> */}
     </Sidebar>
+    // <Sidebar collapsible='icon' {...props}>
+    //   <SidebarHeader>{/* <TeamSwitcher teams={data.teams} /> */}</SidebarHeader>
+    //   <SidebarContent>
+    //     {/* <NavMain items={data.navMain} /> */}
+    //     {/* <NavProjects projects={data.projects} /> */}
+    //   </SidebarContent>
+    //   <SidebarFooter>{/* <NavUser user={data.user} /> */}</SidebarFooter>
+    //   <SidebarRail />
+    // </Sidebar>
   );
 }

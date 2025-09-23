@@ -18,35 +18,36 @@ import { bgColorClasses, colorClasses } from './trend';
 
 interface TransactionItemProps extends Transaction {
   onRemoved?: () => void;
+  i: number;
 }
 
-const TransactionItem = ({ onRemoved, ...tr }: TransactionItemProps) => {
-  const typeMap = {
-    INCOME: {
-      icon: HandCoins,
-      colors: colorClasses['INCOME'],
-      bg: bgColorClasses['INCOME'],
-    },
-    EXPENSE: {
-      icon: Wallet,
-      // colors: 'text-red-500 dark:text-red-400',
-      colors: colorClasses['EXPENSE'],
-      bg: bgColorClasses['EXPENSE'],
-    },
-    SAVING: {
-      icon: Landmark,
-      // colors: 'text-indigo-500 dark:text-indigo-400',
-      colors: colorClasses['SAVING'],
-      bg: bgColorClasses['SAVING'],
-    },
-    INVESTMENT: {
-      icon: PiggyBank,
-      // colors: 'text-amber-500 dark:text-amber-400',
-      colors: colorClasses['INVESTMENT'],
-      bg: bgColorClasses['INVESTMENT'],
-    },
-  };
+export const typeMap = {
+  INCOME: {
+    icon: HandCoins,
+    colors: colorClasses['INCOME'],
+    bg: bgColorClasses['INCOME'],
+  },
+  EXPENSE: {
+    icon: Wallet,
+    // colors: 'text-red-500 dark:text-red-400',
+    colors: colorClasses['EXPENSE'],
+    bg: bgColorClasses['EXPENSE'],
+  },
+  SAVING: {
+    icon: Landmark,
+    // colors: 'text-indigo-500 dark:text-indigo-400',
+    colors: colorClasses['SAVING'],
+    bg: bgColorClasses['SAVING'],
+  },
+  INVESTMENT: {
+    icon: PiggyBank,
+    // colors: 'text-amber-500 dark:text-amber-400',
+    colors: colorClasses['INVESTMENT'],
+    bg: bgColorClasses['INVESTMENT'],
+  },
+};
 
+const TransactionItem = ({ onRemoved, i, ...tr }: TransactionItemProps) => {
   const IconComponent = typeMap[tr.type].icon;
   const colors = typeMap[tr.type].colors;
   const formattedAmount = useFormatCurrency(tr.amount || 0);
@@ -104,6 +105,7 @@ const TransactionItem = ({ onRemoved, ...tr }: TransactionItemProps) => {
   return (
     <div className={cn('flex w-full items-center px-2 text-[10px]', bgColors)}>
       <div className='mr-4 flex grow items-center'>
+        {i + 1}{' '}
         <IconComponent className={cn(colors, 'mr-2 hidden h-4 w-4 sm:block')} />
         <span>{tr.description}</span>
       </div>

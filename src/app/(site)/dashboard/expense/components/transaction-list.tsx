@@ -14,7 +14,7 @@ import { Button, Separator } from '@/components/ui';
 import { PAGE_SIZE } from '@/lib/constants';
 import { groupAndSumTransactionsByDate } from '@/lib/utils';
 import type { Transaction } from '@prisma/client';
-import { Loader } from 'lucide-react';
+import { EllipsisIcon, Loader } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
@@ -22,20 +22,36 @@ import type { RangeTime } from './range';
 
 type TransactionListProps = {
   range: RangeTime;
-  initTrans: Transaction[];
+  initTrans: TransactionResult;
 };
 
 const TransactionList = ({ range, initTrans }: TransactionListProps) => {
-  const [transactions, setTransactions] = useState<Transaction[]>(initTrans);
+  console.log('🥑 ~ TransactionList ~ initTrans:', initTrans);
+  const [transactions, setTransactions] = useState<Transaction[]>(
+    initTrans?.data || []
+  );
 
   const [loading, setLoading] = useState(false);
-  const [buttonHidden, setButtonHidden] = useState(initTrans.length === 0);
+  const [buttonHidden, setButtonHidden] = useState(
+    !initTrans.pagination?.hasNextPage
+  );
   const [hasMore, setHasMore] = useState(true);
   const [autoLoadEnabled, setAutoLoadEnabled] = useState(true);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const isLoadingRef = useRef(false);
   const router = useRouter();
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [minHeight, setMinHeight] = useState(450);
   const grouped = groupAndSumTransactionsByDate(transactions, range);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      const height = containerRef.current.scrollHeight;
+      // Add buffer for smooth experience
+      setMinHeight(Math.max(height + 100, 450));
+    }
+  }, [transactions.length]);
 
   // useEffect(() => {
   //   setTransactions(initTrans);
@@ -172,7 +188,12 @@ const TransactionList = ({ range, initTrans }: TransactionListProps) => {
         transactions.length,
         PAGE_SIZE
       );
-      setButtonHidden(nextTransactions.data?.length === 0);
+      if (nextTransactions.data)
+        setButtonHidden(!nextTransactions.pagination?.hasNextPage);
+      console.log(
+        '🥑 ~ handleClick ~ nextTransactions.data:',
+        nextTransactions.pagination?.hasNextPage
+      );
 
       // setTransactions((prevTransactions) => [
       //   ...prevTransactions,
@@ -202,6 +223,7 @@ const TransactionList = ({ range, initTrans }: TransactionListProps) => {
       router.refresh();
     }
   };
+  console.log('🥑 ~ TransactionList ~ buttonHidden:', buttonHidden);
 
   // const handleManualLoad = async () => {
   //   setAutoLoadEnabled(false); // Disable auto-loading after manual click
@@ -269,7 +291,11 @@ const TransactionList = ({ range, initTrans }: TransactionListProps) => {
     //   )}
     // </div>
 
-    <div className='mx-auto w-xl space-y-8'>
+    <div
+      className='mx-auto w-xl space-y-2'
+      ref={containerRef}
+      style={{ minHeight: `${minHeight}px` }}
+    >
       {Object.entries(grouped).map(([date, { total, days }]) => (
         <div key={date} className='flex flex-col gap-3'>
           <TransactionTotal date={date} amount={total} range={range} />
@@ -283,11 +309,12 @@ const TransactionList = ({ range, initTrans }: TransactionListProps) => {
                   amount={+amount.toFixed(0)}
                 />
               </div>
-              <section className='bg-accent/40 space-y-4 rounded-lg border py-1 backdrop-blur-2xl'>
-                {transactions.map((transaction) => (
+              <section className='bg-accent/40 space-y-1.5 rounded-lg border py-1 backdrop-blur-2xl'>
+                {transactions.map((transaction, i) => (
                   <div key={transaction.id} className=''>
                     <TransactionItem
                       {...transaction}
+                      i={i}
                       onRemoved={() => handleRemoved(transaction.id)}
                     />
                   </div>
@@ -298,11 +325,11 @@ const TransactionList = ({ range, initTrans }: TransactionListProps) => {
         </div>
       ))}
       {transactions.length === 0 && (
-        <div className='text-center text-gray-400 dark:text-gray-500'>
-          No transactions found
+        <div className='dark:text-accent-foreground/30 text-center text-gray-400'>
+          No Transaction
         </div>
       )}
-      {!buttonHidden && (
+      {!buttonHidden ? (
         <div className='flex justify-center'>
           <Button variant='ghost' onClick={handleClick} disabled={loading}>
             <div className='flex items-center space-x-1'>
@@ -310,6 +337,10 @@ const TransactionList = ({ range, initTrans }: TransactionListProps) => {
               <div>Load More</div>
             </div>
           </Button>
+        </div>
+      ) : (
+        <div className='flex w-full justify-center'>
+          <EllipsisIcon />
         </div>
       )}
     </div>

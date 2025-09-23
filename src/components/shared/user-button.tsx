@@ -26,8 +26,7 @@ import { GiExitDoor } from 'react-icons/gi';
 import AddAvatarForm from './add-avatar-form';
 
 type UserButtonProps = {};
-export const delay = (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+
 const UserButton = () => {
   const { data: session, update, status } = useSession();
   const profileLinks = getProfileLinks(session?.user?.role);
@@ -35,7 +34,6 @@ const UserButton = () => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const router = useRouter();
 
-  // use(delay(2000));
   const handleSignOut = async () => {
     setIsLoggingOut(true);
     try {

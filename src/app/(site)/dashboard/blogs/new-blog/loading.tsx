@@ -77,7 +77,7 @@ export default function BlogEditorSkeleton() {
               ))}
             </div>
             {/* Editor Content */}
-            <div className='min-h-[200px] space-y-3 rounded border bg-white p-4 dark:bg-gray-900'>
+            <div className='min-h-screen space-y-3 rounded border bg-white p-4 dark:bg-gray-900'>
               <Skeleton className='h-6 w-3/4' /> {/* Heading line */}
               <Skeleton className='h-4 w-full' /> {/* Paragraph line 1 */}
               <Skeleton className='h-4 w-full' /> {/* Paragraph line 2 */}

@@ -42,14 +42,14 @@ type NavUserProps = {
 };
 
 export function NavUser({ user, session }: NavUserProps): ReactNode {
-  const { setOpenMobile, isMobile } = useSidebar();
-  const pathname = usePathname();
+  const { isMobile } = useSidebar();
+  // const pathname = usePathname();
   const firstInitial = session?.user.name?.charAt(0).toUpperCase() ?? 'U';
   const router = useRouter();
 
-  useEffect(() => {
-    setOpenMobile(false);
-  }, [pathname, setOpenMobile]);
+  // useEffect(() => {
+  //   setOpenMobile(false);
+  // }, [pathname, setOpenMobile]);
 
   // if (!data) {
   //   return router.push('/');

@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { getTransactionByRange } from '@/actions/expense-actions';
 import { Button, Separator } from '@/components/ui';
 import { PAGE_SIZE, tranTypes } from '@/lib/constants';
+import { cn } from '@/lib/utils';
 import { PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 
@@ -27,7 +28,7 @@ const ExpensePage = async ({ searchParams }: ExpensePageProps) => {
   //   </div>
   // );
 
-  const transactions = await getTransactionByRange(range);
+  const transactions = (await getTransactionByRange(range)).data;
   // delay(5000);
 
   return (
@@ -49,7 +50,11 @@ const ExpensePage = async ({ searchParams }: ExpensePageProps) => {
           className='my-2 h-1 border-t-gray-300 border-b-gray-300'
           decorative
         />
-        <div className='xs:grid-cols-2 mb-4 grid grid-cols-1 gap-2 space-x-8 rounded-xl bg-fuchsia-700/20 p-2'>
+        <div
+          className={cn(
+            'xs:grid-cols-2 mb-4 grid grid-cols-1 gap-2 space-x-8 rounded-xl bg-fuchsia-900/30 p-2'
+          )}
+        >
           {tranTypes.map((type) => (
             <Suspense key={type} fallback={<TrendFallback />}>
               <Trend type={type} range={range} />

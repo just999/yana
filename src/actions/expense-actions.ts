@@ -957,7 +957,7 @@ export async function getTransactionByRange(
     const { start, end } = getDateRangeForPeriod(range);
 
     const pageOffset = offset ?? 0;
-    const pageLimit = limit ?? 4;
+    const pageLimit = limit ?? PAGE_SIZE;
 
     const whereClause = {
       userId: userId,

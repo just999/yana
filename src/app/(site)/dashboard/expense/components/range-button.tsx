@@ -13,6 +13,8 @@ import {
 } from '@/components/ui';
 import { useZodForm } from '@/hooks/use-zod-form';
 import { cn } from '@/lib/utils'; // Assuming you have this utility
+
+import { Calendar } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { z } from 'zod';
 
@@ -33,9 +35,9 @@ type RangeProps = {
 const getRangeLabel = (range: RangeTime): string => {
   const labels: Record<RangeTime, string> = {
     today: 'Today',
-    w: 'w',
-    m: 'm',
-    y: 'y',
+    w: 'W',
+    m: 'M',
+    y: 'Y',
   };
   return labels[range];
 };
@@ -93,7 +95,10 @@ export const RangeButton = ({ defaultRange }: RangeProps) => {
 
               {/* Switch/Toggle Button Group */}
               <FormControl>
-                <div className='flex gap-1 rounded-lg bg-slate-800/50 p-1'>
+                <div className='flex gap-1 rounded-lg bg-blue-800/50 p-1'>
+                  <span>
+                    <Calendar size={16} />
+                  </span>
                   {rangeTime.map((timeOption) => (
                     <Button
                       key={timeOption}
