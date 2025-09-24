@@ -1718,8 +1718,8 @@ export const Toolbar = ({
     >
       <div
         className={cn(
-          'flex min-h-10 items-center justify-center gap-x-0.5 overflow-x-auto rounded-t-xl bg-[#f1f4f9] px-4 shadow-2xl dark:bg-stone-100/20 dark:text-amber-100',
-          !isVisible ? 'border border-amber-700/30 dark:bg-stone-600' : ''
+          'flex min-h-10 items-center justify-center gap-x-0.5 overflow-x-auto rounded-t-xl border border-amber-700/40 bg-[#f1f4f9] px-2 shadow-2xl dark:bg-stone-600/70 dark:text-amber-100',
+          !isVisible ? 'border border-amber-700/50 dark:bg-stone-600' : ''
         )}
       >
         {sections[0].map((item) => (

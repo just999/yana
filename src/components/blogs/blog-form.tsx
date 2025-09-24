@@ -661,7 +661,7 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
     };
 
     return (
-      <div className='container mx-auto w-full min-w-2xl p-6'>
+      <div className='container mx-auto w-full min-w-2xl py-6'>
         <div className='mb-8'>
           <h1 className='text-3xl font-bold dark:text-gray-200'>
             <u>{type === 'create' ? 'Create New Post' : 'Edit Blog'}</u>

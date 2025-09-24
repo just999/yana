@@ -87,20 +87,22 @@ const EditBlogPage = async ({ params }: EditBlogPageProps) => {
     : [];
 
   return (
-    <>
+    <section className='min-w-2xl py-2 pb-24'>
       <BackButton value='Back To Posts' link='/blogs' />
-      <HydrateBlog
-        blog={blog}
-        type='update'
-        imageUrl={imageDataUrl}
-        imgData={imgData}
-        slug={slug}
-        session={session}
-      >
-        {/* <PostForm type='update' slug={slug} /> */}
-        <BlogForm type='update' slug={slug} blog={blog} />
-      </HydrateBlog>
-    </>
+      <div className=''>
+        <HydrateBlog
+          blog={blog}
+          type='update'
+          imageUrl={imageDataUrl}
+          imgData={imgData}
+          slug={slug}
+          session={session}
+        >
+          {/* <PostForm type='update' slug={slug} /> */}
+          <BlogForm type='update' slug={slug} blog={blog} />
+        </HydrateBlog>
+      </div>
+    </section>
   );
 };
 

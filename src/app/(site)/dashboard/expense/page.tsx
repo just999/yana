@@ -21,15 +21,7 @@ type ExpensePageProps = {
 const ExpensePage = async ({ searchParams }: ExpensePageProps) => {
   const range = ((await searchParams).range as RangeTime) || 'today';
 
-  // const SimpleFallback = () => (
-  //   <div className='rounded bg-gray-500 p-4 text-white'>
-  //     <div>LOADING...</div>
-  //     <div className='mt-2 h-4 w-full animate-pulse bg-white/20'></div>
-  //   </div>
-  // );
-
   const transactions = (await getTransactionByRange(range)).data;
-  // delay(5000);
 
   return (
     <div className='expense max-w-xl space-y-8 pt-0'>

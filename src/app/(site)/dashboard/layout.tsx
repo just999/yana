@@ -17,40 +17,35 @@ type DashboardPageProps = {
 
 const DashboardLayout = async ({ children }: DashboardPageProps) => {
   const cookieStore = await cookies();
-  // FIXED: Use the correct cookie name with underscore
-  const sidebarState = cookieStore.get('sidebar_state');
-  const defaultOpen = sidebarState?.value === 'true';
-
-  console.log('🥑 Sidebar cookie found:', sidebarState?.value);
-  console.log('🥑 Default open:', defaultOpen);
+  const defaultOpen = cookieStore.get('sidebar_state')?.value === 'true';
 
   return (
     <SidebarProvider
-    // defaultOpen={defaultOpen}
-    // style={
-    //   {
-    //     '--sidebar-width': 'calc(var(--spacing) * 72)',
-    //     '--header-height': 'calc(var(--spacing) * 12)',
-    //     '--sidebar-width-mobile': '20rem',
-    //   } as React.CSSProperties
-    // }
-    // data-mobile-safe='true'
+      defaultOpen={defaultOpen}
+      style={
+        {
+          '--sidebar-width': 'calc(var(--spacing) * 72)',
+          '--header-height': 'calc(var(--spacing) * 12)',
+          '--sidebar-width-mobile': '20rem',
+        } as React.CSSProperties
+      }
+      data-mobile-safe='true'
     >
       <AppSidebar className='max-w-56' />
       <div className='w-full pt-16 md:pt-[72px]'>
         <SidebarInset className='rounded-xl'>
-          {/* <header className='sticky top-16 z-50 flex h-(--header-height) w-full shrink-0 items-center gap-2 rounded-t-xl border-b backdrop-blur-sm transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height) dark:bg-gray-900/70'> */}
-          <div className='flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6'>
-            {/* <SidebarTrigger className='-ml-1' data-mobile-trigger='true' /> */}
-            <SidebarTrigger className='-ml-1' />
-            <Separator
-              orientation='vertical'
-              className='mr-2 data-[orientation=vertical]:h-4'
-            />
+          <header className='sticky top-16 z-50 flex h-(--header-height) w-full shrink-0 items-center gap-2 rounded-t-xl border-b backdrop-blur-sm transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height) dark:bg-gray-900/70'>
+            <div className='flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6'>
+              {/* <SidebarTrigger className='-ml-1' data-mobile-trigger='true' /> */}
+              <SidebarTrigger className='-ml-1' />
+              <Separator
+                orientation='vertical'
+                className='mr-2 data-[orientation=vertical]:h-4'
+              />
 
-            <SidebarBreadcrumb />
-          </div>
-          {/* </header> */}
+              <SidebarBreadcrumb />
+            </div>
+          </header>
           <main className='mx-auto w-6xl p-4'>
             <div className='px-4 sm:px-6 lg:px-8'>{children}</div>
           </main>
