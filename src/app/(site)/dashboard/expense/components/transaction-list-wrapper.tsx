@@ -18,7 +18,7 @@ const TransactionListWrapper = async ({
   console.log('🧪 trans:', JSON.stringify(trans, null, 2));
 
   return (
-    <div className='flex flex-col'>
+    <div className='mx-auto flex max-w-xl flex-col'>
       <div className='flex flex-col overflow-y-auto'>
         <TransactionList initTrans={trans} key={range} range={range} />
       </div>

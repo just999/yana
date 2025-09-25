@@ -91,13 +91,13 @@ const TransactionItem = ({ onRemoved, i, ...tr }: TransactionItemProps) => {
   const getBadgeVariant = (type: TransType) => {
     const variants = {
       INCOME:
-        'bg-green-800/10 text-green-100 border-b-4 border-green-400/30 hover:bg-green-900/20',
+        'bg-green-800/10 dark:text-green-100 border-b-4 border-green-400/30 hover:bg-green-900/20',
       EXPENSE:
-        'bg-red-800/10 text-red-100 border-b-4 border-red-400/30 hover:bg-red-900/20',
+        'bg-red-800/10 dark:text-red-100 border-b-4 border-red-400/30 hover:bg-red-900/20',
       SAVING:
-        'bg-indigo-800/10 text-indigo-100 border-b-4 border-indigo-400/30 hover:bg-indigo-900/20',
+        'bg-indigo-800/10 dark:text-indigo-100 border-b-4 border-indigo-400/30 hover:bg-indigo-900/20',
       INVESTMENT:
-        'bg-amber-800/10 text-amber-100 border-b-4 border-amber-400/30 hover:bg-amber-900/20',
+        'bg-amber-800/10 dark:text-amber-100 border-b-4 border-amber-400/30 hover:bg-amber-900/20',
     };
     return variants[type] || variants.EXPENSE;
   };
@@ -105,11 +105,11 @@ const TransactionItem = ({ onRemoved, i, ...tr }: TransactionItemProps) => {
   return (
     <div className={cn('flex w-full items-center px-2 text-[10px]', bgColors)}>
       <div className='mr-4 flex grow items-center'>
-        {i + 1}{' '}
-        <IconComponent className={cn(colors, 'mr-2 hidden h-4 w-4 sm:block')} />
+        {/* {i + 1}{' '} */}
+        <IconComponent className={cn(colors, 'mr-2 h-4 w-4 sm:block')} />
         <span>{tr.description}</span>
       </div>
-      <div className='hidden min-w-[150px] items-center md:flex'>
+      <div className='min-w-[150px] items-center md:flex'>
         {tr.category && (
           <Badge
             variant='outline'
@@ -119,11 +119,11 @@ const TransactionItem = ({ onRemoved, i, ...tr }: TransactionItemProps) => {
             )}
           >
             {CategoryIcon && <CategoryIcon className='mr-1 inline h-3 w-3' />}
-            {tr.category}
+            <div className=''>{tr.category}</div>
           </Badge>
         )}
       </div>
-      <div className='min-w-[70px] text-center'>
+      <div className='min-w-[70px] text-left'>
         {formattedAmount.prefix} {formattedAmount.value}{' '}
       </div>
       <div className='flex min-w-[50px] justify-end'>
