@@ -7,8 +7,7 @@ const nextConfig: NextConfig = {
   experimental: {
     serverComponentsHmrCache: true,
     ...(isDev && { allowDevelopmentBuild: true }),
-    cache: true,
-  } as any,
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },

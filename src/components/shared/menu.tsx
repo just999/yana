@@ -47,12 +47,17 @@ const Menu = () => {
       </div>
       <form action={logout} className='w-full'>
         <SheetDescription>
-          <Button
-            className='h-4 w-full justify-start py-4 text-xs text-sky-500'
-            variant='ghost'
-          >
-            <LogOut size={18} /> Sign Out
-          </Button>
+          <span className='flex items-center'>
+            <Button
+              className='flex h-4 py-4 text-xs text-sky-500'
+              variant='ghost'
+            >
+              <LogOut size={18} /> Sign Out
+            </Button>
+            <span className='flex h-2 items-center text-xs'>
+              <ThemeToggle /> Theme
+            </span>
+          </span>
         </SheetDescription>
       </form>
     </SheetTitle>

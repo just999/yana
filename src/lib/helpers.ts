@@ -1,6 +1,7 @@
 import {
   BadgeDollarSign,
   Banknote,
+  BanknoteArrowDownIcon,
   Bitcoin,
   Car,
   ChartCandlestick,
@@ -15,6 +16,7 @@ import {
   Landmark,
   LandPlot,
   LayoutDashboard,
+  LayoutDashboardIcon,
   NewspaperIcon,
   Receipt,
   School,
@@ -32,6 +34,11 @@ import type { TranTypes } from './constants';
 
 export const getProfileLinks = (role?: string) => {
   return [
+    {
+      title: 'Dashboard',
+      href: '/dashboard',
+      icon: LayoutDashboardIcon,
+    },
     {
       title: 'My Account',
       href: '/my-account',
@@ -66,16 +73,16 @@ export const SidebarItems = [
     url: '/dashboard/blogs',
     icon: NewspaperIcon,
   },
-  // {
-  //   title: 'Reports',
-  //   url: '/dashboard/reports',
-  //   icon: Flag,
-  // },
-  // {
-  //   title: 'History',
-  //   url: '/dashboard/history',
-  //   icon: History,
-  // },
+  {
+    title: 'New Blog',
+    url: '/dashboard/blogs/new-blog',
+    icon: NewspaperIcon,
+  },
+  {
+    title: 'Expense',
+    url: '/dashboard/expense',
+    icon: BanknoteArrowDownIcon,
+  },
   {
     title: 'Profile',
     url: '/dashboard/profile',
@@ -85,11 +92,6 @@ export const SidebarItems = [
     title: 'Settings',
     url: '/dashboard/settings',
     icon: Settings,
-  },
-  {
-    title: 'Dashboard',
-    url: '/dashboard',
-    icon: LayoutDashboard,
   },
 ];
 

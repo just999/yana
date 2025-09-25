@@ -108,7 +108,7 @@ const DashboardLayout = async ({ children }: DashboardPageProps) => {
         <main className='flex-1 overflow-auto'>
           <div className='w-full p-1 sm:p-4 md:p-6 lg:p-3'>
             {/* Content container with proper responsive widths */}
-            <div className='mx-auto w-full px-1 sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl'>
+            <div className='mx-auto w-full px-1 sm:max-w-2xl md:max-w-4xl lg:max-w-5xl 2xl:xl:max-w-6xl'>
               {children}
             </div>
           </div>
