@@ -39,7 +39,7 @@ import {
 import html from 'highlight.js/lib/languages/xml';
 import { useAtom } from 'jotai';
 import { all, createLowlight } from 'lowlight';
-import { ImageResize } from 'tiptap-extension-resize-image';
+import ImageResize from 'tiptap-extension-resize-image';
 
 import css from 'highlight.js/lib/languages/css';
 

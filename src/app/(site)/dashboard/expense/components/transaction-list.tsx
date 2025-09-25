@@ -26,7 +26,6 @@ type TransactionListProps = {
 };
 
 const TransactionList = ({ range, initTrans }: TransactionListProps) => {
-  console.log('🥑 ~ TransactionList ~ initTrans:', initTrans);
   const [transactions, setTransactions] = useState<Transaction[]>(
     initTrans?.data || []
   );
@@ -190,10 +189,6 @@ const TransactionList = ({ range, initTrans }: TransactionListProps) => {
       );
       if (nextTransactions.data)
         setButtonHidden(!nextTransactions.pagination?.hasNextPage);
-      console.log(
-        '🥑 ~ handleClick ~ nextTransactions.data:',
-        nextTransactions.pagination?.hasNextPage
-      );
 
       // setTransactions((prevTransactions) => [
       //   ...prevTransactions,
@@ -223,7 +218,6 @@ const TransactionList = ({ range, initTrans }: TransactionListProps) => {
       router.refresh();
     }
   };
-  console.log('🥑 ~ TransactionList ~ buttonHidden:', buttonHidden);
 
   // const handleManualLoad = async () => {
   //   setAutoLoadEnabled(false); // Disable auto-loading after manual click

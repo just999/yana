@@ -209,7 +209,7 @@ const SaveButton = () => {
             >
               <SaveIcon
                 className={cn(
-                  'size-4 stroke-1',
+                  'size-4 stroke-neutral-500 stroke-1',
                   isContentEmpty
                     ? 'text-gray-300'
                     : 'text-black dark:text-white'

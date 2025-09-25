@@ -15,7 +15,7 @@ const TransactionListWrapper = async ({
   limit,
 }: TransactionListWrapperProps) => {
   const trans = await getTransactionByRange(range, offset, limit);
-  console.log('🧪 trans:', JSON.stringify(trans, null, 2));
+  // console.log('🧪 trans:', JSON.stringify(trans, null, 2));
 
   return (
     <div className='mx-auto flex max-w-xl flex-col'>

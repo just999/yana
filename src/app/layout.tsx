@@ -1,22 +1,16 @@
-import type { Metadata } from 'next';
-import { Geist, Geist_Mono, Inter } from 'next/font/google';
+import { ReactNode } from 'react';
 
 import './globals.css';
-
-import { ReactNode, Suspense } from 'react';
 
 import { getUserByAuthUserId } from '@/actions/auth-actions';
 import { auth } from '@/auth';
 import Header from '@/components/shared/header';
-import UserButtonFallback from '@/components/shared/user-button-fallback';
 import { Toaster } from '@/components/ui';
-import useServerDarkMode from '@/hooks/use-server-dark-mode';
 import Providers from '@/lib/providers/provider';
 import { ThemeProvider } from '@/lib/providers/theme-provider';
-import { Theme } from '@/lib/types';
 import { cn, inter } from '@/lib/utils';
 import type { User } from '@prisma/client';
-import { cookies } from 'next/headers';
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: { template: '%s | My Blogs', default: 'Blogs' },
