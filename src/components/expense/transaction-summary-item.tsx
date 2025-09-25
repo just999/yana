@@ -1,6 +1,7 @@
 'use client';
 
 import { useFormatCurrency } from '@/hooks/use-format-currency';
+import type { RangeType } from '@/lib/types';
 import { cn, inter } from '@/lib/utils';
 import { Calendar, ScaleIcon } from 'lucide-react';
 
@@ -9,6 +10,7 @@ import { Badge } from '../ui';
 type TransactionSummaryItemProps = {
   date: string;
   amount: number;
+  range?: RangeType;
 };
 
 const TransactionSummaryItem = ({

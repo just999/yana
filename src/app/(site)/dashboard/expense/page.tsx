@@ -24,7 +24,7 @@ const ExpensePage = async ({ searchParams }: ExpensePageProps) => {
   const transactions = (await getTransactionByRange(range)).data;
 
   return (
-    <div className='expense max-w-xl space-y-8 pt-0'>
+    <div className='expense max-w-xs space-y-8 pt-0 xl:max-w-xl'>
       <section className='xs:grid-cols-2 mx-auto mb-8 grid w-full max-w-xl grid-cols-1 gap-8'>
         <h1 className='text-2xl font-semibold'>Summary</h1>
       </section>
@@ -44,7 +44,7 @@ const ExpensePage = async ({ searchParams }: ExpensePageProps) => {
         />
         <div
           className={cn(
-            'xs:grid-cols-2 mb-4 grid grid-cols-1 gap-2 space-x-8 rounded-xl bg-fuchsia-900/30 p-2'
+            'xs:grid-cols-2 mb-4 grid auto-rows-min grid-cols-2 gap-2 space-x-8 rounded-xl bg-fuchsia-900/30 p-2'
           )}
         >
           {tranTypes.map((type) => (

@@ -18,6 +18,7 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 
 import ThemeToggle from '../theme-toggle';
+import AddAvatarForm from './add-avatar-form';
 import MainNav from './main-nav';
 import UserButton from './user-button';
 
@@ -31,10 +32,11 @@ const Menu = () => {
     <SheetTitle>
       <div className='flex items-center gap-2'>
         <div>
-          <CircleUserRound
+          {/* <CircleUserRound
             size={28}
             className='stroke-stone-400 stroke-[1.5] dark:stroke-stone-800'
-          />
+          /> */}
+          <AddAvatarForm />
         </div>
         <div className='flex flex-col items-start space-y-1'>
           <div className='text-xs leading-none font-medium'>{user.name}</div>
@@ -90,25 +92,27 @@ const Menu = () => {
 
           {/* Sheet Content */}
           <SheetContent className='flex w-[300px] flex-col items-start'>
-            <SheetHeader>{renderedUserSession}</SheetHeader>
+            <SheetHeader className='flex w-full p-0 pt-8 pl-8'>
+              {renderedUserSession}
+            </SheetHeader>
 
             {session && (
-              <div>
+              <div className='pl-4'>
                 <Separator />
                 <MainNav
                   className='w-full flex-col items-start'
                   type='mobile'
-                  session={session}
+                  // session={session}
                 />
               </div>
             )}
             <Separator />
             <div className='flex h-8 items-center justify-start gap-2 px-2 text-xs'>
-              <span>
+              {/* <span>
                 <ThemeToggle />
               </span>
               <span>Theme</span>
-              <UserButton />
+              <UserButton /> */}
             </div>
 
             <SheetDescription></SheetDescription>

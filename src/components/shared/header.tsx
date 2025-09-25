@@ -136,7 +136,7 @@ const Header = ({ className, user }: HeaderProps) => {
                 <SITE_CONFIG.logo className='svg h-auto w-8 fill-orange-500 dark:fill-orange-400' />
                 <span
                   className={cn(
-                    'ml-2 hidden text-xl font-bold lg:block',
+                    'ml-2 text-xl font-bold sm:block', // Show on small screens and up
                     ballet.className
                   )}
                 >
@@ -144,31 +144,36 @@ const Header = ({ className, user }: HeaderProps) => {
                 </span>
               </Link>
 
-              {/* Desktop Navigation Links */}
-              {curUser &&
-                menuItems.map((item) => {
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={cn(
-                        'w-full rounded-md px-3 py-2 text-sm text-nowrap transition-colors duration-200',
-                        isActive(item.href)
-                          ? 'bg-neutral-200/20 font-normal text-stone-700 underline decoration-amber-500/60 decoration-2 shadow-md dark:bg-gray-800/50 dark:text-amber-200'
-                          : 'hover:bg-muted hover:text-orange-500'
-                      )}
-                    >
-                      {item.label}
-                    </Link>
-                  );
-                })}
+              {/* Desktop Navigation Links - Hidden on mobile */}
+              <div className='hidden gap-4 lg:flex'>
+                {curUser &&
+                  menuItems.map((item) => {
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={cn(
+                          'w-full rounded-md px-3 py-2 text-sm text-nowrap transition-colors duration-200',
+                          isActive(item.href)
+                            ? 'bg-neutral-200/20 font-normal text-stone-700 underline decoration-amber-500/60 decoration-2 shadow-md dark:bg-gray-800/50 dark:text-amber-200'
+                            : 'hover:bg-muted hover:text-orange-500'
+                        )}
+                      >
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+              </div>
             </div>
 
             {/* Right Side - Search & Menu */}
             <div className='flex items-center gap-2'>
-              <Search />
+              {/* Search - Hide on very small screens */}
+              <div className='hidden sm:block'>
+                <Search />
+              </div>
 
-              {/* Menu Component */}
+              {/* Menu Component - Always visible but can contain hamburger on mobile */}
               <Menu />
             </div>
           </div>

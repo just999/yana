@@ -36,6 +36,8 @@ import {
   generatePermittedFileTypes,
 } from 'uploadthing/client';
 
+import AvatarSkeleton from './avatar-skeleton';
+
 type ImageData = {
   src: string;
   id: string;
@@ -50,11 +52,24 @@ const AddAvatarForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const submitButtonRef = useRef<HTMLButtonElement>(null);
   const [user, setUser] = useAtom(userAtom);
 
-  const { data: session, update } = useSession();
+  const { data: session, update, status } = useSession();
   const router = useRouter();
+
+  // Set loading state based on session status
+  useEffect(() => {
+    if (status === 'loading') {
+      setIsLoading(true);
+    } else if (status === 'authenticated' || status === 'unauthenticated') {
+      // Small delay to avoid flash of skeleton
+      const timer = setTimeout(() => setIsLoading(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [status]);
+
   const form = useZodForm({
     schema: avatarSchema,
     mode: 'onChange',
@@ -269,91 +284,96 @@ const AddAvatarForm = () => {
     (session?.user.avatar ? session?.user.avatar : user?.avatar) || localAvatar;
 
   return (
-    <Dialog
-      open={isDialogOpen}
-      onOpenChange={(open) => {
-        setIsDialogOpen(open);
-        if (!open) {
-          handleDialogClose();
-        }
-      }}
-    >
-      <DialogTrigger asChild>
-        <Avatar
-          className='group relative h-14 w-14 cursor-pointer border'
-          onClick={() => setIsDialogOpen(true)}
+    <>
+      {isLoading ? (
+        <AvatarSkeleton />
+      ) : (
+        <Dialog
+          open={isDialogOpen}
+          onOpenChange={(open) => {
+            setIsDialogOpen(open);
+            if (!open) {
+              handleDialogClose();
+            }
+          }}
         >
-          <AvatarImage
-            src={user?.avatar}
-            className='group-hover:bg-accent/50 rounded-full p-1 group-hover:backdrop-blur-sm'
-          />
-          <AvatarFallback>{user?.name}</AvatarFallback>
-          <Camera
-            size={20}
-            className='bg-accent/50 absolute -right-0 bottom-0 hidden w-full text-stone-100/70 group-hover:block'
-          />
-        </Avatar>
-      </DialogTrigger>
-
-      <DialogContent className='bg-white/5 backdrop-blur-xl sm:max-w-[425px]'>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <DialogHeader>
-            <DialogTitle>Update Avatar</DialogTitle>
-            <DialogDescription>
-              Select an image file. It will be uploaded when you click submit.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className='grid gap-4 py-4'>
-            {/* Dropzone area */}
-            <div
-              {...getRootProps()}
-              className={`cursor-pointer rounded-lg border-2 border-dashed p-6 text-center transition-colors ${files.length > 0 ? 'border-green-500 bg-green-50/10' : 'border-gray-300 hover:border-gray-400'} `}
+          <DialogTrigger asChild>
+            <Avatar
+              className='group relative h-14 w-14 cursor-pointer border'
+              onClick={() => setIsDialogOpen(true)}
             >
-              <InputCustom {...getInputProps()} />
-              {files.length > 0 ? (
-                <div className='space-y-2'>
-                  <p className='text-sm text-green-600'>
-                    ✓ Image selected: {files[0].name}
-                  </p>
-                  <div className='relative mx-auto w-fit'>
-                    <Image
-                      src={URL.createObjectURL(files[0])}
-                      width={0}
-                      height={0}
-                      priority
-                      alt='preview avatar'
-                      className='svg'
-                      style={{ width: '100px', height: 'auto' }}
-                    />
-                    <Button
-                      type='button'
-                      onClick={(e) => handleRemoveImage(e, previewUrl)}
-                      className='absolute top-0 -right-0 h-6 w-6 cursor-pointer rounded-full border border-red-400 bg-red-200/40 text-white hover:bg-transparent'
-                      disabled={isUploading}
-                    >
-                      <X className='svg h-4 w-4 cursor-pointer stroke-pink-500 hover:stroke-pink-700 hover:stroke-4' />
-                    </Button>
-                  </div>
-                  <p className='text-muted-foreground text-xs'>
-                    Click submit to upload and save
-                  </p>
-                </div>
-              ) : (
-                <div className='space-y-2'>
-                  <Camera className='text-muted-foreground mx-auto h-8 w-8' />
-                  <p className='text-muted-foreground text-sm'>
-                    Drop an image here, or click to select
-                  </p>
-                  <p className='text-muted-foreground text-xs'>
-                    Max file size: 4MB
-                  </p>
-                </div>
-              )}
-            </div>
+              <AvatarImage
+                src={user?.avatar}
+                className='group-hover:bg-accent/50 rounded-full p-1 group-hover:backdrop-blur-sm'
+              />
+              <AvatarFallback>{user?.name}</AvatarFallback>
+              <Camera
+                size={20}
+                className='bg-accent/50 absolute -right-0 bottom-0 hidden w-full text-stone-100/70 group-hover:block'
+              />
+            </Avatar>
+          </DialogTrigger>
 
-            {/* Preview selected image */}
-            {/* {previewUrl && (
+          <DialogContent className='bg-white/5 backdrop-blur-xl sm:max-w-[425px]'>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+              <DialogHeader>
+                <DialogTitle>Update Avatar</DialogTitle>
+                <DialogDescription>
+                  Select an image file. It will be uploaded when you click
+                  submit.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className='grid gap-4 py-4'>
+                {/* Dropzone area */}
+                <div
+                  {...getRootProps()}
+                  className={`cursor-pointer rounded-lg border-2 border-dashed p-6 text-center transition-colors ${files.length > 0 ? 'border-green-500 bg-green-50/10' : 'border-gray-300 hover:border-gray-400'} `}
+                >
+                  <InputCustom {...getInputProps()} />
+                  {files.length > 0 ? (
+                    <div className='space-y-2'>
+                      <p className='text-sm text-green-600'>
+                        ✓ Image selected: {files[0].name}
+                      </p>
+                      <div className='relative mx-auto w-fit'>
+                        <Image
+                          src={URL.createObjectURL(files[0])}
+                          width={0}
+                          height={0}
+                          priority
+                          alt='preview avatar'
+                          className='svg'
+                          style={{ width: '100px', height: 'auto' }}
+                        />
+                        <Button
+                          type='button'
+                          onClick={(e) => handleRemoveImage(e, previewUrl)}
+                          className='absolute top-0 -right-0 h-6 w-6 cursor-pointer rounded-full border border-red-400 bg-red-200/40 text-white hover:bg-transparent'
+                          disabled={isUploading}
+                        >
+                          <X className='svg h-4 w-4 cursor-pointer stroke-pink-500 hover:stroke-pink-700 hover:stroke-4' />
+                        </Button>
+                      </div>
+                      <p className='text-muted-foreground text-xs'>
+                        Click submit to upload and save
+                      </p>
+                    </div>
+                  ) : (
+                    <div className='space-y-2'>
+                      <Camera className='text-muted-foreground mx-auto h-8 w-8' />
+                      <p className='text-muted-foreground text-sm'>
+                        Drop an image here, or click to select
+                      </p>
+                      <p className='text-muted-foreground text-xs'>
+                        Max file size: 4MB
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Preview selected image */}
+                {/* {previewUrl && (
               <div className='flex justify-center'>
                 <div className='relative space-y-2'>
                   <Label className='text-sm'>Preview:</Label>
@@ -373,21 +393,23 @@ const AddAvatarForm = () => {
                 </div>
               </div>
             )} */}
-          </div>
+              </div>
 
-          <DialogFooter>
-            <Button
-              type='button'
-              variant='outline'
-              onClick={() => setIsDialogOpen(false)}
-            >
-              Cancel
-            </Button>
-            <SubmitButton />
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+              <DialogFooter>
+                <Button
+                  type='button'
+                  variant='outline'
+                  onClick={() => setIsDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <SubmitButton />
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
   );
 };
 export default AddAvatarForm;

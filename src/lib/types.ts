@@ -254,3 +254,11 @@ export type BlogActionResult = {
   inputs?: BlogSchema;
   data?: PostProps;
 };
+
+export type RangeType = 'today' | 'w' | 'm' | 'y';
+export type TransactionType =
+  | 'INCOME'
+  | 'EXPENSE'
+  | 'SAVING'
+  | 'INVESTMENT'
+  | null;

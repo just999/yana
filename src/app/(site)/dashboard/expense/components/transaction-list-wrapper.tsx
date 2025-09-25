@@ -14,18 +14,6 @@ const TransactionListWrapper = async ({
   offset,
   limit,
 }: TransactionListWrapperProps) => {
-  // // Server-side delay (no browser APIs)
-  // await new Promise((resolve) => {
-  //   // This runs on the server, so no setTimeout
-  //   const start = Date.now();
-  //   while (Date.now() - start < 2000) {
-  //     // Block the event loop (only for testing!)
-  //   }
-  //   resolve(null);
-  // });
-  // if (process.env.NODE_ENV === 'development') {
-  //   await new Promise((resolve) => setTimeout(resolve, 2000));
-  // }
   const trans = await getTransactionByRange(range, offset, limit);
   console.log('🧪 trans:', JSON.stringify(trans, null, 2));
 

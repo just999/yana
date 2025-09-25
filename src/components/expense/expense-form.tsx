@@ -299,22 +299,26 @@ const ExpenseForm = ({ formType, expenseId, trans }: ExpenseProps) => {
   return (
     <Form {...form}>
       <BackButton
+        variant={'ghost'}
+        size='sm'
         value='back'
-        className='w-1/2 text-center'
+        className='flex w-full justify-start shadow-lg shadow-amber-100/10'
         link='/dashboard/expense'
       />
       <form
-        className='mx-auto max-w-xl space-y-4 text-xs'
+        className='mx-auto w-full max-w-sm space-y-4 px-2 sm:max-w-md sm:px-0 md:max-w-lg lg:px-4'
         onSubmit={handleSubmit(onSubmit)}
       >
-        <div className='grid grid-cols-1 gap-4'>
+        <div className='space-y-4'>
           <div className='flex flex-col gap-0'>
             <FormField
               control={form.control}
               name='type'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className='mb-0 text-xs'>Type</FormLabel>
+                  <FormLabel className='text-sm font-medium sm:text-base'>
+                    Type
+                  </FormLabel>
                   <Select
                     key={field.value || 'empty'}
                     onValueChange={(value) => {
@@ -332,7 +336,7 @@ const ExpenseForm = ({ formType, expenseId, trans }: ExpenseProps) => {
                     value={field.value || ''}
                   >
                     <FormControl>
-                      <SelectTrigger className='px-2 py-1 text-[12px] text-sky-100 data-[size=default]:h-9'>
+                      <SelectTrigger className='h-10 w-full text-sm sm:h-11 sm:text-base'>
                         <SelectValue
                           className='text-xs'
                           placeholder='type of transaction'
@@ -342,7 +346,7 @@ const ExpenseForm = ({ formType, expenseId, trans }: ExpenseProps) => {
                     <SelectContent>
                       {transactionType.map((tr, i) => (
                         <SelectItem
-                          className='text-[10px] text-amber-100'
+                          className='focus:bg-accent focus:text-accent-foreground text-sm'
                           key={tr.title}
                           value={tr.title}
                         >
@@ -351,7 +355,7 @@ const ExpenseForm = ({ formType, expenseId, trans }: ExpenseProps) => {
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormMessage className='py-.5 w-fit bg-pink-700/5 px-2 text-[10px] font-normal' />
+                  <FormMessage className='bg-destructive/10 text-destructive rounded px-2 py-1 text-xs' />
                 </FormItem>
               )}
             />
@@ -401,18 +405,20 @@ const ExpenseForm = ({ formType, expenseId, trans }: ExpenseProps) => {
               name='category'
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className='mb-0 text-xs'>Category</FormLabel>
+                  <FormLabel className='text-sm font-medium sm:text-base'>
+                    Category
+                  </FormLabel>
                   <Select
                     key={`${type}-${(field.value as string) || 'empty'}`}
                     onValueChange={(value) => {
                       field.onChange(value);
-                      if (value) setValue('category', value);
+                      // if (value) setValue('category', value);
                     }}
                     value={(field.value as string) || ''}
                     disabled={!type}
                   >
                     <FormControl>
-                      <SelectTrigger className='px-2 py-1 text-[12px] text-sky-100 data-[size=default]:h-9'>
+                      <SelectTrigger className='h-10 w-full text-sm sm:h-11 sm:text-base'>
                         <SelectValue
                           placeholder={`Select type ${type ? type?.toLowerCase() : ''} `}
                         />
@@ -426,7 +432,7 @@ const ExpenseForm = ({ formType, expenseId, trans }: ExpenseProps) => {
                           <SelectItem
                             key={cat.title}
                             value={cat.title}
-                            className='text-[12px] text-amber-100'
+                            className='focus:bg-accent focus:text-accent-foreground text-sm'
                           >
                             <div className='flex items-center gap-2'>
                               <cat.icon className='h-4 w-4' />
@@ -436,7 +442,12 @@ const ExpenseForm = ({ formType, expenseId, trans }: ExpenseProps) => {
                         ))}
                     </SelectContent>
                   </Select>
-                  <FormMessage className='w-fit rounded-md bg-pink-700/15 px-2 py-0.5 text-[10px] font-normal' />
+                  {process.env.NODE_ENV === 'development' && (
+                    <div className='text-xs text-gray-500'>
+                      Field value: "{field.value}" | Has error: {!!errors}
+                    </div>
+                  )}
+                  <FormMessage className='bg-destructive/10 text-destructive rounded px-2 py-1 text-xs' />
                 </FormItem>
               )}
             />
@@ -502,7 +513,7 @@ const ExpenseForm = ({ formType, expenseId, trans }: ExpenseProps) => {
                       />
                     </PopoverContent>
                   </Popover>
-                  <FormMessage className='py-.5 w-fit bg-pink-700/5 px-2 text-[10px] font-normal' />
+                  <FormMessage className='bg-destructive/10 text-destructive rounded px-2 py-1 text-xs' />
                 </FormItem>
               )}
             />
@@ -520,7 +531,7 @@ const ExpenseForm = ({ formType, expenseId, trans }: ExpenseProps) => {
                       className='text-[10px] file:text-xs file:font-light'
                     />
                   </FormControl>
-                  <FormMessage className='py-.5 w-fit bg-pink-700/5 px-2 text-[10px] font-normal' />
+                  <FormMessage className='bg-destructive/10 text-destructive rounded px-2 py-1 text-xs' />
                 </FormItem>
               )}
             />
@@ -538,7 +549,7 @@ const ExpenseForm = ({ formType, expenseId, trans }: ExpenseProps) => {
                       className='text-[10px] file:text-xs file:font-light'
                     />
                   </FormControl>
-                  <FormMessage className='py-.5 w-fit bg-pink-700/5 px-2 text-[10px] font-normal' />
+                  <FormMessage className='bg-destructive/10 text-destructive rounded px-2 py-1 text-xs' />
                 </FormItem>
               )}
             />

@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useState } from 'react';
+import { useState } from 'react';
 
 import { logout } from '@/actions/auth-actions';
 import {
@@ -12,9 +12,8 @@ import {
   DropdownMenuTrigger,
   Separator,
 } from '@/components/ui';
-import { registerInitialValues } from '@/lib/constants';
 import { getProfileLinks } from '@/lib/helpers';
-import { userAtom, UserProps } from '@/lib/jotai/user-atoms';
+import { userAtom } from '@/lib/jotai/user-atoms';
 import { cn } from '@/lib/utils';
 import { useAtom } from 'jotai';
 import { User2Icon, UserCog2 } from 'lucide-react';

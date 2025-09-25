@@ -291,58 +291,139 @@ const TransactionList = ({ range, initTrans }: TransactionListProps) => {
     //   )}
     // </div>
 
+    // <div
+    //   className='mx-auto w-xl space-y-2'
+    //   ref={containerRef}
+    //   style={{ minHeight: `${minHeight}px` }}
+    // >
+    //   {Object.entries(grouped).map(([date, { total, days }]) => (
+    //     <div key={date} className='flex flex-col gap-3'>
+    //       <TransactionTotal date={date} amount={total} range={range} />
+    //       <Separator className='data-[orientation=vertical]:h-0 data-[orientation=vertical]:w-0' />
+    //       {Object.entries(days).map(([day, { transactions, amount }]) => (
+    //         <div key={day} className='bg-accent/50 space-y-2 rounded-md pt-2'>
+    //           <div className='text-muted-foreground text-xs font-semibold'>
+    //             {/* {day}-${amount.toFixed(0)} */}
+    //             <TransactionSummaryItem
+    //               date={day}
+    //               amount={+amount.toFixed(0)}
+    //             />
+    //           </div>
+    //           <section className='bg-accent/40 space-y-1.5 rounded-lg border py-1 backdrop-blur-2xl'>
+    //             {transactions.map((transaction, i) => (
+    //               <div key={transaction.id} className=''>
+    //                 <TransactionItem
+    //                   {...transaction}
+    //                   i={i}
+    //                   onRemoved={() => handleRemoved(transaction.id)}
+    //                 />
+    //               </div>
+    //             ))}
+    //           </section>
+    //         </div>
+    //       ))}
+    //     </div>
+    //   ))}
+    //   {transactions.length === 0 && (
+    //     <div className='dark:text-accent-foreground/30 text-center text-gray-400'>
+    //       No Transaction
+    //     </div>
+    //   )}
+    //   {!buttonHidden ? (
+    //     <div className='flex justify-center'>
+    //       <Button variant='ghost' onClick={handleClick} disabled={loading}>
+    //         <div className='flex items-center space-x-1'>
+    //           {loading && <Loader className='animate-spin' />}
+    //           <div>Load More</div>
+    //         </div>
+    //       </Button>
+    //     </div>
+    //   ) : (
+    //     <div className='flex w-full justify-center'>
+    //       <EllipsisIcon />
+    //     </div>
+    //   )}
+    // </div>
+
     <div
-      className='mx-auto w-xl space-y-2'
+      className='w-full space-y-3 sm:space-y-4'
       ref={containerRef}
       style={{ minHeight: `${minHeight}px` }}
     >
       {Object.entries(grouped).map(([date, { total, days }]) => (
-        <div key={date} className='flex flex-col gap-3'>
+        <div key={date} className='flex flex-col gap-2 sm:gap-4'>
           <TransactionTotal date={date} amount={total} range={range} />
-          <Separator className='data-[orientation=vertical]:h-0 data-[orientation=vertical]:w-0' />
+          <Separator className='mx-2 sm:mx-0' />
+
           {Object.entries(days).map(([day, { transactions, amount }]) => (
-            <div key={day} className='bg-accent/50 space-y-2 rounded-md pt-2'>
-              <div className='text-muted-foreground text-xs font-semibold'>
-                {/* {day}-${amount.toFixed(0)} */}
+            <div key={day} className='space-y-2'>
+              {/* Summary Item - Mobile optimized */}
+              <div className='px-2 sm:px-0'>
                 <TransactionSummaryItem
                   date={day}
                   amount={+amount.toFixed(0)}
+                  range={range}
                 />
               </div>
-              <section className='bg-accent/40 space-y-1.5 rounded-lg border py-1 backdrop-blur-2xl'>
-                {transactions.map((transaction, i) => (
-                  <div key={transaction.id} className=''>
-                    <TransactionItem
-                      {...transaction}
-                      i={i}
-                      onRemoved={() => handleRemoved(transaction.id)}
-                    />
-                  </div>
-                ))}
-              </section>
+
+              {/* Transactions Container - Mobile optimized */}
+              <div className='bg-card/50 overflow-hidden rounded-lg border backdrop-blur-sm'>
+                <div className='divide-border/50 divide-y'>
+                  {transactions.map((transaction, i) => (
+                    <div
+                      key={`${transaction.id}-${i}`}
+                      className='hover:bg-accent/20 transition-colors'
+                    >
+                      <TransactionItem
+                        {...transaction}
+                        i={i}
+                        onRemoved={() => handleRemoved(transaction.id)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           ))}
         </div>
       ))}
+
+      {/* Empty State - Mobile friendly */}
       {transactions.length === 0 && (
-        <div className='dark:text-accent-foreground/30 text-center text-gray-400'>
-          No Transaction
+        <div className='flex min-h-[100px] w-full items-center justify-center rounded-lg border border-dashed'>
+          <div className='text-muted-foreground text-center'>
+            <div className='text-sm sm:text-base'>No transactions found</div>
+            <div className='text-muted-foreground/70 text-xs sm:text-sm'>
+              Try adjusting your date range
+            </div>
+          </div>
         </div>
       )}
-      {!buttonHidden ? (
-        <div className='flex justify-center'>
-          <Button variant='ghost' onClick={handleClick} disabled={loading}>
-            <div className='flex items-center space-x-1'>
-              {loading && <Loader className='animate-spin' />}
-              <div>Load More</div>
+
+      {/* Load More / End Indicator - Mobile optimized */}
+      <div className='flex w-full justify-center py-4'>
+        {!buttonHidden ? (
+          <Button
+            variant='ghost'
+            onClick={handleClick}
+            disabled={loading}
+            className='min-w-[120px] touch-manipulation' // Better touch target
+            size='sm'
+          >
+            <div className='flex items-center gap-2'>
+              {loading && <Loader className='h-4 w-4 animate-spin' />}
+              <span className='text-sm sm:text-base'>
+                {loading ? 'Loading...' : 'Load More'}
+              </span>
             </div>
           </Button>
-        </div>
-      ) : (
-        <div className='flex w-full justify-center'>
-          <EllipsisIcon />
-        </div>
-      )}
+        ) : (
+          <div className='text-muted-foreground flex items-center gap-2'>
+            <EllipsisIcon className='h-4 w-4' />
+            <span className='text-xs sm:text-sm'>End of transactions</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

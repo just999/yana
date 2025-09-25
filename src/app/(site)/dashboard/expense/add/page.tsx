@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 const AddExpensePage = () => {
   return (
-    <div className='bg-accent/50 mx-auto mb-8 max-w-md p-8 text-4xl font-semibold'>
+    <div className='bg-accent/50 mx-auto mb-8 max-w-md rounded-2xl p-1 text-4xl font-semibold lg:px-2 lg:py-4'>
       <ExpenseForm formType='create' />
     </div>
   );
