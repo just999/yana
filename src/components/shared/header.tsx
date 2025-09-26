@@ -13,7 +13,6 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 
-import HeaderSkeleton from './header-skeleton';
 import Menu from './menu';
 
 type HeaderProps = {
@@ -31,8 +30,10 @@ const Header = ({ className, user }: HeaderProps) => {
   //   return <div>Loading...</div>;
   // }
 
-  // const [mounted, setMounted] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isClient, setIsClient] = useState(false);
+
+  const [mounted, setMounted] = useState(false);
+
   const currentPathname = usePathname(); // Remove try/catch
   const [curUser, setCurUser] = useAtom(userAtom);
   const router = useRouter();
@@ -42,9 +43,10 @@ const Header = ({ className, user }: HeaderProps) => {
   // Use currentPathname directly instead of maintaining separate pathname state
   const pathname = currentPathname;
 
-  // useEffect(() => {
-  //   setMounted(true);
-  // }, []);
+  useEffect(() => {
+    setIsClient(true);
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!session) router.push('/');
@@ -67,13 +69,6 @@ const Header = ({ className, user }: HeaderProps) => {
     } else {
       setCurUser(null);
     }
-
-    setIsLoading(false);
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 100);
-
-    return () => clearTimeout(timer);
   }, [setCurUser, user]);
 
   const isActive = (href: string) => {
@@ -111,32 +106,107 @@ const Header = ({ className, user }: HeaderProps) => {
     setIsSearchOpen(false);
   }, [pathname]);
 
-  // if (!mounted) {
+  // if (!isClient || !mounted) {
   //   return null;
   // }
 
-  // Show skeleton while loading
-  if (isLoading) {
-    return <HeaderSkeleton />;
-  }
-
   return (
+    // <>
+    //   <header
+    //     className={cn(
+    //       'dark:bg-muted/80 fixed inset-x-0 top-0 z-50 px-4 py-2 shadow-lg backdrop-blur-sm',
+    //       className
+    //     )}
+    //   >
+    //     <nav className='container mx-auto flex max-w-5xl items-center justify-between'>
+    //       <div className='flex h-12 w-full items-center justify-between p-2'>
+    //         {/* Left Side - Logo & Navigation */}
+    //         <div className='flex-start flex gap-4'>
+    //           <Link href='/' className='flex w-full'>
+    //             <SITE_CONFIG.logo className='svg h-auto w-8 fill-orange-500 dark:fill-orange-400' />
+    //             <span
+    //               className={cn(
+    //                 'ml-2 hidden text-xl font-bold lg:block',
+    //                 ballet.className
+    //               )}
+    //             >
+    //               {SITE_CONFIG.name}
+    //             </span>
+    //           </Link>
+    //           {/* Desktop Navigation Links */}
+    //           <div className='hidden gap-4 lg:flex'>
+    //             {curUser &&
+    //               menuItems.map((item) => {
+    //                 return (
+    //                   <Link
+    //                     key={item.href}
+    //                     href={item.href}
+    //                     className={cn(
+    //                       'w-full rounded-md px-3 py-2 text-sm text-nowrap transition-colors duration-200',
+    //                       isActive(item.href)
+    //                         ? 'bg-neutral-200/20 font-normal text-stone-700 underline decoration-amber-500/60 decoration-2 shadow-md dark:bg-gray-800/50 dark:text-amber-200'
+    //                         : 'hover:bg-muted hover:text-orange-500'
+    //                     )}
+    //                   >
+    //                     {item.label}
+    //                   </Link>
+    //                 );
+    //               })}
+    //           </div>{' '}
+    //         </div>
+
+    //         {/* Right Side - Search & Menu */}
+    //         <div className='flex items-center gap-2'>
+    //           <div className='hidden sm:block'>
+    //             <Search />
+    //           </div>
+
+    //           {/* Menu Component */}
+    //           <Menu />
+    //         </div>
+    //       </div>
+    //     </nav>
+    //   </header>
+
+    //   {/* Search Overlay - Only shows when search is open */}
+    //   {isSearchOpen && (
+    //     <div
+    //       className='fixed inset-0 z-40 bg-black/20 pt-16'
+    //       onClick={() => setIsSearchOpen(false)}
+    //     >
+    //       {/* This div prevents event bubbling when clicking inside search */}
+    //       <div
+    //         className='container mx-auto max-w-5xl px-4'
+    //         onClick={(e) => e.stopPropagation()}
+    //       >
+    //         {/* Search content will be positioned here by SearchInput */}
+    //       </div>
+    //     </div>
+    //   )}
+    // </>
+
     <>
       <header
         className={cn(
-          'dark:bg-muted/80 fixed inset-x-0 top-0 z-50 px-4 py-2 shadow-lg backdrop-blur-sm',
+          'dark:bg-muted/80 fixed inset-x-0 top-0 z-50 shadow-lg backdrop-blur-sm',
+          'px-1 py-2', // Minimal mobile padding
+          'sm:px-4', // More padding on larger screens
           className
         )}
       >
         <nav className='container mx-auto flex max-w-5xl items-center justify-between'>
-          <div className='flex h-12 w-full items-center justify-between p-2'>
-            {/* Left Side - Logo & Navigation */}
-            <div className='flex-start flex gap-4'>
-              <Link href='/' className='flex w-full'>
-                <SITE_CONFIG.logo className='svg h-auto w-8 fill-orange-500 dark:fill-orange-400' />
+          <div className='flex h-10 w-full items-center justify-between sm:h-12'>
+            {/* Mobile-optimized left side */}
+            <div className='flex min-w-0 items-center gap-1 overflow-hidden'>
+              <Link href='/' className='flex flex-shrink-0 items-center'>
+                <SITE_CONFIG.logo className='h-6 w-6 fill-orange-500 sm:h-8 sm:w-8 dark:fill-orange-400' />
+
+                {/* Site name - responsive visibility */}
                 <span
                   className={cn(
-                    'ml-2 text-xl font-bold sm:block', // Show on small screens and up
+                    'ml-1 truncate font-bold',
+                    'text-base sm:text-xl', // Smaller on mobile
+                    'hidden min-[400px]:block', // Show only if screen > 400px
                     ballet.className
                   )}
                 >
@@ -144,16 +214,18 @@ const Header = ({ className, user }: HeaderProps) => {
                 </span>
               </Link>
 
-              {/* Desktop Navigation Links - Hidden on mobile */}
-              <div className='hidden gap-4 lg:flex'>
+              {/* Desktop navigation - completely hidden on mobile */}
+              <div className='ml-4 hidden gap-1 lg:flex xl:gap-2'>
                 {curUser &&
-                  menuItems.map((item) => {
-                    return (
+                  menuItems.slice(0, 4).map(
+                    (
+                      item // Limit items on smaller desktop screens
+                    ) => (
                       <Link
                         key={item.href}
                         href={item.href}
                         className={cn(
-                          'w-full rounded-md px-3 py-2 text-sm text-nowrap transition-colors duration-200',
+                          'rounded-md px-2 py-1.5 text-sm whitespace-nowrap transition-colors duration-200',
                           isActive(item.href)
                             ? 'bg-neutral-200/20 font-normal text-stone-700 underline decoration-amber-500/60 decoration-2 shadow-md dark:bg-gray-800/50 dark:text-amber-200'
                             : 'hover:bg-muted hover:text-orange-500'
@@ -161,37 +233,36 @@ const Header = ({ className, user }: HeaderProps) => {
                       >
                         {item.label}
                       </Link>
-                    );
-                  })}
+                    )
+                  )}
               </div>
             </div>
 
-            {/* Right Side - Search & Menu */}
-            <div className='flex items-center gap-2'>
-              {/* Search - Hide on very small screens */}
-              <div className='hidden sm:block'>
+            {/* Mobile-optimized right side */}
+            <div className='flex flex-shrink-0 items-center gap-1'>
+              {/* Search - progressive enhancement */}
+              <div className='hidden min-[500px]:block'>
                 <Search />
               </div>
 
-              {/* Menu Component - Always visible but can contain hamburger on mobile */}
+              {/* Menu - always visible, most important */}
               <Menu />
             </div>
           </div>
         </nav>
       </header>
 
-      {/* Search Overlay - Only shows when search is open */}
+      {/* Mobile-optimized search overlay */}
       {isSearchOpen && (
         <div
-          className='fixed inset-0 z-40 bg-black/20 pt-16'
+          className='fixed inset-0 z-40 bg-black/20 pt-14 sm:pt-16'
           onClick={() => setIsSearchOpen(false)}
         >
-          {/* This div prevents event bubbling when clicking inside search */}
           <div
-            className='container mx-auto max-w-5xl px-4'
+            className='container mx-auto max-w-5xl px-1 sm:px-4'
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Search content will be positioned here by SearchInput */}
+            {/* Search content */}
           </div>
         </div>
       )}

@@ -80,40 +80,67 @@ const DashboardLayout = async ({ children }: DashboardPageProps) => {
   const cookieStore = await cookies();
   const defaultOpen = cookieStore.get('sidebar_state')?.value === 'true';
 
+  // return (
+  //   <SidebarProvider
+  //     defaultOpen={defaultOpen}
+  //     style={
+  //       {
+  //         '--sidebar-width': 'calc(var(--spacing) * 72)',
+  //         '--header-height': 'calc(var(--spacing) * 12)',
+  //       } as React.CSSProperties
+  //     }
+  //   >
+  //     <AppSidebar className='max-w-56' />
+  //     <div className='w-full pt-28 md:pt-[72px]'>
+  //       <SidebarInset className='rounded-xl'>
+  //         <header className='sticky top-16 z-50 flex h-(--header-height) w-full shrink-0 items-center gap-2 rounded-t-xl border-b backdrop-blur-sm transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height) dark:bg-gray-900/70'>
+  //           <div className='flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6'>
+  //             <SidebarTrigger className='-ml-1' />
+  //             <Separator
+  //               orientation='vertical'
+  //               className='mr-2 data-[orientation=vertical]:h-4'
+  //             />
+
+  //             <SidebarBreadcrumb />
+  //           </div>
+  //         </header>
+  //         <main className='mx-auto w-6xl p-4'>{children}</main>
+  //       </SidebarInset>
+  //     </div>
+  //   </SidebarProvider>
+  // );
+
   return (
     <SidebarProvider
       defaultOpen={defaultOpen}
       style={
         {
-          '--sidebar-width': '14rem', // 224px
-          '--sidebar-width-mobile': '85vw', // Use viewport width for better mobile experience
-          '--header-height': '3rem', // 48px
+          '--sidebar-width': 'calc(var(--spacing) * 72)',
+          '--header-height': 'calc(var(--spacing) * 12)',
         } as React.CSSProperties
       }
-      data-mobile-safe='true'
     >
-      <AppSidebar />
+      <AppSidebar className='max-w-56 p-0' />
+      <div className='dark:bg-background w-full pt-16'>
+        <SidebarInset className='rounded-xl'>
+          <header className='sticky top-16 z-50 flex h-(--header-height) w-full shrink-0 items-center gap-2 rounded-t-xl border-b backdrop-blur-sm transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height) dark:bg-gray-900/70'>
+            <div className='flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6'>
+              <SidebarTrigger className='-ml-1' />
+              <Separator
+                orientation='vertical'
+                className='mr-2 data-[orientation=vertical]:h-4'
+              />
 
-      <SidebarInset className='min-h-screen w-full pt-16 md:pt-[72px]'>
-        {/* Header - Fixed height and positioning */}
-        <header className='bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 flex h-12 w-full shrink-0 items-center gap-2 border-b backdrop-blur'>
-          <div className='flex w-full items-center gap-2 px-3 sm:px-4'>
-            <SidebarTrigger className='-ml-1' />
-            <Separator orientation='vertical' className='mr-2 h-4' />
-            <SidebarBreadcrumb />
-          </div>
-        </header>
-
-        {/* Main Content Area - Mobile-first responsive */}
-        <main className='flex-1 overflow-auto'>
-          <div className='w-full p-1 sm:p-4 md:p-6 lg:p-3'>
-            {/* Content container with proper responsive widths */}
-            <div className='mx-auto w-full px-1 sm:max-w-2xl md:max-w-4xl lg:max-w-5xl 2xl:xl:max-w-6xl'>
+              <SidebarBreadcrumb />
+            </div>
+          </header>
+          <main className='mx-auto min-w-[420px] p-0 md:min-w-xl xl:p-2 2xl:max-w-5xl'>
+            <div className='px-0 sm:px-6 lg:w-full lg:px-8 2xl:max-w-5xl'>
               {children}
             </div>
-          </div>
-        </main>
-      </SidebarInset>
+          </main>
+        </SidebarInset>
+      </div>
     </SidebarProvider>
   );
 };

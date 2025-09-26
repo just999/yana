@@ -67,7 +67,7 @@ export default async function AppSidebar({
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className='pb-20'>
+      <SidebarFooter className='w-[222px] p-0 pb-16'>
         <NavUser
           session={session}
           user={

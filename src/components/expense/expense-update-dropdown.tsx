@@ -60,8 +60,15 @@ const ExpenseUpdateDropdown = ({
             // disabled={isEditing}
             // onClick={handleEdit}
           >
-            <Link href={`/dashboard/expense/${transaction.id}`}>
-              <Pencil size={24} className='svg text-stone-200' /> Edit
+            <Link
+              href={`/dashboard/expense/${transaction.id}`}
+              className='font-bold text-blue-700 dark:text-sky-200'
+            >
+              <Pencil
+                size={24}
+                className='svg font-bold text-blue-700 dark:text-sky-200'
+              />{' '}
+              Edit
             </Link>
             {/* {isEditing ? 'Editing...' : 'Edit'} */}
           </Button>
@@ -114,7 +121,7 @@ const ExpenseUpdateDropdown = ({
         <Button variant='ghost' type='button' size='lg' className='h-6 w-6'>
           <Ellipsis
             size={24}
-            className='svg h-8 w-auto stroke-amber-100 stroke-2'
+            className='svg h-8 w-auto stroke-black stroke-2 dark:stroke-amber-100'
             style={{ width: '18px', height: '18px' }}
           />
         </Button>

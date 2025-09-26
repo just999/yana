@@ -33,14 +33,18 @@ const TransactionTotal = ({
       <div className='hidden min-w-[150px] items-center md:flex'></div>
       <div
         className={cn(
-          'min-w-[70px] rounded-xl bg-amber-800/20 px-2 text-center font-semibold',
+          'min-w-[70px] rounded-xl px-2 text-center font-semibold dark:bg-amber-800/20',
           amount < 0
-            ? 'border-b-2 border-red-800 bg-pink-700/20 text-xs text-fuchsia-300'
-            : 'border-b-2 border-lime-800 bg-emerald-700/20 text-lime-400'
+            ? 'border-b-2 border-red-800 text-xs dark:bg-pink-700/20 dark:text-fuchsia-300'
+            : 'border-b-2 border-lime-800 dark:bg-emerald-700/20 dark:text-lime-400'
         )}
       >
-        <span className='text-[10px]'>Total: {prefix} </span>
-        <span className='text-[10px]'>{value}</span>
+        <span className='text-[12px] font-light text-black dark:text-lime-100'>
+          Total: {prefix}{' '}
+        </span>
+        <span className='text-[12px] font-light text-black lg:font-semibold dark:text-lime-100'>
+          {value}
+        </span>
       </div>
       {/* <div className='min-w-[50px]'></div> */}
     </div>

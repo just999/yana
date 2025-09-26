@@ -17,7 +17,7 @@ export default async function SiteLayout({
   return (
     <div className='scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 flex min-h-screen flex-col'>
       {/* <Header user={user} /> */}
-      <main className='flex-1'>{children}</main>
+      <main className='flex-1 pb-20 md:pb-24'>{children}</main>
       <Footer className='fixed inset-x-0 bottom-0' />
     </div>
   );

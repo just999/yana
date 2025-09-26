@@ -209,7 +209,7 @@ const SaveButton = () => {
             >
               <SaveIcon
                 className={cn(
-                  'size-4 stroke-neutral-500 stroke-1',
+                  'size-4 stroke-zinc-600 stroke-1 dark:stroke-white',
                   isContentEmpty
                     ? 'text-gray-300'
                     : 'text-black dark:text-white'
@@ -1580,6 +1580,7 @@ export const Toolbar = ({
   insertImage,
   getInputProps,
   getRootProps,
+  className,
 }: {
   editorRef: React.RefObject<HTMLDivElement | null>;
   fileInputRef: React.RefObject<HTMLInputElement | null>;
@@ -1589,6 +1590,7 @@ export const Toolbar = ({
   insertImage: (file: File, imageId: string, isInline: boolean) => void;
   getInputProps: () => HTMLProps<HTMLInputElement>;
   getRootProps: () => HTMLProps<HTMLDivElement>;
+  className?: string;
 }) => {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -1712,14 +1714,14 @@ export const Toolbar = ({
   return (
     <div
       className={cn(
-        'sticky top-44 z-50 transition-transform duration-300',
+        'sticky top-44 z-50 mx-auto max-w-5xl transition-transform duration-300',
         isVisible ? 'translate-y-0' : '-translate-y-full'
       )}
     >
       <div
         className={cn(
-          'flex min-h-10 items-center justify-center gap-x-0.5 overflow-x-auto rounded-t-xl border border-amber-700/40 bg-[#f1f4f9] px-2 shadow-2xl dark:bg-stone-600/70 dark:text-amber-100',
-          !isVisible ? 'border border-amber-700/50 dark:bg-stone-600' : ''
+          'flex min-h-10 items-center justify-center gap-x-0.5 overflow-x-auto rounded-t-xl bg-[#f1f4f9] px-1 shadow-2xl dark:bg-stone-100/20 dark:text-amber-100',
+          !isVisible ? 'border border-amber-700/30 dark:bg-stone-600' : ''
         )}
       >
         {sections[0].map((item) => (

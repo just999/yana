@@ -133,9 +133,9 @@ const AlertDialogButton = ({
           size='sm'
           disabled={disabled}
           className={cn(
-            'group flex cursor-pointer items-center justify-start gap-0 overflow-hidden font-normal dark:hover:text-gray-100',
+            'group flex cursor-pointer items-center justify-start gap-0 overflow-hidden font-normal text-black dark:hover:text-gray-100',
             destructive &&
-              'text-gray-100 hover:text-red-700 dark:group-hover:text-amber-200',
+              'text-rose-800 hover:text-red-700 dark:text-rose-100 dark:group-hover:text-amber-200',
             className
           )}
         >
@@ -161,7 +161,7 @@ const AlertDialogButton = ({
             disabled={disabled}
             className={cn(
               destructive &&
-                'bg-red-600 text-amber-100 hover:bg-red-700 focus:ring-red-600'
+                'hover:bg-red-700 focus:ring-red-600 dark:bg-red-600 dark:text-amber-100'
             )}
           >
             {disabled ? (

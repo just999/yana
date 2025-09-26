@@ -97,7 +97,7 @@ export const RangeButton = ({ defaultRange }: RangeProps) => {
               <FormControl>
                 <div className='flex gap-1 rounded-lg bg-blue-800/50 p-1'>
                   <span>
-                    <Calendar size={16} />
+                    <Calendar size={16} className='svg' />
                   </span>
                   {rangeTime.map((timeOption) => (
                     <Button
@@ -107,14 +107,15 @@ export const RangeButton = ({ defaultRange }: RangeProps) => {
                       onClick={() => handleRangeChange(timeOption)}
                       size={'sm'}
                       className={cn(
-                        'h-4 rounded-md px-2 py-1 text-[10px] font-medium transition-all duration-200',
-                        'hover:bg-sky-600/20 focus:ring-2 focus:ring-sky-400/50 focus:outline-none',
+                        'h-4 rounded-md px-2 py-1 text-[10px] font-medium transition-all duration-200 hover:bg-blue-500/70 hover:text-amber-50 focus:ring-2 focus:ring-sky-400/50 focus:outline-none',
                         field.value === timeOption
                           ? 'bg-sky-600 text-white shadow-sm'
-                          : 'text-sky-200 hover:text-sky-100'
+                          : 'text-orange-50 hover:text-sky-100'
                       )}
                     >
-                      {getRangeLabel(timeOption)}
+                      <span className='rounded-[41px] shadow-[21px_21px_61px_#b0b0b0,-21px_-21px_61px_#ffffff]'>
+                        {getRangeLabel(timeOption)}
+                      </span>
                     </Button>
                   ))}
                 </div>

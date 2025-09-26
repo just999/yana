@@ -661,7 +661,7 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
     };
 
     return (
-      <div className='container mx-auto w-full py-6 2xl:max-w-5xl'>
+      <div className='container mx-auto max-w-5xl py-6'>
         <div className='mb-8'>
           <h1 className='text-3xl font-bold dark:text-gray-200'>
             <u>{type === 'create' ? 'Create New Post' : 'Edit Blog'}</u>
@@ -864,11 +864,10 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
             </div>
           </div>
 
-          <div>
+          <div className='mx-auto max-w-5xl px-1'>
             <Label htmlFor='content' className='text-gray-700'>
               Content *
             </Label>
-
             <div className='size-full rounded-2xl bg-[#F9FBFD]/90 px-4 py-2 dark:bg-stone-800/50 print:overflow-visible print:bg-white print:p-0'>
               <section>
                 <ImagePreview
@@ -876,7 +875,6 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
                   slug={slug || postData.slug}
                   removeImageById={removeImageById}
                 />
-
                 {pendingImages.length > 0 && (
                   <div className='flex w-full justify-center pt-1'>
                     <Button
@@ -906,13 +904,11 @@ const BlogForm = forwardRef<RichTextEditorRef, ExtendedRichTextEditorProps>(
               <div className='mx-auto flex justify-center py-0.5 text-gray-700 print:py-0'>
                 <EditorContent
                   editor={editor}
-                  spellCheck={false}
                   ref={editorRef}
                   className='editor-wrapper editor-paper w-full max-w-[816px] shadow-2xl/30'
                 />
               </div>
             </div>
-
             {/* <pre className='w-3xl break-words whitespace-pre-wrap'>
                       {JSON.stringify(
                         { images, prevImg, contentHtml, field },

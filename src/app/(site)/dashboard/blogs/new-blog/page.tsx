@@ -17,8 +17,8 @@ const NewBlogPage = async () => {
   const blogs = (await getBlogsByAuthUser()).data;
   const session = (await auth()) as Session;
   return (
-    <section className='min-w-2xl py-2 pb-24'>
-      <div className='container'>
+    <section className='min-w-6xl py-2 pb-24'>
+      <div className='mx-auto w-full'>
         <HydrateBlog
           imageUrl={[]}
           imgData={[]}

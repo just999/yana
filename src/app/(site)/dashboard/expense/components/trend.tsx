@@ -27,6 +27,7 @@ const Trend = async ({ type, range }: TrendProps) => {
         type={type}
         amount={data.currentAmount}
         prevAmount={data.previousAmount}
+        className='grow'
       />
     </div>
   );

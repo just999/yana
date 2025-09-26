@@ -14,7 +14,7 @@ import { Button, Separator } from '@/components/ui';
 import { PAGE_SIZE } from '@/lib/constants';
 import { groupAndSumTransactionsByDate } from '@/lib/utils';
 import type { Transaction } from '@prisma/client';
-import { EllipsisIcon, Loader } from 'lucide-react';
+import { ChevronDownIcon, EllipsisIcon, Loader } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
@@ -29,6 +29,7 @@ const TransactionList = ({ range, initTrans }: TransactionListProps) => {
   const [transactions, setTransactions] = useState<Transaction[]>(
     initTrans?.data || []
   );
+  console.log('🥑 ~ TransactionList ~ transactions:', transactions);
 
   const [loading, setLoading] = useState(false);
   const [buttonHidden, setButtonHidden] = useState(
@@ -41,14 +42,24 @@ const TransactionList = ({ range, initTrans }: TransactionListProps) => {
   const router = useRouter();
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const [minHeight, setMinHeight] = useState(450);
+  console.log(
+    '🥑 ~ TransactionList ~ containerRef:',
+    containerRef.current?.scrollHeight
+  );
+  const [minHeight, setMinHeight] = useState(50);
+  console.log('🥑 ~ TransactionList ~ minHeight:', minHeight);
   const grouped = groupAndSumTransactionsByDate(transactions, range);
+  console.log('🥑 ~ TransactionList ~ grouped:', grouped);
 
   useEffect(() => {
+    if (transactions.length === 0) {
+      return setMinHeight(50);
+    }
     if (containerRef.current) {
       const height = containerRef.current.scrollHeight;
+      console.log('🥑 ~ TransactionList ~ height:', height);
       // Add buffer for smooth experience
-      setMinHeight(Math.max(height + 100, 450));
+      setMinHeight(Math.max(height, 0));
     }
   }, [transactions.length]);
 
@@ -224,6 +235,33 @@ const TransactionList = ({ range, initTrans }: TransactionListProps) => {
   //   await loadMoreTransactions();
   // };
 
+  const renderLoadMore = (
+    <div className='flex w-full justify-center py-1'>
+      {!buttonHidden ? (
+        <Button
+          variant='ghost'
+          onClick={handleClick}
+          disabled={loading}
+          className='min-w-[120px] touch-manipulation shadow-lg' // Better touch target
+          size='sm'
+        >
+          <div className='flex items-center gap-2'>
+            {loading && <Loader className='h-4 w-4 animate-spin' />}
+            <span className='flex items-center gap-2 font-mono text-xs font-normal text-sky-600 italic sm:text-base dark:text-sky-200'>
+              {loading ? 'Loading...' : 'Load More'}{' '}
+              <ChevronDownIcon size={18} className='size-5 stroke-2' />
+            </span>
+          </div>
+        </Button>
+      ) : (
+        <div className='text-muted-foreground flex flex-col items-center gap-1'>
+          <span className='text-xs sm:text-sm'>End of transactions</span>{' '}
+          <EllipsisIcon className='size-6 stroke-black stroke-2 dark:stroke-white' />
+        </div>
+      )}
+    </div>
+  );
+
   return (
     // <div className='mx-auto min-h-screen max-w-xl space-y-8'>
     //   {Object.entries(grouped).map(([date, { transactions, amount }]) => (
@@ -340,7 +378,7 @@ const TransactionList = ({ range, initTrans }: TransactionListProps) => {
     // </div>
 
     <div
-      className='w-full space-y-3 sm:space-y-4'
+      className='w-full space-y-3 overflow-x-hidden sm:space-y-4'
       ref={containerRef}
       style={{ minHeight: `${minHeight}px` }}
     >
@@ -350,7 +388,10 @@ const TransactionList = ({ range, initTrans }: TransactionListProps) => {
           <Separator className='mx-2 sm:mx-0' />
 
           {Object.entries(days).map(([day, { transactions, amount }]) => (
-            <div key={day} className='space-y-2'>
+            <div
+              key={day}
+              className='space-y-2 rounded-sm bg-red-200/30 dark:bg-transparent'
+            >
               {/* Summary Item - Mobile optimized */}
               <div className='px-2 sm:px-0'>
                 <TransactionSummaryItem
@@ -361,7 +402,7 @@ const TransactionList = ({ range, initTrans }: TransactionListProps) => {
               </div>
 
               {/* Transactions Container - Mobile optimized */}
-              <div className='bg-card/50 overflow-hidden rounded-lg border backdrop-blur-sm'>
+              <div className='bg-card/50 overflow-hidden backdrop-blur-sm'>
                 <div className='divide-border/50 divide-y'>
                   {transactions.map((transaction, i) => (
                     <div
@@ -383,41 +424,44 @@ const TransactionList = ({ range, initTrans }: TransactionListProps) => {
       ))}
 
       {/* Empty State - Mobile friendly */}
-      {transactions.length === 0 && (
+      {transactions.length === 0 ? (
         <div className='flex min-h-[100px] w-full items-center justify-center rounded-lg border border-dashed'>
           <div className='text-muted-foreground text-center'>
             <div className='text-sm sm:text-base'>No transactions found</div>
-            <div className='text-muted-foreground/70 text-xs sm:text-sm'>
+            <div className='text-muted-foreground/60 text-xs sm:text-[10px]'>
               Try adjusting your date range
             </div>
           </div>
         </div>
+      ) : (
+        renderLoadMore
       )}
 
       {/* Load More / End Indicator - Mobile optimized */}
-      <div className='flex w-full justify-center py-4'>
+      {/* <div className='flex w-full justify-center py-2'>
         {!buttonHidden ? (
           <Button
             variant='ghost'
             onClick={handleClick}
             disabled={loading}
-            className='min-w-[120px] touch-manipulation' // Better touch target
+            className='min-w-[120px] touch-manipulation shadow-lg'
             size='sm'
           >
             <div className='flex items-center gap-2'>
               {loading && <Loader className='h-4 w-4 animate-spin' />}
-              <span className='text-sm sm:text-base'>
-                {loading ? 'Loading...' : 'Load More'}
+              <span className='flex items-center gap-2 font-mono text-xs font-normal text-sky-600 italic sm:text-base dark:text-sky-200'>
+                {loading ? 'Loading...' : 'Load More'}{' '}
+                <ChevronDownIcon size={18} className='size-5 stroke-2' />
               </span>
             </div>
           </Button>
         ) : (
-          <div className='text-muted-foreground flex items-center gap-2'>
-            <EllipsisIcon className='h-4 w-4' />
-            <span className='text-xs sm:text-sm'>End of transactions</span>
+          <div className='text-muted-foreground flex flex-col items-center gap-2'>
+            <span className='text-xs sm:text-sm'>End of transactions</span>{' '}
+            <EllipsisIcon className='size-6 stroke-black stroke-2 dark:stroke-white' />
           </div>
         )}
-      </div>
+      </div> */}
     </div>
   );
 };

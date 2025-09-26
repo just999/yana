@@ -13,8 +13,14 @@
   @import 'highlight.js/styles/base16-windows-high-contrast.css';
 } */
 
+@media (min-width: 375px) {
+  .xs\:block {
+    display: block;
+  }
+}
+
 .expense {
-  @apply container mx-auto max-w-xl bg-white text-black dark:bg-slate-950 dark:text-slate-100;
+  @apply container mx-auto min-w-[420px] bg-white text-black dark:bg-slate-950 dark:text-slate-100;
 }
 
 @property --border-angle {

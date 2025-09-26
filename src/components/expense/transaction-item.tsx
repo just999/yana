@@ -2,7 +2,7 @@
 
 import { useFormatCurrency } from '@/hooks/use-format-currency';
 import { categoriesByType, expenseCat } from '@/lib/helpers';
-import { cn } from '@/lib/utils';
+import { cn, inter } from '@/lib/utils';
 import type { Transaction, TransType } from '@prisma/client';
 import {
   EllipsisIcon,
@@ -114,7 +114,8 @@ const TransactionItem = ({ onRemoved, i, ...tr }: TransactionItemProps) => {
           <Badge
             variant='outline'
             className={cn(
-              'text-[10px] font-light transition-colors',
+              'border-b-4 border-indigo-400/30 text-[10px] font-bold text-black transition-colors hover:bg-indigo-900/20 dark:bg-indigo-800/10 dark:text-indigo-100',
+              inter.className,
               getBadgeVariant(tr.type)
             )}
           >
@@ -123,7 +124,7 @@ const TransactionItem = ({ onRemoved, i, ...tr }: TransactionItemProps) => {
           </Badge>
         )}
       </div>
-      <div className='min-w-[70px] text-left'>
+      <div className='min-w-[70px] text-left text-black'>
         {formattedAmount.prefix} {formattedAmount.value}{' '}
       </div>
       <div className='flex min-w-[50px] justify-end'>

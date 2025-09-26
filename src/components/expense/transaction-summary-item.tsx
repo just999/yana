@@ -26,21 +26,21 @@ const TransactionSummaryItem = ({
         <Badge
           variant='outline'
           className={cn(
-            'border-b-4 border-indigo-400/30 bg-indigo-800/10 text-[10px] font-light text-indigo-100 transition-colors hover:bg-indigo-900/20',
+            'border-b-4 border-indigo-400/30 text-[10px] font-bold text-black transition-colors hover:bg-indigo-900/20 dark:bg-indigo-800/10 dark:text-indigo-100',
             inter.className
           )}
         >
-          <ScaleIcon className='mr-1 inline size-4 h-3 w-3' />
+          <ScaleIcon className='mr-1 inline size-4 h-3 w-3 font-bold text-black' />
           Daily Balance
         </Badge>
       </div>
       <div className='min-w-[50px]'></div>
       <div
         className={cn(
-          'min-w-[70px] rounded-xl bg-amber-800/20 px-2 text-center font-semibold',
+          'min-w-[70px] rounded-xl bg-amber-800/20 px-2 text-center',
           amount < 0
-            ? 'border-b-2 border-red-800 bg-pink-700/20 text-xs text-fuchsia-300'
-            : 'border-b-2 border-lime-800 bg-emerald-700/20 text-lime-400'
+            ? 'border-b-2 border-red-800 text-xs font-bold text-black dark:bg-pink-700/20 dark:text-fuchsia-300'
+            : 'border-b-2 border-lime-800 font-bold text-black dark:bg-emerald-700/20 dark:text-lime-400'
         )}
       >
         <span className='text-[10px]'>{prefix} </span>
