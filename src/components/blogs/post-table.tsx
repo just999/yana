@@ -168,13 +168,15 @@ const PostTable = ({
   const isDeleting = (slug: string) => deletingSlug === slug && isPending;
 
   return (
-    <div className='mx-auto mt-10 w-6xl'>
-      <h3 className='mb-4 text-2xl font-semibold'>{title ? title : 'Posts'}</h3>
+    <div className='mx-auto mt-8 min-w-5xl rounded-lg border pt-4'>
+      <h3 className='mb-4 px-2 text-2xl font-semibold underline'>
+        {title ? title : 'Posts'}
+      </h3>
       <Table>
         <TableCaption className='underline'>
           A list of recent posts
         </TableCaption>
-        <TableHeader>
+        <TableHeader className='bg-accent/70'>
           <TableRow>
             <TableHead>No</TableHead>
             <TableHead>Title</TableHead>

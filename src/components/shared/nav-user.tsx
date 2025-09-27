@@ -137,17 +137,17 @@ export function NavUser({ user, session }: NavUserProps): ReactNode {
     //   </SidebarMenuItem>
     // </SidebarMenu>
 
-    <SidebarMenu>
-      <SidebarMenuItem>
+    <SidebarMenu className='w-full'>
+      <SidebarMenuItem className='pb-2 pl-2'>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size='lg'
-              className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
+              className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer'
             >
-              <Avatar className='h-8 w-8 rounded-lg'>
+              <Avatar className='mx-auto h-8 w-8 rounded-lg'>
                 <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className='rounded-lg'>CN</AvatarFallback>
+                <AvatarFallback className=''>CN</AvatarFallback>
               </Avatar>
               <div className='grid flex-1 text-left text-sm leading-tight'>
                 <span className='truncate font-medium'>{user.name}</span>

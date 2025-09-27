@@ -29,7 +29,6 @@ const TransactionList = ({ range, initTrans }: TransactionListProps) => {
   const [transactions, setTransactions] = useState<Transaction[]>(
     initTrans?.data || []
   );
-  console.log('🥑 ~ TransactionList ~ transactions:', transactions);
 
   const [loading, setLoading] = useState(false);
   const [buttonHidden, setButtonHidden] = useState(
@@ -42,14 +41,8 @@ const TransactionList = ({ range, initTrans }: TransactionListProps) => {
   const router = useRouter();
 
   const containerRef = useRef<HTMLDivElement>(null);
-  console.log(
-    '🥑 ~ TransactionList ~ containerRef:',
-    containerRef.current?.scrollHeight
-  );
   const [minHeight, setMinHeight] = useState(50);
-  console.log('🥑 ~ TransactionList ~ minHeight:', minHeight);
   const grouped = groupAndSumTransactionsByDate(transactions, range);
-  console.log('🥑 ~ TransactionList ~ grouped:', grouped);
 
   useEffect(() => {
     if (transactions.length === 0) {
@@ -57,7 +50,6 @@ const TransactionList = ({ range, initTrans }: TransactionListProps) => {
     }
     if (containerRef.current) {
       const height = containerRef.current.scrollHeight;
-      console.log('🥑 ~ TransactionList ~ height:', height);
       // Add buffer for smooth experience
       setMinHeight(Math.max(height, 0));
     }

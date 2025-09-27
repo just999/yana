@@ -65,7 +65,7 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
             {/* </div> */}
           </div>
           <AnalyticsChart />
-          <div className='flex flex-col items-center space-y-2'>
+          <div className='flex flex-col items-center space-y-2 px-6'>
             <PostTable
               title='Latest Posts'
               blogs={newBlogs || []}

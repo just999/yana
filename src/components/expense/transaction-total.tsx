@@ -33,7 +33,7 @@ const TransactionTotal = ({
       <div className='hidden min-w-[150px] items-center md:flex'></div>
       <div
         className={cn(
-          'min-w-[70px] rounded-xl px-2 text-center font-semibold dark:bg-amber-800/20',
+          'shadow-[20px_20px_60px_#bababa,-20px_-20px_60px_#ffffff]dark:bg-amber-800/20 min-w-[70px] rounded-[50px] px-2 text-center font-semibold',
           amount < 0
             ? 'border-b-2 border-red-800 text-xs dark:bg-pink-700/20 dark:text-fuchsia-300'
             : 'border-b-2 border-lime-800 dark:bg-emerald-700/20 dark:text-lime-400'

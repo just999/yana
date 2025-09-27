@@ -47,14 +47,17 @@ export default async function AppSidebar({
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className='py-4'>
         <SidebarGroup>
           <SidebarGroupLabel className='underline'>Dashboard</SidebarGroupLabel>
 
           <SidebarGroupContent>
             <SidebarMenu>
               {SidebarItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
+                <SidebarMenuItem
+                  key={item.title}
+                  className='mx-auto flex w-full justify-center'
+                >
                   <SidebarMenuButton asChild>
                     <Link href={item.url}>
                       <item.icon />
@@ -67,7 +70,7 @@ export default async function AppSidebar({
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className='w-[222px] p-0 pb-16'>
+      <SidebarFooter className='w-[222px] p-0 pb-20'>
         <NavUser
           session={session}
           user={

@@ -20,7 +20,7 @@
 }
 
 .expense {
-  @apply container mx-auto min-w-[420px] bg-white text-black dark:bg-slate-950 dark:text-slate-100;
+  @apply mx-auto min-w-[420px] bg-white text-black dark:bg-slate-950 dark:text-slate-100;
 }
 
 @property --border-angle {
@@ -228,6 +228,7 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --breakpoint-xs: 30rem;
+  --breakpoint-mobile: 27rem;
   --editor-paper: oklch(0.956 0.0115 84.58);
   --editor-accent: #f5f5e8;
   --editor-text: #464635;
