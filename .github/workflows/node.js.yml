@@ -23,20 +23,20 @@
 #       with:
 #         node-version: ${{ matrix.node-version }}
 #         cache: 'npm'
-#       # Cache Next.js build artifacts BEFORE building
+
 #     - name: Cache node modules
 #       uses: actions/cache@v4
 #       with:
-#         path: ∼/.npm
+#         path: ~/.npm
 #         key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
 #         restore-keys: |
 #           ${{ runner.os }}-node-
 
-#     - name: Restore Next.js build cache
-#       uses: actions/cache/restore@v4
+#     - name: Cache Next.js build
+#       uses: actions/cache@v4
 #       with:
 #         path: |
-#           .next/cache
+#           ${{ github.workspace }}/.next/cache
 #         key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/{pages,app,components,lib,utils}/**/*.{js,jsx,ts,tsx}', 'next.config.*', 'tailwind.config.*', 'tsconfig.json') }}
 #         restore-keys: |
 #           ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
@@ -64,13 +64,11 @@
 #         NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
 #         EOF
 
-#     # Optional: Verify environment variables (remove in production)
 #     - name: Verify environment setup
 #       run: |
 #         echo "Environment file created"
 #         ls -la .env.production
 
-#     # Run database migrations if needed
 #     - name: Run database migrations
 #       run: |
 #         if [ -f "prisma/schema.prisma" ]; then
@@ -80,33 +78,18 @@
 #       env:
 #         DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
-#     # Build the application
 #     - name: Build Next.js application
 #       run: npm run build
 #       env:
 #         NODE_ENV: production
-#       # Optional: Run tests if you have them
-#       # - name: Run tests
-#       #   run: npm test
 
-#       # Fix 3: Save cache AFTER build when paths exist
-#     - name: Save Next.js build cache
-#       uses: actions/cache/save@v4
-#       if: always()
-#       with:
-#         path: |
-#           .next/cache
-#           .next/static
-#           .next/server
-#         key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/{pages,app,components,lib,utils}/**/*.{js,jsx,ts,tsx}', 'next.config.*', 'tailwind.config.*', 'tsconfig.json') }}
-
-#     # Optional: Check build output
 #     - name: Check build artifacts
 #       run: |
-#         ls -la .next/
-#         du -sh .next/ || echo "Build size check failed"
+#         ls -la .next/ || echo "No .next directory found"
+#         if [ -d ".next" ]; then
+#           du -sh .next/ || echo "Build size check failed"
+#         fi
 
-#     # Restart PM2 application
 #     - name: Deploy and restart PM2
 #       run: |
 #         echo "Current directory: $(pwd)"
@@ -116,7 +99,6 @@
 #         echo "PM2 status:"
 #         pm2 status
 
-#     # Optional: Health check after deployment
 #     - name: Health check
 #       run: |
 #         sleep 5
@@ -134,6 +116,7 @@ on:
 jobs:
   build:
     runs-on: self-hosted
+    timeout-minutes: 30 # Add overall job timeout
 
     strategy:
       matrix:
@@ -149,28 +132,46 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
 
-    # Fix 1: Correct npm cache path (was using ~ instead of ~/.npm)
+    # Optimized node_modules caching with timeout and better path
     - name: Cache node modules
       uses: actions/cache@v4
       with:
-        path: ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        path: |
+          ~/.npm
+          ./node_modules
+        key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
+          ${{ runner.os }}-node-${{ matrix.node-version }}-
           ${{ runner.os }}-node-
+      timeout-minutes: 5
+      continue-on-error: true # Don't fail if cache times out
 
-    # Fix 2: Use a single cache action instead of separate restore/save
+    # Simplified Next.js cache with shorter key
     - name: Cache Next.js build
       uses: actions/cache@v4
       with:
         path: |
           ${{ github.workspace }}/.next/cache
-        key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/{pages,app,components,lib,utils}/**/*.{js,jsx,ts,tsx}', 'next.config.*', 'tailwind.config.*', 'tsconfig.json') }}
+          ${{ github.workspace }}/.next/standalone
+          ${{ github.workspace }}/.next/static
+        key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ github.sha }}
         restore-keys: |
           ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
           ${{ runner.os }}-nextjs-
+      timeout-minutes: 3
+      continue-on-error: true
 
+    # Speed up npm install
     - name: Install dependencies
-      run: npm ci
+      run: |
+        if [ -d "node_modules" ] && [ -f "package-lock.json" ]; then
+          echo "Checking if dependencies need update..."
+          npm ci --prefer-offline --no-audit --progress=false
+        else
+          echo "Fresh install..."
+          npm ci --no-audit --progress=false
+        fi
+      timeout-minutes: 10
 
     - name: Create production environment file
       run: |
@@ -191,69 +192,82 @@ jobs:
         NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
         EOF
 
-    # Optional: Verify environment variables (remove in production)
     - name: Verify environment setup
       run: |
         echo "Environment file created"
         ls -la .env.production
 
-    # Run database migrations if needed
-    - name: Run database migrations
+    - name: Run database operations
       run: |
         if [ -f "prisma/schema.prisma" ]; then
-          npx prisma generate
-          npx prisma db push --accept-data-loss || echo "Migration skipped"
+          echo "Running Prisma operations..."
+          npx prisma generate --no-engine
+          npx prisma db push --accept-data-loss || echo "Migration skipped - database may be up to date"
+        else
+          echo "No Prisma schema found, skipping database operations"
         fi
       env:
+        FORCE_COLOR: 0
+        CI: true
+        NEXT_TELEMETRY_DISABLED: 1
+        NODE_OPTIONS: --max-old-space-size=4096
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      timeout-minutes: 5
 
-    # Build the application
     - name: Build Next.js application
-      run: npm run build
+      run: |
+        echo "Starting build process..."
+        npm run build
       env:
         NODE_ENV: production
+        NEXT_TELEMETRY_DISABLED: 1 # Disable telemetry for faster builds
+      timeout-minutes: 15
 
-    # Optional: Run tests if you have them
-    # - name: Run tests
-    #   run: npm test
-
-    # Fix 3: Check if paths exist before attempting to save additional cache
-    # - name: Save build artifacts cache
-    #   uses: actions/cache/save@v4
-    #   if: always() && steps.build.conclusion == 'success'
-    #   with:
-    #     path: |
-    #       ${{ github.workspace }}/.next/static
-    #       ${{ github.workspace }}/.next/server
-    #     key: ${{ runner.os }}-nextjs-build-${{ github.sha }}
-    # - name: Save build artifacts cache
-    #   if: success() && exists('${{ github.workspace }}/.next/cache')
-    #   uses: actions/cache/save@v4
-    #   with:
-    #     path: ${{ github.workspace }}/.next/cache
-    #     key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**/{pages,app,components,lib,utils}/**/*.{js,jsx,ts,tsx}', 'next.config.*', 'tailwind.config.*', 'tsconfig.json') }}
-
-    # Optional: Check build output
-    - name: Check build artifacts
+    - name: Verify build artifacts
       run: |
-        ls -la .next/ || echo "No .next directory found"
         if [ -d ".next" ]; then
-          du -sh .next/ || echo "Build size check failed"
+          echo "Build successful - artifacts found:"
+          ls -la .next/
+          echo "Build size: $(du -sh .next/ 2>/dev/null || echo 'Size check failed')"
+        else
+          echo "ERROR: No .next directory found after build!"
+          exit 1
         fi
 
-    # Restart PM2 application
     - name: Deploy and restart PM2
       run: |
         echo "Current directory: $(pwd)"
-        echo "Restarting PM2 process..."
-        pm2 restart 0 --update-env
-        pm2 save
-        echo "PM2 status:"
-        pm2 status
+        echo "Current PM2 processes:"
+        pm2 list
 
-    # Optional: Health check after deployment
+        echo "Restarting PM2 process..."
+        pm2 restart 0 --update-env || pm2 start ecosystem.config.js --update-env
+        pm2 save
+
+        echo "Updated PM2 status:"
+        pm2 status
+      timeout-minutes: 3
+
     - name: Health check
       run: |
-        sleep 5
-        curl -f http://localhost:3000/api/health || echo "Health check endpoint not available"
+        echo "Waiting for application to start..."
+        sleep 10
+
+        # Try health check multiple times
+        for i in {1..5}; do
+          echo "Health check attempt $i/5"
+          if curl -f -s http://localhost:3000/api/health > /dev/null 2>&1; then
+            echo "✅ Health check passed"
+            curl -s http://localhost:3000/api/health
+            exit 0
+          else
+            echo "❌ Health check failed, retrying in 5 seconds..."
+            sleep 5
+          fi
+        done
+
+        echo "⚠️ Health check endpoint not responding after 5 attempts"
+        # Check if the app is running on a different endpoint
+        curl -f -s http://localhost:3000/ > /dev/null 2>&1 && echo "✅ Root endpoint accessible" || echo "❌ Root endpoint also not accessible"
       continue-on-error: true
+      timeout-minutes: 3

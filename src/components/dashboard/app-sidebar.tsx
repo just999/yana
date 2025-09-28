@@ -170,7 +170,7 @@ export default async function AppSidebar({
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className='pb-4'>
+      <SidebarFooter className='p-2'>
         {' '}
         {/* Simplified footer padding */}
         <NavUser
