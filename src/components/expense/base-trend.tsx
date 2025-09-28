@@ -50,7 +50,7 @@ export const bgColor = {
     'dark:bg-indigo-500/30 bg-indigo-200/80 rounded-lg border border-indigo-800/5 backdrop-blur-xl',
 };
 
-const Trend = ({ type, amount, prevAmount, className }: TrendProps) => {
+const BaseTrend = ({ type, amount, prevAmount, className }: TrendProps) => {
   const calcPercentageChange = (amount: number, prevAmount: number) => {
     if (!amount || !prevAmount) return 0;
 
@@ -126,4 +126,4 @@ const Trend = ({ type, amount, prevAmount, className }: TrendProps) => {
   );
 };
 
-export default Trend;
+export default BaseTrend;

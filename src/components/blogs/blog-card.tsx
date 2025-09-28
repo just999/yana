@@ -1,5 +1,3 @@
-'use client';
-
 import { Img } from '@/assets/img';
 import BlogContent from '@/components/blogs/blog-content';
 import {

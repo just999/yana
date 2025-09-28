@@ -13,8 +13,8 @@ import {
 } from 'lucide-react';
 
 import { Badge } from '../ui';
+import { bgColorClasses, colorClasses } from './base-trend';
 import ExpenseUpdateDropdown from './expense-update-dropdown';
-import { bgColorClasses, colorClasses } from './trend';
 
 interface TransactionItemProps extends Transaction {
   onRemoved?: () => void;

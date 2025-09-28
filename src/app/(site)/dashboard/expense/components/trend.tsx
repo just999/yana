@@ -4,7 +4,7 @@ import {
   type RangeType,
 } from '@/actions/expense-actions';
 import { auth } from '@/auth';
-import BaseTrend from '@/components/expense/trend';
+import BaseTrend from '@/components/expense/base-trend';
 import type { TranTypes } from '@/lib/constants';
 
 type TrendProps = {

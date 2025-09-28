@@ -61,11 +61,15 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
       <div className='flex w-full flex-1 flex-col pb-18'>
         <div className='@container/main flex flex-1 flex-col gap-2'>
           <div className='flex flex-col gap-4 py-4 md:gap-6 md:py-6'>
-            <SectionCards blogs={rawBlogs.data} users={users.data} />
+            <SectionCards
+              blogs={rawBlogs.data}
+              users={users.data}
+              className='flex'
+            />
             {/* </div> */}
           </div>
           <AnalyticsChart />
-          <div className='flex flex-col items-center space-y-2 px-6'>
+          <div className='flex flex-col items-center space-y-2 px-2'>
             <PostTable
               title='Latest Posts'
               blogs={newBlogs || []}

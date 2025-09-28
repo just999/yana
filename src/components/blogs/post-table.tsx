@@ -168,7 +168,7 @@ const PostTable = ({
   const isDeleting = (slug: string) => deletingSlug === slug && isPending;
 
   return (
-    <div className='mx-auto mt-8 min-w-5xl rounded-lg border pt-4'>
+    <div className='mx-auto mt-8 min-w-[430px] rounded-lg border pt-4 sm:min-w-[1040px]'>
       <h3 className='mb-4 px-2 text-2xl font-semibold underline'>
         {title ? title : 'Posts'}
       </h3>

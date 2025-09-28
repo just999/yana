@@ -13,14 +13,77 @@
   @import 'highlight.js/styles/base16-windows-high-contrast.css';
 } */
 
-@media (min-width: 375px) {
+/* @media (min-width: 375px) {
   .xs\:block {
     display: block;
   }
+} */
+
+@media (min-width: 375px) {
+  .xs\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
+/* Trend component specific styles */
+.trend-container {
+  container-type: inline-size;
+}
+
+/* Container queries for trend cards (if supported) */
+@container (max-width: 200px) {
+  .trend-card {
+    padding: 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .trend-card .trend-icon {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+/* Fallback for very small screens */
+@media (max-width: 350px) {
+  .trend-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .trend-card {
+    min-height: 80px;
+    padding: 0.5rem;
+  }
+}
+
+:root {
+  --spacing: 0.25rem; /* 4px */
+  --sidebar-width: 14rem; /* 224px */
+  --header-height: 3rem; /* 48px */
+}
+
+/* Mobile sidebar adjustments */
+@media (max-width: 768px) {
+  :root {
+    --sidebar-width: 16rem; /* 256px - slightly wider for mobile */
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 769px) and (max-width: 1024px) {
+  :root {
+    --sidebar-width: 14rem; /* 224px - standard width */
+  }
+}
+
+/* Desktop adjustments */
+@media (min-width: 1025px) {
+  :root {
+    --sidebar-width: 14rem; /* 224px - standard width */
+  }
+}
 .expense {
-  @apply mx-auto min-w-[420px] bg-white text-black dark:bg-slate-950 dark:text-slate-100;
+  @apply mx-auto bg-white text-black dark:bg-slate-950 dark:text-slate-100;
 }
 
 @property --border-angle {

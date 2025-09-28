@@ -120,8 +120,8 @@ const DashboardLayout = async ({ children }: DashboardPageProps) => {
         } as React.CSSProperties
       }
     >
-      <AppSidebar className='max-w-56 p-0' />
-      <div className='dark:bg-background w-full pt-16'>
+      <AppSidebar className='max-w-56' />
+      <div className='w-full pt-[70px]'>
         <SidebarInset className='rounded-xl'>
           <header className='sticky top-16 z-50 flex h-(--header-height) w-full shrink-0 items-center gap-2 rounded-t-xl border-b backdrop-blur-sm transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height) dark:bg-gray-900/70'>
             <div className='flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6'>
@@ -134,8 +134,10 @@ const DashboardLayout = async ({ children }: DashboardPageProps) => {
               <SidebarBreadcrumb />
             </div>
           </header>
-          <main className='mx-auto min-w-[420px] p-0 md:min-w-xl xl:max-w-6xl xl:p-2'>
-            <div className='px-0 sm:px-6 lg:min-w-6xl lg:px-8'>{children}</div>
+          <main className='mx-auto w-full p-0 xl:p-4 2xl:max-w-6xl'>
+            <div className='min-w-[420px] px-0 sm:px-6 lg:min-w-6xl lg:px-8'>
+              {children}
+            </div>
           </main>
         </SidebarInset>
       </div>

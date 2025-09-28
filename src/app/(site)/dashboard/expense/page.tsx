@@ -24,12 +24,12 @@ const ExpensePage = async ({ searchParams }: ExpensePageProps) => {
   const transactions = (await getTransactionByRange(range)).data;
 
   return (
-    <div className='xs:min-w-xl mx-auto max-w-[430px] px-0 sm:px-6 lg:w-full lg:px-8 2xl:max-w-5xl'>
-      <div className='expense space-y-8 rounded-lg px-1 py-2 shadow-[20px_20px_60px_#bababa,-20px_-20px_60px_#ffffff] lg:min-w-5xl xl:min-w-xs dark:shadow-[19px_19px_86px_#0c0a0a,-19px_-19px_86px_#3e3c3c]'>
+    <div className='xs:max-w-xl mx-auto max-w-[430px] px-0'>
+      <div className='expense mx-auto space-y-8 rounded-lg px-1 py-2 shadow-[20px_20px_60px_#bababa,-20px_-20px_60px_#ffffff] sm:min-w-xl xl:min-w-xs dark:shadow-[19px_19px_86px_#0c0a0a,-19px_-19px_86px_#3e3c3c]'>
         <section className='xs:grid-cols-1 mx-auto mb-4 grid w-full max-w-xl grid-cols-1 gap-8'>
           <h1 className='px-4 text-2xl font-semibold underline'>Summary</h1>
         </section>
-        <section className='m-auto flex w-full flex-col'>
+        <section className='mx-auto flex w-full flex-col'>
           <span className='flex w-full items-end justify-between'>
             <h2 className='px-4 font-mono text-lg'>Trend</h2>
             <span className='text-end'>
