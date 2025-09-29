@@ -207,10 +207,6 @@ jobs:
           echo "No Prisma schema found, skipping database operations"
         fi
       env:
-        FORCE_COLOR: 0
-        CI: true
-        NEXT_TELEMETRY_DISABLED: 1
-        NODE_OPTIONS: --max-old-space-size=4096
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
       timeout-minutes: 5
 

@@ -134,8 +134,8 @@ const DashboardLayout = async ({ children }: DashboardPageProps) => {
               <SidebarBreadcrumb />
             </div>
           </header>
-          <main className='mx-auto w-full p-0 xl:p-4 2xl:max-w-6xl'>
-            <div className='min-h-screen min-w-[420px] px-0 sm:px-6 lg:min-w-6xl lg:px-8'>
+          <main className='mx-auto w-full p-0 xl:max-w-6xl'>
+            <div className='min-h-screen min-w-[420px] px-0 sm:px-0 lg:min-w-6xl lg:px-8'>
               {children}
             </div>
           </main>

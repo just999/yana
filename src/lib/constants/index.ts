@@ -161,13 +161,38 @@ export const CONDITION_OPTIONS = [
   { value: 'less', label: 'Less than (<)' },
 ];
 
+// export const MARKET_OVERVIEW_WIDGET_CONFIG = {
+//   allow_symbol_change: true,
+//   calendar: false,
+//   details: false,
+//   hide_side_toolbar: true,
+//   hide_top_toolbar: false,
+//   hide_legend: false,
+//   hide_volume: false,
+//   hotlist: false,
+//   interval: 'D',
+//   locale: 'en',
+//   save_image: true,
+//   style: '1',
+//   symbol: 'NASDAQ:AAPL',
+//   theme: 'dark',
+//   timezone: 'Etc/UTC',
+//   backgroundColor: '#0F0F0F',
+//   gridColor: 'rgba(242, 242, 242, 0.06)',
+//   watchlist: [],
+//   withdateranges: false,
+//   compareSymbols: [],
+//   studies: [],
+//   autosize: true,
+// };
+
 // TradingView Charts
 export const MARKET_OVERVIEW_WIDGET_CONFIG = {
   colorTheme: 'dark', // dark mode
   dateRange: '12M', // last 12 months
   locale: 'en', // language
   largeChartUrl: '', // link to a large chart if needed
-  isTransparent: true, // makes background transparent
+  isTransparent: false,
   showFloatingTooltip: true, // show tooltip on hover
   plotLineColorGrowing: '#0FEDBE', // line color when price goes up
   plotLineColorFalling: '#0FEDBE', // line color when price falls
@@ -243,7 +268,7 @@ export const TOP_STORIES_WIDGET_CONFIG = {
   displayMode: 'regular',
   feedMode: 'market',
   colorTheme: 'dark',
-  isTransparent: true,
+  isTransparent: false,
   locale: 'en',
   market: 'stock',
   width: '100%',

@@ -189,6 +189,7 @@ export const menuItems = [
   { href: '/blogs', label: 'blogs' },
   { href: '/playground', label: 'Playground' },
   { href: '/dashboard/expense', label: 'Expense' },
+  { href: '/dashboard/trading', label: 'Trading' },
   { href: '/dashboard', label: 'Dashboard' },
   // { href: '/sign-in', label: 'sign-in-test' },
 ];

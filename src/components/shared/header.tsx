@@ -75,7 +75,11 @@ const Header = ({ className, user }: HeaderProps) => {
     if (href === pathname) return true;
 
     if (href === '/dashboard' && pathname.startsWith('/dashboard')) {
-      return !pathname.includes('/new-blog') && !pathname.includes('/expense');
+      return (
+        !pathname.includes('/new-blog') &&
+        !pathname.includes('/expense') &&
+        !pathname.includes('/trading')
+      );
     }
 
     if (href.includes('/new-blog') && pathname.includes('/new-blog')) {
@@ -217,7 +221,7 @@ const Header = ({ className, user }: HeaderProps) => {
               {/* Desktop navigation - completely hidden on mobile */}
               <div className='ml-4 hidden gap-1 lg:flex xl:gap-2'>
                 {curUser &&
-                  menuItems.slice(0, 4).map(
+                  menuItems.slice(0, 6).map(
                     (
                       item // Limit items on smaller desktop screens
                     ) => (
