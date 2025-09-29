@@ -1,4 +1,4 @@
-import type { RangeTime } from '@/app/(site)/dashboard/expense/components/range';
+import type { RangeTime } from '@/app/(root)/dashboard/expense/components/range';
 import type { Transaction } from '@prisma/client';
 import type { JSONContent } from '@tiptap/core';
 import { clsx, type ClassValue } from 'clsx';

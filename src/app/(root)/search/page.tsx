@@ -76,7 +76,7 @@
 // export default SearchPage;
 
 import { getAllBlogs } from '@/actions/blog-actions';
-import SearchForm from '@/app/(site)/search/search-form';
+import SearchForm from '@/app/(root)/search/search-form';
 import Blogs from '@/components/blogs/blogs';
 
 type SearchPageProps = {

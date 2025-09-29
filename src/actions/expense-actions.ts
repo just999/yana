@@ -1,6 +1,6 @@
 'use server';
 
-import type { RangeTime } from '@/app/(site)/dashboard/expense/components/range';
+import type { RangeTime } from '@/app/(root)/dashboard/expense/components/range';
 import { auth } from '@/auth';
 import { PAGE_SIZE } from '@/lib/constants';
 import { db } from '@/lib/db';

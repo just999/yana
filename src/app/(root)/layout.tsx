@@ -3,7 +3,6 @@ import { ReactNode } from 'react';
 import { getUserByAuthUserId } from '@/actions/auth-actions';
 import { auth } from '@/auth';
 import Footer from '@/components/footer';
-import Header from '@/components/shared/header';
 import { User } from '@prisma/client';
 import type { Session } from 'next-auth';
 
